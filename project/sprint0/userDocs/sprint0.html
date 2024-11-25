@@ -1,0 +1,559 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<!--
+<link rel="stylesheet" type="text/css" href="../css/issStyle1.css">
+<script type="text/javascript" src="../css/issStyle.js"></script>
+-->
+<link rel="stylesheet" href="html/prism.css" />
+<!-- Prism CSS for theme styling -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
+
+<!-- Prism.js JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+
+<!-- Load additional languages if needed -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+
+<style type="text/css">
+    body {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    P {
+        font-family: Tahoma;
+        font-size: 10pt;
+    }
+
+    a,
+    a:visited,
+    a:active,
+    a:link,
+    a:hover {
+        text-decoration: underline;
+        color: #545454;
+        background-color: transparent;
+        font-size: 93%;
+    }
+
+    a:hover {
+        background-color: #cccccc;
+    }
+
+    hr {
+        clear: both;
+        height: 1px;
+        color: #242424;
+        background-color: transparent;
+    }
+
+    h1,
+    h2,
+    h3 {
+        color: #242424;
+        clear: left;
+        font: 100% Tahoma, Helvetica, Arial, sans-serif;
+        margin-bottom: 0.5em;
+        padding-top: 0.5em;
+        border-radius: 10px;
+        padding: 5px;
+    }
+
+    top {
+        width: 100%;
+    }
+
+    #i {
+        color: #ff1010;
+    }
+
+    tt {
+        font-family: 'Arial';
+        font-size: 90%;
+        color: #006600;
+    }
+
+    em {
+        font-family: 'Arial';
+        font-size: 80%;
+        font-weight: bold;
+        border-style: solid;
+        border-color: #abe876;
+        color: #1632cc;
+    }
+
+    bc {
+        font-family: 'Arial';
+        font-size: 90%;
+        font-weight: bold;
+        color: #990000;
+        background-color: #fcf8c7;
+    }
+
+    ks {
+        font-family: 'Arial';
+        font-weight: bold;
+        color: #0000cd;
+        font-size: 90%;
+    }
+
+    kc {
+        font-family: 'Arial';
+        font-weight: bold;
+        color: #008000;
+        font-size: 90%;
+    }
+
+    pre {
+        font-family: 'Consolas';
+        font-size: 85%;
+        background-color: #f5f5f5;
+        border: 1.5px solid silver;
+        padding: 5px;
+    }
+
+    m {
+        font-family: 'Helvetica';
+        line-height: 100%;
+        font-size: 75%;
+    }
+
+    div.body {
+        font-size: 18px;
+    }
+
+    k {
+        color: #990000;
+        font-weight: bold;
+        font-size: 90%;
+    }
+
+    h1 {
+        font-size: 150%;
+        background-color: #b2c0ff;
+        padding: 10px;
+    }
+
+    h2 {
+        background-color: #9ed8ff;
+        font-size: 130%;
+    }
+
+    h3 {
+        background-color: #e6ccff;
+        font-size: 100%;
+    }
+
+    h4 {
+        background-color: #ccffcc;
+        font-size: 100%;
+        width: 95%;
+        border-radius: 5px;
+        padding: 2px;
+    }
+
+    h5 {
+        background-color: #d5ffb0;
+        font-size: 100%;
+    }
+
+    div.req {
+        background-color: #d9ffb3;
+        font-size: 18px;
+        width: 700px;
+        border: 3px solid green;
+        padding: 15px;
+        margin: 10px;
+    }
+
+    div.remark {
+        background-color: #e3f2fd;
+        border: 1.5px solid #d5f2ed;
+        padding: 15px;
+        margin: 10px;
+        border-radius: 25px;
+    }
+
+    div.remark-light {
+        background-color: #f0ffff;
+        border: 1.5px solid #d5f2ed;
+        padding: 15px;
+        margin: 10px;
+        border-radius: 15px;
+    }
+
+    span.remark {
+        background-color: #6b9cff;
+        border: 1.5px solid #d5f2ed;
+        padding: 5px;
+        margin: 20px;
+        border-radius: 25px;
+        font-size: 120%;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    ol,
+    ul,
+    li {
+        margin: 0;
+        margin-left: 10px;
+        padding: 0;
+        padding-bottom: 0px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid black;
+    }
+
+    img {
+        border: 1.5px solid #d5f2ed;
+    }
+
+    a,
+    a:visited,
+    a:active,
+    a:link,
+    a:hover {
+        text-decoration: underline;
+        color: #545454;
+        background-color: transparent;
+    }
+
+    div.wrapdesc {
+        width: 90%;
+        margin: auto;
+    }
+
+    div.imagedesc {
+        width: 85%;
+        margin: auto;
+    }
+
+    .blue {
+        color: blue;
+    }
+
+    .red {
+        color: red;
+    }
+
+    .sep li {
+        padding-bottom: 10px;
+    }
+
+    div.sec {
+        margin-top: 10px;
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+
+    .align-center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    pre {
+        overflow: auto;
+    }
+
+    pre code {
+        font-size: 80% !important;
+    }
+
+    .flex-container {
+        display: flex;
+    }
+
+    .flex-child {
+        width: 50%;
+        flex: 1;
+    }
+
+    .flex-child.left {
+        margin-right: 20px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .flex-child.right {
+        padding-top: 20px;
+        flex-shrink: 1;
+    }
+
+    .small {
+        font-size: 65%;
+    }
+</style>
+
+<head>
+    <title>Sprint0 Corsetti, de Respinis, Sindaco</title>
+</head>
+
+<body>
+    <div id="top">
+        <h1>TEMA FINALE 2024 SPRINT0<font size="5"></font>
+        </h1>
+    </div>
+
+    <span class="blue"></span>
+    <span class="red"><b></b></span>
+
+    <div class="body">
+        <h2>Introduction</h2>
+        Questo documento contiene lo sprint0 del progetto per il tema finale del
+        corso.
+
+        <h2>Requisiti</h2>
+
+        <div class="remark">
+            I requisiti del sistema da creare possono essere trovati in
+            <a href="../html/TemaFinale24.html">TemaFinale24</a>.
+        </div>
+
+        <h2>Analisi dei requisiti</h2>
+        Analizzando i requisiti del problema possiamo dire che:
+        <div class="sec remark-light">
+            Il servizio <span class="blue">WasteIncineratorService</span>, per
+            essere modellato, necessita del concetto di <b>attore</b>, ovvero un
+            componente software dotato di un comportamento autonomo, capace di
+            inviare, ricevere e gestire messaggi in un contesto distribuito. Il
+            committente rende disponibile il concetto di attore sottoforma di
+            software, fornendo un modello per realizzare actors e interazioni tra di
+            essi (si veda <a href="../html/QakActors24.html">QakActors24</a>
+            per maggiori informazioni).
+            <br />
+            Gli attori non hanno memoria condivisa e interagiscono tra di loro
+            attraverso scambi di messaggi, che possono essere:
+            <ul class="sep">
+                <li>
+                    <b>dispatch</b>: un messaggio inviato a un preciso destinatario
+                    senza attesa di una risposta (anche detto fire-and-forget).
+                </li>
+                <li>
+                    <b>request</b>: un messaggio inviato a un preciso destinatario
+                    aspettandosi da parte di questi una <b>reply</b> logicamente
+                    correlata alla richiesta (azione <b>bloccante</b>).
+                </li>
+                <li>
+                    <b>event</b>: un messaggio inviato a chiunque sia in grado di
+                    elaborarlo.
+                </li>
+            </ul>
+            <br />
+            <br />
+            La <b>service area</b> è rappresentabile come un rettangolo con lati
+            <span class="red">L1</span>, <span class="red">L2</span>,
+            <span class="red">L3</span>, <span class="red">L4</span>:
+            <br />
+            <pre>
+				<code  class="language-java" class="language-java">
+class ServiceArea {
+	public int L1, L2, L3, L4;
+};</code>
+			</pre>
+            <br />
+            <br />
+            Al fine di formalizzare tutti gli elementi presenti nella
+            <b>service area</b>, è utile creare una rappresentazione a griglia
+            dell'area. Per farlo si utilizza come riferimento il <b>DDR robot</b> e
+            si va quindi a dividere la <b>service area</b>
+            in celle di dimensioni grandi quanto quella del robot.
+            <blockquote>
+                <a class="reference internal image-reference" href="./immagini/scene.png"><img
+                        alt="./immagini/scene.png" class="align-center" src="./immagini/scene.png"
+                        style="width: 30%" /></a>
+            </blockquote>
+            All'esterno della <b>service area</b> sono presenti due container, il
+            <span class="blue">WasteStorage</span> e l'<span class="blue">AshStorage</span>, e un <span
+                class="blue">MonitoringDevice</span>.
+            <br />
+            Il <span class="blue">WasteStorage</span> container possiede una
+            bilancia come <b>weighing device</b>, che riporta il peso dei vari Roll
+            Packets (RP) depositati al suo interno. Il container è considerato vuoto
+            quando il valore della bilancia è approssimativamente zero. Ogni RP ha
+            un peso di circa 50kg, modellato come costante dell'attore. Il container
+            possiede una porta di ingresso
+            <span class="red">WASTEIN</span> all'interno della <b>service area</b>,
+            rappresentata come una cella della griglia adiacente ad esso.
+            <br />
+            <br />
+            L'<span class="blue">AshStorage</span> container può contenere al
+            massimo le ceneri di 3-4 RP. Il container possiede una porta di ingresso
+            <span class="red">ASHOUT</span> all'interno della <b>service area</b>,
+            rappresentata come una cella della griglia adiacente ad esso.
+            <br />
+            <br />
+            Il <span class="blue">MonitoringDevice</span> è composto da un
+            <b>Sonar</b> e da un <b>Led</b>, posti su un RaspberryPi.<br />
+            Il <b>Sonar</b> misura il livello delle ceneri nell'<span class="blue">AshStorage</span> container.
+            <span class="red"><b>DLIMIT</b></span> indica il valore limite al di
+            sotto del quale, l'<span class="blue">AshStorage</span> container è
+            considerato pieno.
+            <br />
+            Il <b>Led</b> è usato come <b>warning device</b> e segnala lo stato
+            dell'<span class="blue">Inceneritore</span> e dell'<span class="blue">AshStorage</span>.
+            <br />
+            <br />
+            Il <b>Sonar</b> e il <b>Led</b> sono dispositivi fisici per i quali il
+            committente fornisce software di supporto nell'utilizzo (<a
+                href="..\html\RaspBasicCode.html">RaspBasicCode</a>, <a
+                href="..\html\RaspApplCode24.html">RaspApplCode24</a> ). Come per
+            l'<span class="blue">OpRobot</span> con il DDR robot, è possibile
+            definire questi due componenti come un <b>attore</b> posto in un
+            contesto esterno al sistema, che utilizza i dispositivi fisici
+            associati. La distanza <span class="red">DLIMIT</span>
+            sarà quindi una variabile dell'attore.
+            <br />
+            <br />
+            All'interno della <b>service area</b> è presente un
+            <span class="blue">Inceneritore</span>, che può bruciare un RP alla
+            volta in <span class="red"><b>BTIME</b></span> secondi, che sarà una
+            variabile dell'attore. Sono presenti due porte, rappresentate come celle
+            della griglia, <span class="red">BURNIN</span> e
+            <span class="red">BURNOUT</span>, che permettono rispettivamente
+            l'ingresso del RP e l'uscita delle ceneri dall'<span class="blue">Inceneritore</span>.
+            <br />
+            <br />
+            Un <b>DDR robot</b> è un robot che possiede due ruote motrici sullo
+            stesso asse e una terza ruota condotta (non motrice). Il committente
+            fornisce un servizio con cui è possibile interfacciarsi col robot che
+            sia fisico o virtuale (si veda
+            <a href="../html/BasicRobot24.html">BasicRobot24</a> e
+            <a href="../html/VirtualRobot23.html">VirtualRobot</a> per ulteriori
+            informazioni). Il servizio è realizzato ad attori ed ha la seguente
+            architettura:
+            <blockquote>
+                <a class="reference internal image-reference" href="./immagini/ctxbasicrobot24.png"><img
+                        alt="./immagini/ctxbasicrobot24.png" class="align-center" src="./immagini/ctxbasicrobot24.png"
+                        style="width: 90%" /></a>
+            </blockquote>
+            Attraverso messaggi è possibile ingaggiare il robot e farlo muovere
+            nell'area o effettuare piani di mosse.
+            <br />
+            <br />
+            L'<span class="blue">OpRobot</span> è un componente proattivo del
+            sistema che interagisce con il robot tramite l'interfaccia
+            <b>basicrobot24</b>, ed è pertinente modellarlo come un <b>actor</b>. La
+            <span class="red">HOME</span> è anch'essa una cella della
+            rappresentazione a griglia della <b>service area</b>.<br />
+            L'<span class="blue">OpRobot</span> ha un comportamento specifico in
+            risposta a determinate condizioni. Non è possibile un'immediata
+            formalizzazione e quindi sarà necessario analizzare questa azione
+            nell'analisi del problema, in quanto si devono gestire le problematiche
+            del far muovere il robot e farlo andare nelle determinate aree.
+            <br />
+            <br />
+            Due agenti esterni si occupano di depositare nuovi RP nel
+            <span class="blue">WasteStorage</span> container e di prelevare le
+            ceneri dall'<span class="blue">AshStorage</span> container. I requisiti
+            non forniscono dettagli che ne permettono un'immediata formalizzazione.
+            <br />
+            <br />
+            La <span class="blue">ServiceStatusGUI</span> è un componente del
+            sistema che permette di visualizzare informazioni, quali lo stato del
+            WasteStorage, dell'AshStorage, dell'Incinerator e dell'OpRobot. È quindi
+            opportuno modellarlo (almeno inizialmente), come un <b>attore</b>.
+            <br />
+            <br />
+        </div>
+
+        <h3>Analisi delle User Stories</h3>
+        <div class="sec remark">
+            <i>"1. The OpRobot is somewhere in the service area (initially in the
+                HOME location). <br />
+                2. If the WasteStorage container is not empty, and AshStorage
+                container is not full, (i.e. the Led is not blinking ) and the
+                Incinerator is not burning, the OpRobot moves to the WASTEIN port and
+                gets a RP from the WasteStorage container. Otherwise, if returns to
+                HOME, if not already here."
+            </i>
+        </div>
+        <div class="sec remark-light">
+
+        </div>
+        <div class="sec remark">
+            <i>
+                "3. From now on, the ServiceStatusGUI shall properly change (part of)
+                its content"
+            </i>
+        </div>
+        <div class="sec remark-light">
+
+        </div>
+        <div class="sec remark">
+            <i>
+                "4. The OpRobot moves to the BURNIN port and deposits the RP into the
+                Incinerator (the Led is on). <br />
+                5. While the Incinerator is burning, the OpRobot moves to its HOME
+                port."
+            </i>
+        </div>
+        <div class="sec remark-light">
+
+        </div>
+        <br />
+        <div class="sec remark">
+            <i>
+                "6. When the Incinerator has completed a burning phase, the Led is
+                off, and the OpRobot moves to the BURNOUT port picks up the ash and
+                moves to the ASHOUT port.
+                <br />
+                7. The OpRobot deposits the ash into the AshStorage container and the
+                Sonar gives a value less the the previous one."
+            </i>
+        </div>
+        <div class="sec remark-light">
+
+        </div>
+        <br />
+        <div class="sec remark">
+            <i> "8. The OpRobot restarts from point 1." </i>
+        </div>
+        <div class="sec remark-light">
+
+        </div>
+
+        <h3>Modello del sistema</h3>
+        <div class="sec remark-light">
+
+        </div>
+
+        <h3>Piani di testing</h3>
+        <div class="sec remark-light">
+
+        </div>
+
+        <!-- USEFUL
+<table style="width:100%" border="1">
+<tr>
+<td style="width:50%">
+</td>
+<td></td>
+</tr>
+</table>
+-->
+        <div style="
+				background-color: rgba(86, 56, 253, 0.9);
+				width: 60%;
+				text-align: left;
+				color: white;
+			">
+            By Corsetti Luca, de Respinis Valentina e Sindaco Daniele <br />email:
+            luca.corsetti@studio.unibo.it || valentina.derespinis@studio.unibo.it ||
+            daniele.sindaco@studio.unibo.it
+            <br />
+            Link GitHub Repo: https://github.com/ilcors-dev/iss_project_2024/tree/main
+            <!--<img src="./immagini/foto.jpg" alt="foto" width="20%" height="20%"> -->
+        </div>
+</body>
+
+</html>
