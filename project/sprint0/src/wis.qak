@@ -1,9 +1,116 @@
 System wis24
 
-Context ctxwis24 ip [host="localhost" port=8121]
+// MESSAGES
+Dispatch startIncinerator   : startIncinerator(BTIME) // hypothesized by us, to discuss. who sends this?
 
+// - incinerator
+Event burning 				: burning(START_TIME)             // incinerator starts burning
+Event finishedBurning 	    : finishedBurning(TIME_ELAPSED)   // end of burning phase
+
+// - monitoring device
+Dispatch ashMeasurement 	    : ashMeasurement(L)
+
+// CONTEXTS
+Context ctxwis24 ip [host="localhost" port=8121]
+Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
+Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
+
+ExternalQActor basicrobot context ctxbasicrobot
+
+// ACTORS
 QActor wis context ctxwis24 {
+	[# 
+		var INCSTATUS = 0; // 0 free, 1 busy
+		var ASHLEVEL = 0;
+	#]
+	
 	State s0 initial {
 		println("$name start") color green
 	}
+	
+	Transition t0 
+		whenEvent burning			-> updateIncStatus
+		whenEvent finishedBurning	-> updateIncStatus
+		whenMsg ashMeasurement		-> updateAshLevel
+	
+	State updateIncStatus { // update incinerator status
+		printCurrentMessage
+
+		onMsg(burning : burning(START_TIME)){
+			[# INCSTATUS = 1 #]
+  			println("$name - start incinerator, update status") color magenta
+  		}
+  		
+  		onMsg(finishedBurning : finishedBurning(TIME_ELAPSED)){
+			[# INCSTATUS = 0 #]
+  			println("$name - finish incinerator, update status") color magenta
+  		}
+  	}
+  	
+	Transition t0 
+		whenEvent burning			-> updateIncStatus
+		whenEvent finishedBurning	-> updateIncStatus
+		whenMsg ashMeasurement		-> updateAshLevel
+  	
+	State updateAshLevel { // update the ash level measurement
+		printCurrentMessage
+		onMsg(ashMeasurement : ashMeasurement(L)){
+			[#
+				var level = payloadArg(0).toInt()
+				ASHLEVEL += level
+			#]
+  			println("$name - Update Ash level") color magenta
+  		}
+  	}
+  	
+	Transition t0 
+		whenEvent burning			-> updateIncStatus
+		whenEvent finishedBurning	-> updateIncStatus
+		whenMsg ashMeasurement		-> updateAshLevel
+}
+
+QActor oprobot context ctxwis24 {
+	State s0 initial {
+		println("$name start") color green
+	}
+}
+
+QActor incinerator context ctxwis24 {
+	State s0 initial{
+		println("$name STARTS") color magenta
+	}
+	Transition t0
+	  	whenMsg startIncinerator -> startBurning
+	 	
+ 	State startBurning {
+		printCurrentMessage 
+		onMsg(startIncinerator : startIncinerator(BTIME)){
+			[# var BurnTime = payloadArg(0).toLong() #]
+  			println("$name - Start burning phase") color magenta	      
+			emit burning : burning(BurnTime)
+			
+			delayVar BurnTime 
+			
+			println("$name - Finished burning RP") color magenta
+			emit finishedBurning : finishedBurning(BurnTime)
+		}
+ 	}
+ 	Transition t0
+	 	whenMsg startIncinerator -> startBurning
+}
+
+QActor monitoringdevice context ctxmonitoringdevice {
+	State s0 initial{ 
+ 		println("$name STARTS") color green
+		delay 500
+	}
+	Goto measure
+	
+	// simulate the sonar working
+	State measure {
+		forward wis -m ashMeasurement : ashMeasurement(10)
+		delay 2000
+	}
+
+	Goto measure
 }

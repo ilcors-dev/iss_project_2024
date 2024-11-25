@@ -1,0 +1,5 @@
+{"actor":"wis", "msgType":"dispatch", "curstate":"s0", "nextstate":"updateAshLevel", "msgId":"ashMeasurement"}
+{"actor":"wis", "msgType":"dispatch", "curstate":"updateIncStatus", "nextstate":"updateAshLevel", "msgId":"ashMeasurement"}
+{"actor":"wis", "msgType":"dispatch", "curstate":"updateAshLevel", "nextstate":"updateAshLevel", "msgId":"ashMeasurement"}
+{"actor":"incinerator", "msgType":"dispatch", "curstate":"s0", "nextstate":"startBurning", "msgId":"startIncinerator"}
+{"actor":"incinerator", "msgType":"dispatch", "curstate":"startBurning", "nextstate":"startBurning", "msgId":"startIncinerator"}
