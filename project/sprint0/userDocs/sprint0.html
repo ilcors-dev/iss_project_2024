@@ -316,7 +316,7 @@
 
         <div class="remark">
             I requisiti del sistema da creare possono essere trovati in
-            <a href="../html/TemaFinale24.html">TemaFinale24</a>.
+            <a href="../../html/TemaFinale24.html">TemaFinale24</a>.
         </div>
 
         <h2>Analisi dei requisiti</h2>
@@ -478,7 +478,9 @@ class ServiceArea {
             </i>
         </div>
         <div class="sec remark-light">
-
+            All'inizio, l'<b>OpRobot</b> si trova in una posizione iniziale denominata HOME, situata nella Service Area. <br>
+            Successivamente, verrà fatto un controllo sullo stato del WasteStorage, dell'<b>AshStorage</b> e dell'<b>Incinerator</b>. Viene richiesto che il <b>WasteStorage</b> non sia vuoto, che l'<b>AshStorage</b> non sia pieno e che l'Incinerator non stia bruciando, ovvero che il Led che segnala lo stato dell'<b>Incinerator</b> non stia lampeggiando. <br>
+            Se i requisiti sono rispettati, verrà inviato un segnale all'<b>OpRobot</b> chiedendogli di recuperare un Roll Packet <b>(RP)</b> dal <b>WasteStorage</b>. Altrimenti si dirigerà nella posizione HOME qualora non si trovasse già lì.
         </div>
         <div class="sec remark">
             <i>
@@ -487,7 +489,7 @@ class ServiceArea {
             </i>
         </div>
         <div class="sec remark-light">
-
+            Non appena l'<b>OpRobot</b> riceverà il primo comando, il sistema si occuperà di aggiornare anche il contenuto di una GUI denominata <b>ServiceStatusGUI</b> utilizzata per visualizzare lo stato del sistema.
         </div>
         <div class="sec remark">
             <i>
@@ -498,9 +500,9 @@ class ServiceArea {
             </i>
         </div>
         <div class="sec remark-light">
-
+            Dopo aver recuperato il RP, l'<b>OpRobot</b> si dirigerà verso la BURNIN port dell'Incinerator depositando il RP nell'<b>Incinerator</b>. Si attiverà il Led dell'Incinerator. <br>
+            Mentre l'<b>Incinerator</b> è attivo e brucia il RP, l'<b>OpRobot</b> si avvierà verso la posizione HOME.
         </div>
-        <br />
         <div class="sec remark">
             <i>
                 "6. When the Incinerator has completed a burning phase, the Led is
@@ -512,14 +514,14 @@ class ServiceArea {
             </i>
         </div>
         <div class="sec remark-light">
-
+            Non appena l'<b>Incinerator</b> avrà terminato la sua fase di incenerimento, il Led si spegnerà e verrà mandato un segnale all'<b>OpRobot</b> chiedendogli di dirigersi verso la BURNOUT port dell'<b>Incinerator</b>, di recuperare l'Ash (cenere) prodotta e di spostarsi verso l'ASHOUT port dell'<b>AshStorage</b>. <br>
+            L'<b>OpRobot</b> depositerà la cenere nell'<b>AshStorage</b> e il Sonar restituirà un valore minore rispetto a quello precedente.
         </div>
-        <br />
         <div class="sec remark">
             <i> "8. The OpRobot restarts from point 1." </i>
         </div>
         <div class="sec remark-light">
-
+            Il comportamento dell'<b>OpRobot</b> ripartirà dal punto 1.
         </div>
 
         <h3>Modello del sistema</h3>
@@ -529,7 +531,21 @@ class ServiceArea {
 
         <h3>Piani di testing</h3>
         <div class="sec remark-light">
-
+            Concentrando l'attenzione solo sul modello del sistema realizzabile tramite l'analisi dei requisiti, possiamo pianificare alcuni test per verificare che il sistema funzioni correttamente. <br>
+            <ul>
+                <li>
+                    Il primo test pianificato sarà <b>testGetRP</b> e verificherà il corretto recupero del RP dopo aver verificato i requisiti menzionati nello User Stories e lo spostamento verso la BURNIN port in cui verrà depositato il RP.
+                </li>
+                <li>
+                    Il secondo test pianificato sarà <b>testGetAsh</b> e verificherà il corretto recupero dalla BURNOUT port dell'Ash prodotta dall'Incinerator alla fine della sua fase di burning. L'OpRobot dovrà successivamente dirigersi verso la ASHOUT port dell'AshStorage dove depositerà l'Ash.
+                </li>
+                <li>
+                    Il terzo test sarà <b>testAshMeasurement</b> e verificherà la corretta lettura del Sonar adibito alla misurazione del livello dell'Ash.
+                </li>
+                <li>
+                    Il quarto test sarà infine <b>testLedOn</b> e verificherà il corretto funzionamento del led dell'Incinerator che segnala l'avvio e la fine della fase di incenerimento.
+                </li>
+            </ul>
         </div>
 
         <!-- USEFUL
