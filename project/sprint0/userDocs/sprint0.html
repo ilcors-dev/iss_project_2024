@@ -4,7 +4,7 @@
 <link rel="stylesheet" type="text/css" href="../css/issStyle1.css">
 <script type="text/javascript" src="../css/issStyle.js"></script>
 -->
-<link rel="stylesheet" href="html/prism.css" />
+
 <!-- Prism CSS for theme styling -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
 
@@ -351,13 +351,12 @@
             <br />
             <br />
             La <b>service area</b> è rappresentabile come un rettangolo con lati
-            <span class="red">L1</span>, <span class="red">L2</span>,
-            <span class="red">L3</span>, <span class="red">L4</span>:
+            <span class="red">L1</span>, <span class="red">L2</span>:
             <br />
             <pre>
 				<code  class="language-java" class="language-java">
 class ServiceArea {
-	public int L1, L2, L3, L4;
+	public int L1, L2;
 };</code>
 			</pre>
             <br />
@@ -478,9 +477,15 @@ class ServiceArea {
             </i>
         </div>
         <div class="sec remark-light">
-            All'inizio, l'<b>OpRobot</b> si trova in una posizione iniziale denominata HOME, situata nella Service Area. <br>
-            Successivamente, verrà fatto un controllo sullo stato del WasteStorage, dell'<b>AshStorage</b> e dell'<b>Incinerator</b>. Viene richiesto che il <b>WasteStorage</b> non sia vuoto, che l'<b>AshStorage</b> non sia pieno e che l'Incinerator non stia bruciando, ovvero che il Led che segnala lo stato dell'<b>Incinerator</b> non stia lampeggiando. <br>
-            Se i requisiti sono rispettati, verrà inviato un segnale all'<b>OpRobot</b> chiedendogli di recuperare un Roll Packet <b>(RP)</b> dal <b>WasteStorage</b>. Altrimenti si dirigerà nella posizione HOME qualora non si trovasse già lì.
+            All'inizio, l'<b>OpRobot</b> si trova in una posizione iniziale denominata HOME, situata nella Service Area.
+            <br>
+            Successivamente, verrà fatto un controllo sullo stato del WasteStorage, dell'<b>AshStorage</b> e
+            dell'<b>Incinerator</b>. Viene richiesto che il <b>WasteStorage</b> non sia vuoto, che l'<b>AshStorage</b>
+            non sia pieno e che l'Incinerator non stia bruciando, ovvero che il Led che segnala lo stato
+            dell'<b>Incinerator</b> non stia lampeggiando. <br>
+            Se i requisiti sono rispettati, verrà inviato un segnale all'<b>OpRobot</b> chiedendogli di recuperare un
+            Roll Packet <b>(RP)</b> dal <b>WasteStorage</b>. Altrimenti si dirigerà nella posizione HOME qualora non si
+            trovasse già lì.
         </div>
         <div class="sec remark">
             <i>
@@ -489,7 +494,8 @@ class ServiceArea {
             </i>
         </div>
         <div class="sec remark-light">
-            Non appena l'<b>OpRobot</b> riceverà il primo comando, il sistema si occuperà di aggiornare anche il contenuto di una GUI denominata <b>ServiceStatusGUI</b> utilizzata per visualizzare lo stato del sistema.
+            Non appena l'<b>OpRobot</b> riceverà il primo comando, il sistema si occuperà di aggiornare anche il
+            contenuto di una GUI denominata <b>ServiceStatusGUI</b> utilizzata per visualizzare lo stato del sistema.
         </div>
         <div class="sec remark">
             <i>
@@ -500,7 +506,8 @@ class ServiceArea {
             </i>
         </div>
         <div class="sec remark-light">
-            Dopo aver recuperato il RP, l'<b>OpRobot</b> si dirigerà verso la BURNIN port dell'Incinerator depositando il RP nell'<b>Incinerator</b>. Si attiverà il Led dell'Incinerator. <br>
+            Dopo aver recuperato il RP, l'<b>OpRobot</b> si dirigerà verso la BURNIN port dell'Incinerator depositando
+            il RP nell'<b>Incinerator</b>. Si attiverà il Led dell'Incinerator. <br>
             Mentre l'<b>Incinerator</b> è attivo e brucia il RP, l'<b>OpRobot</b> si avvierà verso la posizione HOME.
         </div>
         <div class="sec remark">
@@ -514,8 +521,12 @@ class ServiceArea {
             </i>
         </div>
         <div class="sec remark-light">
-            Non appena l'<b>Incinerator</b> avrà terminato la sua fase di incenerimento, il Led si spegnerà e verrà mandato un segnale all'<b>OpRobot</b> chiedendogli di dirigersi verso la BURNOUT port dell'<b>Incinerator</b>, di recuperare l'Ash (cenere) prodotta e di spostarsi verso l'ASHOUT port dell'<b>AshStorage</b>. <br>
-            L'<b>OpRobot</b> depositerà la cenere nell'<b>AshStorage</b> e il Sonar restituirà un valore minore rispetto a quello precedente.
+            Non appena l'<b>Incinerator</b> avrà terminato la sua fase di incenerimento, il Led si spegnerà e verrà
+            mandato un segnale all'<b>OpRobot</b> chiedendogli di dirigersi verso la BURNOUT port
+            dell'<b>Incinerator</b>, di recuperare l'Ash (cenere) prodotta e di spostarsi verso l'ASHOUT port
+            dell'<b>AshStorage</b>. <br>
+            L'<b>OpRobot</b> depositerà la cenere nell'<b>AshStorage</b> e il Sonar restituirà un valore minore rispetto
+            a quello precedente.
         </div>
         <div class="sec remark">
             <i> "8. The OpRobot restarts from point 1." </i>
@@ -526,29 +537,90 @@ class ServiceArea {
 
         <h3>Modello del sistema</h3>
         <div class="sec remark-light">
-            Il modello ha la seguente architettura (inserire squakkino):
+            Il modello iniziale modellato nello sprint 0 è il seguente. <br />Ci si è concentrati sulla modellazione del
+            business core dell'applicazione, ovvero il sistema di incenerimento dei rifiuti.
             <blockquote>
-                <a class="reference internal image-reference" href="./immagini/ctxsistema24.png"><img
-                        alt="./immagini/ctxsistema24.png" class="align-center" src="./immagini/ctxsistema24.png"
-                        style="width: 90%" /></a>
+                <a class="reference internal image-reference" href="./immagini/wis24arch.png"><img
+                        alt="./immagini/wis24arch.png" class="align-center" src="./immagini/wis24arch.png"
+                        style="width: 50%" /></a>
             </blockquote>
+            <h4>Messaggi scambiati</h4>
+            <pre>
+                <code class="language-java">
+// MESSAGES
+Dispatch startIncinerator : startIncinerator(BTIME) // hypothesized by us, to discuss. who sends this?
+
+// - incinerator
+Event burning : burning(START_TIME)             // incinerator starts burning
+Event finishedBurning : finishedBurning(TIME_ELAPSED)    // end of burning phase
+
+// - monitoring device
+Dispatch ashMeasurement : ashMeasurement(L)
+                </code>
+            </pre>
+            <h4>Contesti</h4>
+            Si formalizzano 3 contesti:
+            <ul>
+                <li><span class="blue">ctxwis24</span>: contesto principale dell'applicazione</li>
+                <li><span class="blue">ctxbasicrobot</span>: il contesto esterno per la comunicazione con il
+                    support software fornito</li>
+                <li>
+                    <span class="blue">ctxmonitoringdevice</span>: il contesto esterno in esecuzione sul
+                    RaspberryPi
+                </li>
+            </ul>
+            <pre>
+                <code class="language-java">
+Context ctxwis24 ip [host="localhost" port=8121]
+Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
+Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
+                </code>
+            </pre>
+            <h4>WIS</h4>
+            Il wis è modellato come attore (<a href="./../src/wis.qak">wis.qak</a>). Il suo compito in questa fase è
+            quello di mantenere lo stato attuale dell'inceneritore (ACCESO o SPENTO) e il livello della cenere.
+
+            <h4>OpRobot</h4>
+            Seppur abbiamo a disposizione il supporto software fornito dal committente, si è deciso di posticipare la
+            formalizzazione dell'OpRobot a futura analisi.
+
+            <h4>Incinerator</h4>
+            L'incinerator sarà modellato come attore e comunicherà con gli altri attori del sistema utilizzando i
+            messaggi messi a disposizione dai QAK. Dovrà gestire l'inizializzazione della fase di incenerimento, che in
+            questa fase dello sviluppo rimane un punto aperto da chiarire con il committente.
+            La fase di incenerimento avrà una durata di <b>N</b> secondi, anch'essa in questa fase sconosciuta, al
+            termine della quale l'incinerator si preoccuperà di segnalarne il termine.
+
+            <h4>MonitoringDevice</h4>
+            Il monitoring device è collocato in un contesto esterno rispetto a quello degli altri attori attualmente
+            modellati nello sprint, il suo compito in questa fase è quello di simulare la misurazione e l'invio del
+            livello della cenere dall'AshStorage al sistema. In futuro verrà modellato in dettaglio per essere eseguito
+            su un supporto esterno, come il RaspberryPi.
+
         </div>
 
         <h3>Piani di testing</h3>
         <div class="sec remark-light">
-            Concentrando l'attenzione solo sul modello del sistema realizzabile tramite l'analisi dei requisiti, possiamo pianificare alcuni test per verificare che il sistema funzioni correttamente. <br>
+            Concentrando l'attenzione solo sul modello del sistema realizzabile tramite l'analisi dei requisiti,
+            possiamo pianificare alcuni test per verificare che il sistema funzioni correttamente. <br>
             <ul>
                 <li>
-                    Il primo test pianificato sarà <b>testGetRP</b> e verificherà il corretto recupero del RP dopo aver verificato i requisiti menzionati nello User Stories e lo spostamento verso la BURNIN port in cui verrà depositato il RP.
+                    Il primo test pianificato sarà <b>testGetRP</b> e verificherà il corretto recupero del RP dopo aver
+                    verificato i requisiti menzionati nello User Stories e lo spostamento verso la BURNIN port in cui
+                    verrà depositato il RP.
                 </li>
                 <li>
-                    Il secondo test pianificato sarà <b>testGetAsh</b> e verificherà il corretto recupero dalla BURNOUT port dell'Ash prodotta dall'Incinerator alla fine della sua fase di burning. L'OpRobot dovrà successivamente dirigersi verso la ASHOUT port dell'AshStorage dove depositerà l'Ash.
+                    Il secondo test pianificato sarà <b>testGetAsh</b> e verificherà il corretto recupero dalla BURNOUT
+                    port dell'Ash prodotta dall'Incinerator alla fine della sua fase di burning. L'OpRobot dovrà
+                    successivamente dirigersi verso la ASHOUT port dell'AshStorage dove depositerà l'Ash.
                 </li>
                 <li>
-                    Il terzo test sarà <b>testAshMeasurement</b> e verificherà la corretta lettura del Sonar adibito alla misurazione del livello dell'Ash.
+                    Il terzo test sarà <b>testAshMeasurement</b> e verificherà la corretta lettura del Sonar adibito
+                    alla misurazione del livello dell'Ash.
                 </li>
                 <li>
-                    Il quarto test sarà infine <b>testLedOn</b> e verificherà il corretto funzionamento del led dell'Incinerator che segnala l'avvio e la fine della fase di incenerimento.
+                    Il quarto test sarà infine <b>testLedOn</b> e verificherà il corretto funzionamento del led
+                    dell'Incinerator che segnala l'avvio e la fine della fase di incenerimento.
                 </li>
             </ul>
         </div>

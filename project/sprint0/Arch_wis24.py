@@ -4,11 +4,15 @@ from diagrams.custom import Custom
 import os
 os.environ['PATH'] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
 
-graphattr = {     #https://www.graphviz.org/doc/info/attrs.html
+graphattr = {  # https://www.graphviz.org/doc/info/attrs.html
     'fontsize': '22',
+    'bgcolor': 'transparent',  # Set background color to transparent
+    'size': '8,5',  # Adjust the size to reduce unused space
+    'margin': '0',  # Remove external margins
+    'pad': '0.2'  # Reduce internal padding
 }
 
-nodeattr = {   
+nodeattr = {
     'fontsize': '22',
     'bgcolor': 'lightyellow'
 }
@@ -22,20 +26,21 @@ evattr = {
     'style': 'dotted'
 }
 with Diagram('wis24Arch', show=False, outformat='png', graph_attr=graphattr) as diag:
-  with Cluster('env'):
-     sys = Custom('','./qakicons/system.png')
-### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
-     with Cluster('ctxwis24', graph_attr=nodeattr):
-          wis=Custom('wis','./qakicons/symActorSmall.png')
-          oprobot=Custom('oprobot','./qakicons/symActorSmall.png')
-          incinerator=Custom('incinerator','./qakicons/symActorSmall.png')
-     with Cluster('ctxbasicrobot', graph_attr=nodeattr):
-          basicrobot=Custom('basicrobot(ext)','./qakicons/externalQActor.png')
-     with Cluster('ctxmonitoringdevice', graph_attr=nodeattr):
-          monitoringdevice=Custom('monitoringdevice','./qakicons/symActorSmall.png')
-     sys >> Edge( label='burning', **evattr, decorate='true', fontcolor='darkgreen') >> wis
-     sys >> Edge( label='finishedBurning', **evattr, decorate='true', fontcolor='darkgreen') >> wis
-     incinerator >> Edge( label='burning', **eventedgeattr, decorate='true', fontcolor='red') >> sys
-     incinerator >> Edge( label='finishedBurning', **eventedgeattr, decorate='true', fontcolor='red') >> sys
-     monitoringdevice >> Edge(color='blue', style='solid',  decorate='true', label='<ashMeasurement &nbsp; >',  fontcolor='blue') >> wis
+    with Cluster('env'):
+        sys = Custom('', './qakicons/system.png')
+        # see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
+        with Cluster('ctxwis24', graph_attr=nodeattr):
+            wis = Custom('wis', './qakicons/symActorSmall.png')
+            oprobot = Custom('oprobot', './qakicons/symActorSmall.png')
+            incinerator = Custom('incinerator', './qakicons/symActorSmall.png')
+        with Cluster('ctxbasicrobot', graph_attr=nodeattr):
+            basicrobot = Custom('basicrobot(ext)', './qakicons/externalQActor.png')
+        with Cluster('ctxmonitoringdevice', graph_attr=nodeattr):
+            monitoringdevice = Custom('monitoringdevice', './qakicons/symActorSmall.png')
+        sys >> Edge(label='burning', **evattr, decorate='true', fontcolor='darkgreen') >> wis
+        sys >> Edge(label='finishedBurning', **evattr, decorate='true', fontcolor='darkgreen') >> wis
+        incinerator >> Edge(label='burning', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+        incinerator >> Edge(label='finishedBurning', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+        monitoringdevice >> Edge(color='blue', style='solid', decorate='true',
+                                 label='<ashMeasurement &nbsp; >', fontcolor='blue') >> wis
 diag
