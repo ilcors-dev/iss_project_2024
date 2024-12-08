@@ -34,8 +34,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					sysaction { //it:State
 					}	 	 
 					 transition(edgeName="t00",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t01",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t02",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					transition(edgeName="t01",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
 				}	 
 				state("updateIncStatus") { //this:State
 					action { //it:State
@@ -56,9 +55,9 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t03",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t04",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t05",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					 transition(edgeName="t02",targetState="updateIncStatus",cond=whenEvent("burning"))
+					transition(edgeName="t03",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
+					transition(edgeName="t04",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
 				}	 
 				state("updateAshLevel") { //this:State
 					action { //it:State
@@ -76,9 +75,9 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t06",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t07",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t08",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					 transition(edgeName="t05",targetState="updateIncStatus",cond=whenEvent("burning"))
+					transition(edgeName="t06",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
+					transition(edgeName="t07",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
 				}	 
 			}
 		}

@@ -129,7 +129,7 @@
 
             <div class="remark">
                 La <b>service area</b> è rappresentabile attraverso una matrice di X righe e Y colonne:
-            <br />
+                <br />
 
                 <pre>
 class ServiceArea {
@@ -137,8 +137,10 @@ class ServiceArea {
 };
 </pre>
 
-            Forniamo una rappresentazione della service area in modo da definire gli elementi appertenenti ad essa. <br>
-            La singola cella avrà dimensione pari a quella del robot, prendiamo come riferimento quindi il DDR Robot fornito dal committente. <br>
+                Forniamo una rappresentazione della service area in modo da definire gli elementi appertenenti ad essa.
+                <br>
+                La singola cella avrà dimensione pari a quella del robot, prendiamo come riferimento quindi il DDR Robot
+                fornito dal committente. <br>
                 <a class="reference internal image-reference" href="./immagini/scene.png"><img
                         alt="./immagini/scene.png" class="align-center" src="./immagini/scene.png"
                         style="width: 30%" /></a>
@@ -153,10 +155,15 @@ class ServiceArea {
                 quando il valore della bilancia è approssimativamente zero. Ogni RP ha
                 un peso di circa 50kg, modellato come costante dell'attore. <br>
                 Il container possiede una porta di ingresso
-                <span class="red">WASTEIN</span> all'interno della <b>service area</b>, la rappresenteremo quindi con una cella della matrice (prendendo d'esempio la figura in alto, ipotizziamo la cella in posizione (4,1)).
+                <span class="red">WASTEIN</span> all'interno della <b>service area</b>, la rappresenteremo quindi con
+                una cella della matrice (prendendo d'esempio la figura in alto, ipotizziamo la cella in posizione
+                (4,1)).
             </div>
             <div class="remark">
-                L'<span class="blue">AshStorage</span> container può contenere al massimo le ceneri di 3-4 RP. Il container possiede una porta di ingresso <span class="red">ASHOUT</span> all'interno della <b>service area</b>, la rappresenteremo quindi con una cella della matrice (prendendo d'esempio la figura in alto, ipotizziamo la cella in posizione (4,5)).
+                L'<span class="blue">AshStorage</span> container può contenere al massimo le ceneri di 3-4 RP. Il
+                container possiede una porta di ingresso <span class="red">ASHOUT</span> all'interno della <b>service
+                    area</b>, la rappresenteremo quindi con una cella della matrice (prendendo d'esempio la figura in
+                alto, ipotizziamo la cella in posizione (4,5)).
             </div>
             <div class="remark">
                 Il <span class="blue">MonitoringDevice</span> è composto da un
@@ -179,11 +186,15 @@ class ServiceArea {
                 contesto esterno al sistema, che utilizza i dispositivi fisici
                 associati. La distanza <span class="red">DLIMIT</span>
                 sarà quindi una variabile dell'attore, intera e positiva. <br>
-                Ci riserveremo in futuro di discutere l'esatta relazione tra <b>MonitoringDevice</b>, <b>Sonar</b> e <b>Led</b>.
+                Ci riserveremo in futuro di discutere l'esatta relazione tra <b>MonitoringDevice</b>, <b>Sonar</b> e
+                <b>Led</b>.
             </div>
             <div class="remark">
                 All'interno della <b>service area</b> è presente un
-                <span class="blue">Inceneritore</span> che occuperà una cella della matrice (prendendo d'esempio la figura in alto, ipotizziamo la cella in posizione (2,4)), che può bruciare un RP alla volta in <span class="red"><b>BTIME</b></span> secondi, una variabile dell'attore intera e positiva. Sono presenti due porte, rappresentate come celle
+                <span class="blue">Inceneritore</span> che occuperà una cella della matrice (prendendo d'esempio la
+                figura in alto, ipotizziamo la cella in posizione (2,4)), che può bruciare un RP alla volta in <span
+                    class="red"><b>BTIME</b></span> secondi, una variabile dell'attore intera e positiva. Sono presenti
+                due porte, rappresentate come celle
                 della matrice adiacenti all'Incinerator, <span class="red">BURNIN</span> e
                 <span class="red">BURNOUT</span>, che permettono rispettivamente
                 l'ingresso del RP e l'uscita delle ceneri dall'<span class="blue">Inceneritore</span>.
@@ -208,7 +219,8 @@ class ServiceArea {
                 sistema che interagisce con il robot tramite l'interfaccia
                 <b>basicrobot24</b>, ed è pertinente modellarlo come un <b>actor</b>. La
                 <span class="red">HOME</span> è anch'essa una cella della
-                matrice rappresentante la <b>service area</b> (prendendo d'esempio la figura in alto, ipotizziamo la cella in posizione (1,1)).<br />
+                matrice rappresentante la <b>service area</b> (prendendo d'esempio la figura in alto, ipotizziamo la
+                cella in posizione (1,1)).<br />
                 L'<span class="blue">OpRobot</span> ha un comportamento specifico in
                 risposta a determinate condizioni. Non è possibile un'immediata
                 formalizzazione e quindi sarà necessario analizzare questa azione
@@ -316,27 +328,73 @@ class ServiceArea {
 
             <h3>Modello del sistema</h3>
             <div class="remark">
-                Il modello iniziale del sistema nello sprint 0 è il seguente: <br />
+                Il modello iniziale del sistema nello sprint 0 è raffigurato nell'immagine sottostante. <br />
+                L'attenzione è stata rivolta alla modellazione del business core dell'applicazione,
+                ossia il sistema di <b>incenerimento dei rifiuti</b>. <br />
+                Di seguito si riportano i principali attori del sistema e le interazioni tra di essi. Si riportano anche
+                le motivazioni che hanno portato a modellare il sistema in questo modo.
                 <a class="reference internal image-reference" href="./immagini/wis24arch.png"><img
                         alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png"
                         style="width: 40%" /></a>
-                L'attenzione è stata rivolta alla modellazione del business core dell'applicazione,
-                ossia il sistema di incenerimento dei rifiuti.
             </div>
 
             <div class="remark">
                 <h4>Messaggi scambiati</h4>
-                <pre>
-// MESSAGES
-Dispatch startIncinerator : startIncinerator(BTIME) // hypothesized by us, to discuss
-
-// - incinerator
-Event burning : burning(START_TIME)             // incinerator starts burning
-Event finishedBurning : finishedBurning(TIME_ELAPSED)    // end of burning phase
-
-// - monitoring device
-Dispatch ashMeasurement : ashMeasurement(L)
-</pre>
+                <p>Si noti che la formalizzazione degli eventi come (Dispatch, Request, Event) potrebbe cambiare negli
+                    Sprint successivi. Questa possibilità è facilitata dall'uso dei QAK forniti dal committente.</p>
+                <ul>
+                    <li>
+                        <b><code>Dispatch startIncinerator : startIncinerator(BTIME)</code></b><br />
+                        Questo messaggio è ricavato dal seguente requisito:
+                        <div class="remark-light">
+                            <i>"The Incinerator is able to perceive a proper activation command sent by using a
+                                wireless
+                                (wifi, bluetotth) connection."</i>
+                        </div>
+                        È quindi fondamentale per
+                        il sistema in quanto istruisce l'inceneritore a iniziare la fase di incenerimento. Il tempo di
+                        incenerimento è rappresentato dal parametro <b>BTIME</b>. <br />
+                    </li>
+                    <li>
+                        <b><code>Event burning : burning(START_TIME)</code></b><br />
+                        <div class="remark-light">
+                            <i>The Led is used as a warning device, according to the following rules:
+                                <ul>
+                                    <li>the Led is on when
+                                        the Incinerator is burning a RP.</li>
+                                    <li>the Led is off when the Incinerator is not burning.</li>
+                                </ul>
+                            </i>
+                        </div>
+                        È quindi fondamentale per il <span class="blue">MonitoringDevice</span> sapere quando l'<span
+                            class="blue">Incinerator</span> è in fase di incenerimento. <br />
+                        Il parametro <b>START_TIME</b> rappresenta il timestamp di inizio.
+                    </li>
+                    <li>
+                        <b><code>Event finishedBurning : finishedBurning(TIME_ELAPSED)</code></b><br />
+                        <div class="remark-light">
+                            <i>"At the end of a burning phase, the Incinerator emits a (acustic, or other) signal that
+                                can be perceived by the OpRobot and by the WIS."</i>
+                        </div>
+                        È fondamentale per il sistema sapere quando l'<span class="blue">Incinerator</span> ha
+                        terminato. <br />
+                        Il parametro <b>TIME_ELAPSED</b> rappresenta il tempo trascorso dall'inizio dell'incenerimento.
+                    </li>
+                    <li>
+                        <b><code>Dispatch ashMeasurement : ashMeasurement(L)</code></b><br />
+                        <div class="remark-light">
+                            <i>"The Sonar of the MonitoringDevice is used to measures the level of the ash in the
+                                AshStorage container, by measuring the distance between the top of the ash andthe Sonar
+                                itself. When the distance is less than a prefixed value DLIMT, the
+                                AshStorage container is considered full."</i>
+                        </div>
+                        Per il corretto funzionamento del sistema, il <span class="blue">MonitoringDevice</span> deve
+                        essere in grado di misurare il livello delle ceneri nell'<span class="blue">AshStorage</span> e
+                        di
+                        inviarlo al <span class="blue">WIS</span> per essere processato. <br />
+                        Il parametro <b>L</b> rappresenta il livello delle ceneri misurato.
+                    </li>
+                </ul>
             </div>
             <h4>Contesti</h4>
             <div class="remark">
@@ -358,28 +416,56 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
             </div>
             <h4>WIS</h4>
             <div class="remark">
-                Il <span class="blue">wis</span> è modellato come attore (<a href="./../src/wis.qak">wis.qak</a>). Il
-                suo compito in questa fase è
-                quello di mantenere lo stato attuale dell'inceneritore (<span class="red">acceso</span> o <span
-                    class="red">spento</span>) e il <span class="red">livello della cenere</span>.
+                <div>
+                    Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/wis.qak">wis.qak</a>).
+                    Il
+                    suo compito in questa fase è
+                    quello di mantenere lo stato attuale dell'inceneritore (<span class="red">acceso</span> o <span
+                        class="red">spento</span>) e il <span class="red">livello della cenere</span>.
+                </div>
+                <div>
+                    Per questo motivo il <span class="blue">WIS</span> interagirà con gli attori <span
+                        class="blue">Incinerator</span> e <span class="blue">MonitoringDevice</span> che saranno
+                    descritti nelle
+                    sezioni immediatamente successive.<br />
+                    In particolare il WIS:
+                    <ul>
+                        <li><b>invierà</b> il messaggio <b><code>startIncinerator</code></b> all <span
+                                class="blue">Incinerator</span> per
+                            dare il via alla fase di incenerimento di un RP.</li>
+                        <li><b>riceverà</b> il messaggio <b><code>burning</code></b> dall'<span
+                                class="blue">Incinerator</span>
+                            per mantenere aggiornato il proprio stato interno.</li>
+                        <li><b>riceverà</b> il messaggio <b><code>finishedBurning</code></b> dall'<span
+                                class="blue">Incinerator</span> per mantenere aggiornato il proprio stato interno.
+                        </li>
+                        <li><b>riceverà</b> il messaggio <b><code>ashMeasurement</code></b> dal <span
+                                class="blue">MonitoringDevice</span>
+                            per mantenere aggiornato il livello delle ceneri.</li>
+                    </ul>
+                </div>
             </div>
             <h4>Incinerator</h4>
             <div class="remark">
-                L'<span class="blue">incinerator</span> sarà modellato come attore e comunicherà con gli altri attori
-                del sistema utilizzando i
-                messaggi messi a disposizione dai QAK. Dovrà gestire l'inizializzazione dell'incenerimento, che
-                in
-                questa fase dello sviluppo rimane un punto aperto da chiarire con il committente.
-                L'incenerimento avrà una durata di <b>BTIME</b> secondi, al
-                termine della quale l'incinerator si preoccuperà di segnalarne il termine.
+                L'<span class="blue">incinerator</span> sarà modellato come attore.
+                Interagirà con il <span class="blue">WIS</span> per ricevere il comando
+                <b><code>startIncinerator</code></b> di inizio incenerimento ed emetterà gli eventi
+                <ul>
+                    <li><b><code>burning</code></b> per segnalare l'<b>inizio</b> dell'incenerimento a tutti gli attori
+                        del sistema</li>
+                    <li><b><code>finishedBurning</code></b> per segnalare la <b>fine</b> dell'incenerimento del RP a
+                        tutti gli attori del sistema</li>
+                </ul>
             </div>
 
             <h4>MonitoringDevice</h4>
             <div class="remark">
-                Il <span class="blue">monitoring device</span> è collocato in un contesto esterno rispetto a quello
+                Il <span class="blue">MonitoringDevice</span> è collocato in un contesto esterno rispetto a quello
                 degli altri attori attualmente
                 modellati nello sprint0, il suo compito in questa fase è quello di simulare la misurazione e l'invio del
-                livello della cenere dall'<span class="blue">AshStorage</span> al sistema. In futuro verrà modellato in
+                livello della cenere dall'<span class="blue">AshStorage</span> al sistema inviando il messaggio
+                <b><code>ashMeasurement</code></b> al <span class="blue">WIS</span>. <br />
+                In futuro verrà modellato in
                 dettaglio per essere
                 eseguito
                 su un supporto esterno, come il RaspberryPi.

@@ -30,7 +30,6 @@ QActor wis context ctxwis24 {
 	
 	Transition t0 
 		whenEvent burning			-> updateIncStatus
-		whenEvent finishedBurning	-> updateIncStatus
 		whenMsg ashMeasurement		-> updateAshLevel
 	
 	State updateIncStatus { // update incinerator status
