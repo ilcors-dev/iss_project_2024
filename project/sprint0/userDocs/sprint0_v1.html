@@ -99,14 +99,17 @@
             <h2>Analisi dei requisiti</h2>
             <div class="remark">Analizzando i requisiti del problema possiamo dire che:</div>
             <div class="remark">
-                Il servizio <span class="blue">WasteIncineratorService</span>, per
-                essere modellato, necessita del concetto di <b>attore</b>, ovvero un
+                Il servizio <span class="blue">WasteIncineratorService</span> non trova una facile corrispondenza
+                in Java, quindi non posso esprimerlo come un oggetto. Per ovviare al problema, la nostra software house
+                ha sviluppato un DSL (Domain Specific Language) capace di utilizzare un termine più adeguato per esprimere
+                quello che il committente intende. 
+                <br>
+                Il sistema, per essere modellato, necessita del termine di <b>attore</b>, ovvero un
                 componente software dotato di un comportamento autonomo, capace di
-                inviare, ricevere e gestire messaggi in un contesto distribuito. Il
-                committente rende disponibile il concetto di attore sottoforma di
-                software, fornendo un modello per realizzare actors e interazioni tra di
-                essi (si veda <a href="../../html/QakActors24.html">QakActors24</a>
-                per maggiori informazioni).
+                inviare, ricevere e gestire messaggi in un contesto distribuito.
+                Si veda <a href="../../html/QakActors24.html">QakActors24</a>
+                per maggiori informazioni, soprattutto per conoscere meglio cosa può fare e che interazioni può
+                avere un attore.<br>
                 <br />
                 Gli attori non hanno memoria condivisa e interagiscono tra di loro
                 attraverso scambi di messaggi, che possono essere:
@@ -125,6 +128,8 @@
                         elaborarlo.
                     </li>
                 </ul>
+                Per ulteriori informazioni sui messaggi e sulla loro sintassi, si faccia sempre riferimento alla pagina 
+                <a href="../../html/QakActors24.html">QakActors24</a> sopracitata.
             </div>
 
             <div class="remark">
@@ -398,7 +403,9 @@ class ServiceArea {
             </div>
             <h4>Contesti</h4>
             <div class="remark">
-                Si formalizzano 3 contesti:
+                Il linguaggio Qak prevede la definizione di almeno un contesto, secondo la sintassi riportata sempre nella
+                pagina <a href="../../html/QakActors24.html">QakActors24</a>.<br>
+                Ai fini del funzionamento del nostro sistema, si formalizzano 3 contesti:
                 <ul>
                     <li><span class="blue">ctxwis24</span>: contesto principale dell'applicazione</li>
                     <li><span class="blue">ctxbasicrobot</span>: il contesto esterno per la comunicazione con il
@@ -475,7 +482,12 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
 
         <h3>Piani di testing</h3>
         <div class="remark">
-            Concentrando l'attenzione solo sul modello del sistema realizzabile tramite l'analisi dei requisiti,
+            È possibile svolgere un primo test molto semplice per testare il core business del sistema, ovvero incenerire. Partendo da una 
+            situazione in cui tutti i container sono vuoti, attraverso un’interfaccia grafica l’utente può inserire un RP nel 
+            <span class="blue">WasteStorage</span>. Si verificherà dunque, se dopo un determinato lasso di tempo, il <span class="blue">WasteStorage</span>
+             sarà diminuito di 1, mentre l’<span class="blue">AshStorage</span> sarà aumentato di 1
+            <br><br>
+            Concentrando, invece, l'attenzione solo sul modello del sistema realizzabile tramite l'analisi dei requisiti,
             possiamo pianificare alcuni test per verificare che il sistema funzioni correttamente. <br>
             <ul>
                 <li>
@@ -511,8 +523,6 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
             Nel prossimo sprint (<b>Sprint 1</b>) si analizzerà nel dettaglio l'interazione tra il <span
                 class="blue">WIS</span> e l'<span class="blue">OpRobot</span>, formalizzandone i messaggi e le azioni
             che i due attori dovranno compiere. <br />
-            Al contempo si effettueranno le modifiche all'attuale <b>Sprint 0</b> emerse durante la discussione
-            con il committente.
         </div>
 
         <h3>Footer</h3>
