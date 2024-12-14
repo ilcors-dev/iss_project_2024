@@ -349,13 +349,17 @@ class ServiceArea {
                     Sprint successivi. Questa possibilità è facilitata dall'uso dei QAK forniti dal committente.</p>
                 <ul>
                     <li>
-                        <b><code>Dispatch startIncinerator : startIncinerator(BTIME)</code></b><br />
-                        Questo messaggio è ricavato dal seguente requisito:
-                        <div class="remark-light">
-                            <i>"The Incinerator is able to perceive a proper activation command sent by using a
-                                wireless
-                                (wifi, bluetotth) connection."</i>
-                        </div>
+                    <b><code>Dispatch startIncinerator : startIncinerator(0)</code></b><br />
+                    Questo messaggio è ricavato dal seguente requisito:
+                    <div class="remark-light">
+                        <i>"The Incinerator is able to perceive a proper activation command sent by using a
+                            wireless
+                            (wifi, bluetotth) connection."</i>
+                    </div>
+                </li>
+                    <li>
+                        <b><code>Dispatch startBurning : startBurning(BTIME)</code></b><br />
+                        Questo messaggio è stato ricavato dopo il primo incontro con il committente, in cui è stato evidenziato che il processo di incenerimento inizierà solamente quando viene depositato un RP. <br>
                         È quindi fondamentale per
                         il sistema in quanto istruisce l'inceneritore a iniziare la fase di incenerimento. Il tempo di
                         incenerimento è rappresentato dal parametro <b>BTIME</b>. <br />
@@ -438,8 +442,9 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
                     In particolare il WIS:
                     <ul>
                         <li><b>invierà</b> il messaggio <b><code>startIncinerator</code></b> all <span
-                                class="blue">Incinerator</span> per
-                            dare il via alla fase di incenerimento di un RP.</li>
+                                class="blue">Incinerator</span> non appena viene acceso l'intero sistema, in modo da attivare anche l'Incinerator.</li>
+                        <li><b>invierà</b> il messaggio <b><code>startBurning</code></b> all <span
+                                    class="blue">Incinerator</span> per far partire la fase di incenerimento che terminerà dopo BTIME secondi e porterà al completo incenerimento di un RP.</li>
                         <li><b>riceverà</b> il messaggio <b><code>burning</code></b> dall'<span
                                 class="blue">Incinerator</span>
                             per mantenere aggiornato il proprio stato interno.</li>
