@@ -33,6 +33,17 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="setupSystem", cond=doswitch() )
+				}	 
+				state("setupSystem") { //this:State
+					action { //it:State
+						CommUtils.outgreen("$name setupping system..")
+						forward("startIncinerator", "startIncinerator(0)" ,"incinerator" ) 
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
 					 transition(edgeName="t00",targetState="updateIncStatus",cond=whenEvent("burning"))
 					transition(edgeName="t01",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
 				}	 

@@ -21,6 +21,8 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
+		
+				var ACTIVE = false;
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -30,13 +32,27 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t08",targetState="startBurning",cond=whenDispatch("startIncinerator"))
+					 transition(edgeName="t08",targetState="startup",cond=whenDispatch("startIncinerator"))
+				}	 
+				state("startup") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("startIncinerator(0)"), Term.createTerm("startIncinerator(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 ACTIVE = true  
+								CommUtils.outblack("$name ACTIVATED")
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t09",targetState="startBurning",cond=whenDispatch("startBurning"))
 				}	 
 				state("startBurning") { //this:State
 					action { //it:State
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("startIncinerator(BTIME)"), Term.createTerm("startIncinerator(BTIME)"), 
+						if( checkMsgContent( Term.createTerm("startIncinerator(0)"), Term.createTerm("startIncinerator(BTIME)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 var BurnTime = payloadArg(0).toLong()  
 								CommUtils.outmagenta("$name - Start burning phase")
@@ -50,7 +66,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t09",targetState="startBurning",cond=whenDispatch("startIncinerator"))
+					 transition(edgeName="t010",targetState="startBurning",cond=whenDispatch("startBurning"))
 				}	 
 			}
 		}

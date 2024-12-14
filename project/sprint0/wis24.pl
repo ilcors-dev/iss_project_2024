@@ -1,7 +1,8 @@
 %====================================================================================
 % wis24 description   
 %====================================================================================
-dispatch( startIncinerator, startIncinerator(BTIME) ).
+dispatch( startIncinerator, startIncinerator(0) ).
+dispatch( startBurning, startBurning(BTIME) ).
 event( burning, burning(START_TIME) ).
 event( finishedBurning, finishedBurning(TIME_ELAPSED) ).
 dispatch( ashMeasurement, ashMeasurement(L) ).

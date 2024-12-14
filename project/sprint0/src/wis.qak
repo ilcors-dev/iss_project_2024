@@ -1,14 +1,15 @@
 System wis24
 
 // MESSAGES
-Dispatch startIncinerator   : startIncinerator(BTIME) // hypothesized by us, to discuss. who sends this?
+Dispatch startIncinerator   : startIncinerator(0)             // turns on the incinerator at startup
+Dispatch startBurning       : startBurning(BTIME)             // tell the incinerator to start burning a RP
 
 // - incinerator
 Event burning 				: burning(START_TIME)             // incinerator starts burning
 Event finishedBurning 	    : finishedBurning(TIME_ELAPSED)   // end of burning phase
 
 // - monitoring device
-Dispatch ashMeasurement 	    : ashMeasurement(L)
+Dispatch ashMeasurement     : ashMeasurement(L)
 
 // CONTEXTS
 Context ctxwis24 ip [host="localhost" port=8121]
@@ -26,6 +27,12 @@ QActor wis context ctxwis24 {
 	
 	State s0 initial {
 		println("$name start") color green
+	}
+	Goto setupSystem
+	
+	State setupSystem {
+		println("$name setupping system..") color green
+		forward incinerator -m startIncinerator : startIncinerator(0)
 	}
 	
 	Transition t0 
@@ -75,11 +82,26 @@ QActor oprobot context ctxwis24 {
 }
 
 QActor incinerator context ctxwis24 {
+	[#
+		var ACTIVE = false;
+	#]
+	
 	State s0 initial{
 		println("$name STARTS") color magenta
 	}
 	Transition t0
-	  	whenMsg startIncinerator -> startBurning
+		whenMsg startIncinerator -> startup
+		
+	State startup {
+  		onMsg(startIncinerator : startIncinerator(0)) {
+  			[# ACTIVE = true #]
+  			
+  			println("$name ACTIVATED")
+  		}
+	}
+		
+	Transition t0
+	  	whenMsg startBurning -> startBurning
 	 	
  	State startBurning {
 		printCurrentMessage 
@@ -95,7 +117,7 @@ QActor incinerator context ctxwis24 {
 		}
  	}
  	Transition t0
-	 	whenMsg startIncinerator -> startBurning
+	 	whenMsg startBurning -> startBurning
 }
 
 QActor monitoringdevice context ctxmonitoringdevice {
