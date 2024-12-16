@@ -23,11 +23,11 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		 
 				// constants
-				val MAX_ASH_CAPACITY = 4;
+				val MAX_ASH_CAPACITY = 4; // max 4 rp in ash storage (capacity)
 				
 				// variables
-				var ASHLEVEL  = 0;    // max 4 rp in ash storage (capacity)
-				var RPCONT    = 0;
+				var ASHLEVEL  = 0;
+				var RPCONT    = 1;
 				var INCSTATUS = 0;    // 0 free, 1 busy
 				var INHOME    = 0;    // 0 in home, 1 not in home
 		return { //this:ActionBasciFsm
@@ -62,7 +62,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 									println(status)
 									
 									if (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) {
-						request("moverobot", "moverobot(X,Y)" ,"oprobot" )  
+						forward("getrp", "getrp(0)" ,"oprobot" ) 
 						 
 										INHOME = 1
 									} else if (INHOME != 0) {

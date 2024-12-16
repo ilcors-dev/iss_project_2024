@@ -13,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import it.unibo.kactor.sysUtil.createActor   //Sept2023
 
 //User imports JAN2024
+import main.resources.Position
 
 class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : ActorBasicFsm( name, scope, confined=isconfined ){
 
@@ -22,7 +23,14 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		
-				var OWNER = "$name"; 
+				var OWNER = "$name";
+				val LOCATIONS = mapOf(
+					"home" 			to Position(0,0),
+					"wastein" 		to Position(0,4),
+					"burn_in"		to Position(3,1),
+					"burn_out"		to Position(5,3),
+					"ashout"		to Position(6,4)
+				); 
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -61,7 +69,30 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					action { //it:State
 						CommUtils.outgreen("$name - waiting in home...")
 						forward("robotpositioninfo", "robotpositioninfo(0,0)" ,"wis" ) 
-						request("moverobot", "moverobot(2,6)" ,"basicrobot" )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t010",targetState="execGetRp",cond=whenDispatch("getrp"))
+				}	 
+				state("execGetRp") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("getrp(0)"), Term.createTerm("getrp(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+												var wasteInPos = LOCATIONS["wastein"];
+												println(wasteInPos)
+												var WASTEIN_POS_X = wasteInPos?.x;
+												var WASTEIN_POS_Y = wasteInPos?.y;
+								CommUtils.outgreen("$name - Moving to the WASTEIN PORT")
+								request("moverobot", "moverobot($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"basicrobot" )  
+								delay(2000) 
+								CommUtils.outgreen("$name - getting a rp")
+								delay(2000) 
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

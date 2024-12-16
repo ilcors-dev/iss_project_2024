@@ -16,10 +16,12 @@ Request engage			    : engage(OWNER,STEPTIME) 		  // engaging request
 Reply	engagedone		    : engagedone(ARG) 
 Reply	engagerefused	    : engagerefused(ARG)
 
-// - oprobot interaction 
 Request moverobot           :  moverobot(TARGETX, TARGETY)  
 Reply moverobotdone         :  moverobotok(ARG)                    for moverobot
 Reply moverobotfailed       :  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+
+// - oprobot interaction 
+Dispatch getrp       		:  getrp(0)        
 Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
 
 // CONTEXTS
@@ -33,11 +35,11 @@ ExternalQActor basicrobot context ctxbasicrobot
 QActor wis context ctxwis24 {
 	[# 
 		// constants
-		val MAX_ASH_CAPACITY = 4;
+		val MAX_ASH_CAPACITY = 4; // max 4 rp in ash storage (capacity)
 		
 		// variables
-		var ASHLEVEL  = 0;    // max 4 rp in ash storage (capacity)
-		var RPCONT    = 0;
+		var ASHLEVEL  = 0;
+		var RPCONT    = 1;
 		var INCSTATUS = 0;    // 0 free, 1 busy
 		var INHOME    = 0;    // 0 in home, 1 not in home
 	#]
@@ -65,7 +67,7 @@ QActor wis context ctxwis24 {
 			
 			if (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) {
 		#]
-				request oprobot -m moverobot : moverobot(X,Y) // to change with real coordinates
+				forward oprobot -m getrp : getrp(0)
 		[# 
 				INHOME = 1
 			} else if (INHOME != 0) {
@@ -117,8 +119,16 @@ QActor wis context ctxwis24 {
 }
 
 QActor oprobot context ctxwis24 {
+	import "main.resources.Position"
 	[#
-		var OWNER = "$name"; 
+		var OWNER = "$name";
+		val LOCATIONS = mapOf(
+			"home" 			to Position(0,0),
+			"wastein" 		to Position(0,4),
+			"burn_in"		to Position(3,1),
+			"burn_out"		to Position(5,3),
+			"ashout"		to Position(6,4)
+		); 
 	#]
 	
 	State s0 initial{
@@ -145,8 +155,30 @@ QActor oprobot context ctxwis24 {
 	State inHome { 
 		println("$name - waiting in home...") color green
 		forward wis -m robotpositioninfo : robotpositioninfo(0, 0)
-        request basicrobot -m moverobot:moverobot(2,6)
 	}
+	
+	Transition t0
+		whenMsg getrp -> execGetRp
+	
+	State execGetRp { // moving to wastein port
+		printCurrentMessage 
+		onMsg(getrp : getrp(0)) {
+			[#
+				var wasteInPos = LOCATIONS["wastein"];
+				println(wasteInPos)
+				var WASTEIN_POS_X = wasteInPos?.x;
+				var WASTEIN_POS_Y = wasteInPos?.y;
+			#]
+			println("$name - Moving to the WASTEIN PORT") color green	      
+			request basicrobot -m moverobot : moverobot($WASTEIN_POS_X, $WASTEIN_POS_Y)
+			delay 2000 //simulating oprobot taking time to go to wastein port
+			
+			println("$name - getting a rp") color green
+	 		delay 2000 //simulating extraction action
+		} 
+	 }
+	 
+	 // todo after execGetRp
 }
 
 QActor incinerator context ctxwis24 {
@@ -169,7 +201,7 @@ QActor incinerator context ctxwis24 {
 	}
 		
 	Transition t0
-	  	whenMsg startIncinerator -> startBurning
+	  	whenMsg startBurning -> startBurning
 	 	
  	State startBurning {
 		printCurrentMessage 
@@ -185,7 +217,7 @@ QActor incinerator context ctxwis24 {
 		}
  	}
  	Transition t0
-	 	whenMsg startIncinerator -> startBurning
+	 	whenMsg startBurning -> startBurning
 }
 
 /*

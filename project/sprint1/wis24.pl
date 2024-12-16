@@ -10,6 +10,7 @@ request( engage, engage(OWNER,STEPTIME) ).
 request( moverobot, moverobot(TARGETX,TARGETY) ).
 reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot
 reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot
+dispatch( getrp, getrp(0) ).
 dispatch( robotpositioninfo, robotpositioninfo(X,Y) ).
 %====================================================================================
 context(ctxwis24, "localhost",  "TCP", "8121").

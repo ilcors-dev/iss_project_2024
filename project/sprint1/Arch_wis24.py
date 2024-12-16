@@ -39,4 +39,5 @@ with Diagram('wis24Arch', show=False, outformat='png', graph_attr=graphattr) as 
      wis >> Edge(color='magenta', style='solid', decorate='true', label='<moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> oprobot
      oprobot >> Edge(color='blue', style='solid',  decorate='true', label='<robotpositioninfo &nbsp; >',  fontcolor='blue') >> wis
      wis >> Edge(color='blue', style='solid',  decorate='true', label='<startIncinerator &nbsp; >',  fontcolor='blue') >> incinerator
+     wis >> Edge(color='blue', style='solid',  decorate='true', label='<getrp &nbsp; >',  fontcolor='blue') >> oprobot
 diag
