@@ -1,0 +1,208 @@
+System wis24
+
+// MESSAGES
+Dispatch startIncinerator   : startIncinerator(0) 		      // turns on the incinerator at startup
+Dispatch startBurning       : startBurning(BTIME)			  // tell the incinerator to start burning a RP
+
+// - incinerator
+Event burning 				: burning(START_TIME)             // incinerator starts burning
+Event finishedBurning 	    : finishedBurning(TIME_ELAPSED)   // end of burning phase
+
+// - monitoring device
+Dispatch ashMeasurement     : ashMeasurement(L)
+
+// - basicrobot interaction
+Request engage			    : engage(OWNER,STEPTIME) 		  // engaging request
+Reply	engagedone		    : engagedone(ARG) 
+Reply	engagerefused	    : engagerefused(ARG)
+
+// - oprobot interaction 
+Request moverobot           :  moverobot(TARGETX, TARGETY)  
+Reply moverobotdone         :  moverobotok(ARG)                    for moverobot
+Reply moverobotfailed       :  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
+
+// CONTEXTS
+Context ctxwis24 ip [host="localhost" port=8121]
+Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
+// Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
+
+ExternalQActor basicrobot context ctxbasicrobot
+
+// ACTORS
+QActor wis context ctxwis24 {
+	[# 
+		// constants
+		val MAX_ASH_CAPACITY = 4;
+		
+		// variables
+		var ASHLEVEL  = 0;    // max 4 rp in ash storage (capacity)
+		var RPCONT    = 0;
+		var INCSTATUS = 0;    // 0 free, 1 busy
+		var INHOME    = 0;    // 0 in home, 1 not in home
+	#]
+	
+	State s0 initial {
+		println("$name start") color green
+	}
+	Goto setupSystem
+	
+	State setupSystem {
+		println("$name setupping system..") color green
+		forward incinerator -m startIncinerator : startIncinerator(0)
+	}
+	
+	Goto checkStatus
+	
+	State checkStatus {
+		printCurrentMessage
+		
+		delay 500		
+		
+		[# 
+			val status = "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}"
+			println(status)
+			
+			if (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) {
+		#]
+				request oprobot -m moverobot : moverobot(X,Y) // to change with real coordinates
+		[# 
+				INHOME = 1
+			} else if (INHOME != 0) {
+		#]
+				request oprobot -m moverobot : moverobot(0,0)
+		[# 
+			}
+		#]
+	}
+	
+	Transition t0 
+		whenEvent burning			-> updateIncStatus
+		whenMsg ashMeasurement		-> updateAshLevel
+	
+	State updateIncStatus { // update incinerator status
+		printCurrentMessage
+
+		onMsg(burning : burning(START_TIME)) {
+			[# INCSTATUS = 1 #]
+  			println("$name - start incinerator, update status") color magenta
+  		}
+  		
+  		onMsg(finishedBurning : finishedBurning(TIME_ELAPSED)) {
+			[# INCSTATUS = 0 #]
+  			println("$name - finish incinerator, update status") color magenta
+  		}
+  	}
+  	
+	Transition t0 
+		whenEvent burning			-> updateIncStatus
+		whenEvent finishedBurning	-> updateIncStatus
+		whenMsg ashMeasurement		-> updateAshLevel
+  	
+	State updateAshLevel { // update the ash level measurement
+		printCurrentMessage
+		onMsg(ashMeasurement : ashMeasurement(L)){
+			[#
+				var level = payloadArg(0).toInt()
+				ASHLEVEL += level
+			#]
+  			println("$name - Update Ash level") color magenta
+  		}
+  	}
+  	
+	Transition t0 
+		whenEvent burning			-> updateIncStatus
+		whenEvent finishedBurning	-> updateIncStatus
+		whenMsg ashMeasurement		-> updateAshLevel
+}
+
+QActor oprobot context ctxwis24 {
+	[#
+		var OWNER = "$name"; 
+	#]
+	
+	State s0 initial{
+		println("$name STARTS") color green
+	}
+	
+	Goto engage
+	
+	State engage {
+		println("$name request engage") color green		
+		request basicrobot -m engage : engage($OWNER, 350)
+	}
+	
+	Transition t0 
+		whenReply engagedone     ->  inHome
+		whenReply engagerefused  ->  handleEngageRefused
+		
+	State handleEngageRefused{
+    	println("engage $name refused, re-trying after some delay..")
+    	delay 500
+    }
+    Goto engage
+    
+	State inHome { 
+		println("$name - waiting in home...") color green
+		forward wis -m robotpositioninfo : robotpositioninfo(0, 0)
+        request basicrobot -m moverobot:moverobot(2,6)
+	}
+}
+
+QActor incinerator context ctxwis24 {
+	[#
+		var ACTIVE = false;
+	#]
+	
+	State s0 initial{
+		println("$name STARTS") color magenta
+	}
+	Transition t0
+		whenMsg startIncinerator -> startup
+		
+	State startup {
+  		onMsg(startIncinerator : startIncinerator(0)) {
+  			[# ACTIVE = true #]
+  			
+  			println("$name ACTIVATED")
+  		}
+	}
+		
+	Transition t0
+	  	whenMsg startIncinerator -> startBurning
+	 	
+ 	State startBurning {
+		printCurrentMessage 
+		onMsg(startIncinerator : startIncinerator(BTIME)){
+			[# var BurnTime = payloadArg(0).toLong() #]
+  			println("$name - Start burning phase") color magenta	      
+			emit burning : burning(BurnTime)
+			
+			delayVar BurnTime 
+			
+			println("$name - Finished burning RP") color magenta
+			emit finishedBurning : finishedBurning(BurnTime)
+		}
+ 	}
+ 	Transition t0
+	 	whenMsg startIncinerator -> startBurning
+}
+
+/*
+QActor monitoringdevice context ctxmonitoringdevice {
+	State s0 initial{ 
+ 		println("$name STARTS") color green
+		delay 500
+	}
+	Goto measure
+	
+	// simulate the sonar working
+	State measure {
+		forward wis -m ashMeasurement : ashMeasurement(10)
+		delay 2000
+	}
+
+	Goto measure
+}
+*/
+
