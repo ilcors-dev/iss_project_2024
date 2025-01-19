@@ -13,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import it.unibo.kactor.sysUtil.createActor   //Sept2023
 
 //User imports JAN2024
+import main.resources.Position
 
 class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : ActorBasicFsm( name, scope, confined=isconfined ){
 
@@ -30,6 +31,28 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				var RPCONT    = 1;
 				var INCSTATUS = 0;    // 0 free, 1 busy
 				var INHOME    = 0;    // 0 in home, 1 not in home
+			
+				val LOCATIONS = mapOf(
+					"home" 			to Position(0,0),
+					"wastein" 		to Position(0,4),
+					"burn_in"		to Position(3,2),
+					"burn_out"		to Position(5,3),
+					"ashout"		to Position(6,4)
+				); 
+				val WASTEIN_POS_X = LOCATIONS["wastein"]?.x;
+				val WASTEIN_POS_Y = LOCATIONS["wastein"]?.y;
+		
+				val HOME_POS_X = LOCATIONS["home"]?.x;
+				val HOME_POS_Y = LOCATIONS["home"]?.y;
+				
+				val BURN_IN_POS_X = LOCATIONS["burn_in"]?.x;
+				val BURN_IN_POS_Y = LOCATIONS["burn_in"]?.y;
+				
+				val BURN_OUT_POS_X = LOCATIONS["burn_out"]?.x;
+				val BURN_OUT_POS_Y = LOCATIONS["burn_out"]?.y;
+				
+				val ASHOUT_POS_X = LOCATIONS["ashout"]?.x;
+				val ASHOUT_POS_Y = LOCATIONS["ashout"]?.y;
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -62,11 +85,11 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 									println(status)
 									
 									if (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) {
-						forward("getrp", "getrp(0)" ,"oprobot" ) 
+						request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
 						 
 										INHOME = 1
 									} else if (INHOME != 0) {
-						request("moverobot", "moverobot(0,0)" ,"oprobot" )  
+						request("moverobot", "moverobot($HOME_POS_X,$HOME_POS_Y)" ,"oprobot" )  
 						 
 									}
 						//genTimer( actor, state )
@@ -76,6 +99,60 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					}	 	 
 					 transition(edgeName="t00",targetState="updateIncStatus",cond=whenEvent("burning"))
 					transition(edgeName="t01",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					transition(edgeName="t02",targetState="moveToBurnIn",cond=whenReply("getrp_status"))
+				}	 
+				state("moveToBurnIn") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("getrp_status(0)"), Term.createTerm("getrp_status(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 INHOME = 0  
+								CommUtils.outgreen("$name - Moving to burn in")
+								request("depositrp", "depositrp($BURN_IN_POS_X,$BURN_IN_POS_Y)" ,"oprobot" )  
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t13",targetState="goHome",cond=whenReply("depositrp_status"))
+				}	 
+				state("goHome") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						CommUtils.outgreen("$name - Moving to home")
+						request("gohome", "gohome($HOME_POS_X,$HOME_POS_Y)" ,"oprobot" )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t24",targetState="inHome",cond=whenReply("gohome_status"))
+				}	 
+				state("inHome") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("robotpositioninfo(X,Y)"), Term.createTerm("robotpositioninfo(X,Y)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+												var X = payloadArg(0).toInt()
+												var Y = payloadArg(1).toInt()
+											
+											if (X == HOME_POS_X && Y == HOME_POS_Y) {
+												INHOME = 1
+								CommUtils.outgreen("$name - arrived in home")
+								
+												}
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="checkStatus", cond=doswitch() )
 				}	 
 				state("updateIncStatus") { //this:State
 					action { //it:State
@@ -96,9 +173,9 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t03",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t04",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					 transition(edgeName="t45",targetState="updateIncStatus",cond=whenEvent("burning"))
+					transition(edgeName="t46",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
+					transition(edgeName="t47",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
 				}	 
 				state("updateAshLevel") { //this:State
 					action { //it:State
@@ -116,9 +193,9 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t05",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t06",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t07",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					 transition(edgeName="t08",targetState="updateIncStatus",cond=whenEvent("burning"))
+					transition(edgeName="t09",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
+					transition(edgeName="t010",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
 				}	 
 			}
 		}

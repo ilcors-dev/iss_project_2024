@@ -10,7 +10,16 @@ request( engage, engage(OWNER,STEPTIME) ).
 request( moverobot, moverobot(TARGETX,TARGETY) ).
 reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot
 reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot
-dispatch( getrp, getrp(0) ).
+request( getrp, getrp(TARGETX,TARGETY) ).
+reply( getrp_status, getrp_status(0) ).  %%for getrp
+request( depositrp, depositrp(TARGETX,TARGETY) ).
+reply( depositrp_status, depositrp_status(0) ).  %%for depositrp
+request( extractash, extractash(TARGETX,TARGETY) ).
+reply( extractash_status, extractash_status(0) ).  %%for extractash
+request( depositash, depositash(TARGETX,TARGETY) ).
+reply( depositash_status, depositash_status(0) ).  %%for depositash
+request( gohome, gohome(TARGETX,TARGETY) ).
+reply( gohome_status, gohome_status(0) ).  %%for gohome
 dispatch( robotpositioninfo, robotpositioninfo(X,Y) ).
 %====================================================================================
 context(ctxwis24, "localhost",  "TCP", "8121").

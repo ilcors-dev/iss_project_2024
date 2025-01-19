@@ -1,7 +1,6 @@
 {"actor":"wis", "msgType":"dispatch", "curstate":"checkStatus", "nextstate":"updateAshLevel", "msgId":"ashMeasurement"}
 {"actor":"wis", "msgType":"dispatch", "curstate":"updateIncStatus", "nextstate":"updateAshLevel", "msgId":"ashMeasurement"}
 {"actor":"wis", "msgType":"dispatch", "curstate":"updateAshLevel", "nextstate":"updateAshLevel", "msgId":"ashMeasurement"}
-{"actor":"oprobot", "msgType":"dispatch", "curstate":"inHome", "nextstate":"execGetRp", "msgId":"getrp"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"s0", "nextstate":"startup", "msgId":"startIncinerator"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"startup", "nextstate":"startBurning", "msgId":"startBurning"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"startBurning", "nextstate":"startBurning", "msgId":"startBurning"}
