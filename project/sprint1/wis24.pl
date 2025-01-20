@@ -20,7 +20,6 @@ request( depositash, depositash(TARGETX,TARGETY) ).
 reply( depositash_status, depositash_status(0) ).  %%for depositash
 request( gohome, gohome(TARGETX,TARGETY) ).
 reply( gohome_status, gohome_status(0) ).  %%for gohome
-dispatch( robotpositioninfo, robotpositioninfo(X,Y) ).
 %====================================================================================
 context(ctxwis24, "localhost",  "TCP", "8121").
 context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").

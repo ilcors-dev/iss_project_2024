@@ -32,7 +32,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t031",targetState="startup",cond=whenDispatch("startIncinerator"))
+					 transition(edgeName="t032",targetState="startup",cond=whenDispatch("startIncinerator"))
 				}	 
 				state("startup") { //this:State
 					action { //it:State
@@ -46,13 +46,13 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t032",targetState="startBurning",cond=whenDispatch("startBurning"))
+					 transition(edgeName="t033",targetState="startBurning",cond=whenDispatch("startBurning"))
 				}	 
 				state("startBurning") { //this:State
 					action { //it:State
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("startIncinerator(0)"), Term.createTerm("startIncinerator(BTIME)"), 
+						if( checkMsgContent( Term.createTerm("startBurning(BTIME)"), Term.createTerm("startBurning(BTIME)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 var BurnTime = payloadArg(0).toLong()  
 								CommUtils.outmagenta("$name - Start burning phase")
@@ -66,7 +66,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t033",targetState="startBurning",cond=whenDispatch("startBurning"))
+					 transition(edgeName="t034",targetState="startBurning",cond=whenDispatch("startBurning"))
 				}	 
 			}
 		}

@@ -36,7 +36,7 @@ Reply   depositash_status	:  depositash_status(0)				   for depositash
 Request gohome              :  gohome(TARGETX, TARGETY)        
 Reply   gohome_status		:  gohome_status(0)                    for gohome
 
-Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
+// Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
 
 // CONTEXTS
 Context ctxwis24 ip [host="localhost" port=8121]
@@ -65,6 +65,7 @@ QActor wis context ctxwis24 {
 			"burn_out"		to Position(5,3),
 			"ashout"		to Position(6,4)
 		); 
+
 		val WASTEIN_POS_X = LOCATIONS["wastein"]?.x;
 		val WASTEIN_POS_Y = LOCATIONS["wastein"]?.y;
 
@@ -82,6 +83,7 @@ QActor wis context ctxwis24 {
 	#]
 	
 	State s0 initial {
+		delay 500
 		println("$name start") color green
 	}
 	Goto setupSystem
@@ -95,7 +97,7 @@ QActor wis context ctxwis24 {
 	
 	State checkStatus {
 		printCurrentMessage
-		
+	 
 		delay 500		
 		
 		[# 
@@ -119,6 +121,7 @@ QActor wis context ctxwis24 {
 		whenEvent burning			-> updateIncStatus
 		whenMsg ashMeasurement		-> updateAshLevel
 		whenReply getrp_status      -> moveToBurnIn
+		whenEvent finishedBurning -> updateIncStatus
 
 	State moveToBurnIn {
 	    printCurrentMessage
@@ -130,7 +133,16 @@ QActor wis context ctxwis24 {
     }
 
     Transition t1
-		whenReply depositrp_status -> goHome
+		whenReply depositrp_status -> startBurningPhase
+
+	State startBurningPhase {
+        printCurrentMessage
+        println("$name - Start burning phase") color green
+        [# RPCONT -= 1 #]
+        forward incinerator -m startBurning : startBurning(10000)
+    }
+
+    Goto goHome
 
 	State moveToAshOut {
 	    printCurrentMessage
@@ -155,18 +167,9 @@ QActor wis context ctxwis24 {
 
 	State inHome {
 		printCurrentMessage
-		onMsg(robotpositioninfo : robotpositioninfo(X, Y)) {
-			[#
-				var X = payloadArg(0).toInt()
-				var Y = payloadArg(1).toInt()
-			
-			if (X == HOME_POS_X && Y == HOME_POS_Y) {
-				INHOME = 1
-			#]
-				println("$name - arrived in home") color green
-			[#
-				}
-			#]
+		onMsg(gohome_status : gohome_status(0)) {
+			[# INHOME = 1 #] // 🥵
+			println("$name - arrived in home") color green
 		}
 	}
 
@@ -183,7 +186,7 @@ QActor wis context ctxwis24 {
   		onMsg(finishedBurning : finishedBurning(TIME_ELAPSED)) {
 			[# INCSTATUS = 0 #]
   			println("$name - finish incinerator, update status") color magenta
-  			request oprobot -m extractash : extractash($ASHOUT_POS_X, $ASHOUT_POS_Y)
+  			request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
   		}
   	}
   	
@@ -244,8 +247,9 @@ QActor oprobot context ctxwis24 {
 				var Y = payloadArg(1).toInt()
 			#]
 			println("$name - Moving to ($X,$Y)") color green	      
+
+			delay 3000 //simulating oprobot taking time to move
 			request basicrobot -m moverobot : moverobot($X, $Y)
-			delay 2000 //simulating oprobot taking time to move
 		} 
     }
     
@@ -255,7 +259,7 @@ QActor oprobot context ctxwis24 {
     
 	State inHome { 
 		println("$name - waiting in home...") color green
-		forward wis -m robotpositioninfo : robotpositioninfo(0, 0)
+		replyTo gohome with gohome_status : gohome_status(0)
 	}
 	
 	Transition t0
@@ -270,8 +274,8 @@ QActor oprobot context ctxwis24 {
 				var Y = payloadArg(1).toInt()
 			#]
 			println("$name - Moving to ($X,$Y)") color green	      
+			delay 3000 //simulating oprobot taking time to go to wastein port
 			request basicrobot -m moverobot : moverobot($X, $Y)
-			delay 2000 //simulating oprobot taking time to go to wastein port
 		} 
 	}
 	
@@ -280,7 +284,6 @@ QActor oprobot context ctxwis24 {
 		whenReply moverobotfailed -> execGetRp
 
 	State getRpOk {
-		delay 500
 		replyTo getrp with getrp_status : getrp_status(0)
 	}
 	
@@ -296,8 +299,8 @@ QActor oprobot context ctxwis24 {
 			#]
 
 			println("$name - Depositing RP in ($X, $Y)") color green
+			delay 3000 //simulating deposit action
 			request basicrobot -m moverobot : moverobot($X, $Y)			
-	 		delay 2000 //simulating extraction action
 	 	}
 	}
 	 	
@@ -306,7 +309,6 @@ QActor oprobot context ctxwis24 {
 		whenReply moverobotfailed -> execDepositRp
 
 	State depositRpOk {
-		delay 500
 		replyTo depositrp with depositrp_status : depositrp_status(0)
 	}
 	
@@ -321,8 +323,8 @@ QActor oprobot context ctxwis24 {
                 var Y = payloadArg(1).toInt()
             #]
             println("$name - Moving to ($X,$Y)") color green
+            delay 3000 //simulating oprobot taking time to moverobot
             request basicrobot -m moverobot : moverobot($X, $Y)
-            delay 2000 //simulating oprobot taking time to moverobot
         }
     }
 
@@ -346,8 +348,8 @@ QActor oprobot context ctxwis24 {
 			#]
 
             println("$name - Depositing Ash in ($X, $Y)") color green
+            delay 3000
             request basicrobot -m moverobot : moverobot($X, $Y)
-            delay 2000 //simulating extraction action
         }
     }
 
@@ -387,7 +389,7 @@ QActor incinerator context ctxwis24 {
 	 	
  	State startBurning {
 		printCurrentMessage 
-		onMsg(startIncinerator : startIncinerator(BTIME)){
+		onMsg(startBurning : startBurning(BTIME)){
 			[# var BurnTime = payloadArg(0).toLong() #]
   			println("$name - Start burning phase") color magenta	      
 			emit burning : burning(BurnTime)

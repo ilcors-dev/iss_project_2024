@@ -25,8 +25,8 @@ const config = {
 
     {
       name: "table",
-      centerPosition: { x: 0.7, y: 0.6 },
-      size: { x: 0.16, y: 0.14 },
+      centerPosition: { x: 0.7, y: 0.55 },
+      size: { x: 0.16, y: 0.2 },
     },
     {
       name: "wallUp",
@@ -45,7 +45,7 @@ const config = {
     },
     {
       name: "wallRight",
-      centerPosition: { x: 0.98, y: 0.5 },
+      centerPosition: { x: 1, y: 0.5 },
       size: { x: 0.01, y: 0.99 },
     },
   ],

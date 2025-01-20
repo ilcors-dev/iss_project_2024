@@ -43,8 +43,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t013",targetState="inHome",cond=whenReply("engagedone"))
-					transition(edgeName="t014",targetState="handleEngageRefused",cond=whenReply("engagerefused"))
+					 transition(edgeName="t014",targetState="inHome",cond=whenReply("engagedone"))
+					transition(edgeName="t015",targetState="handleEngageRefused",cond=whenReply("engagerefused"))
 				}	 
 				state("handleEngageRefused") { //this:State
 					action { //it:State
@@ -67,28 +67,28 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var X = payloadArg(0).toInt()
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
+								delay(3000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delay(2000) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t015",targetState="inHome",cond=whenReply("moverobotdone"))
-					transition(edgeName="t016",targetState="execGoHome",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t016",targetState="inHome",cond=whenReply("moverobotdone"))
+					transition(edgeName="t017",targetState="execGoHome",cond=whenReply("moverobotfailed"))
 				}	 
 				state("inHome") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name - waiting in home...")
-						forward("robotpositioninfo", "robotpositioninfo(0,0)" ,"wis" ) 
+						answer("gohome", "gohome_status", "gohome_status(0)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t017",targetState="execGetRp",cond=whenRequest("getrp"))
-					transition(edgeName="t018",targetState="execExtractAsh",cond=whenRequest("extractash"))
+					 transition(edgeName="t018",targetState="execGetRp",cond=whenRequest("getrp"))
+					transition(edgeName="t019",targetState="execExtractAsh",cond=whenRequest("extractash"))
 				}	 
 				state("execGetRp") { //this:State
 					action { //it:State
@@ -100,27 +100,26 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var X = payloadArg(0).toInt()
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
+								delay(3000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delay(2000) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t019",targetState="getRpOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t020",targetState="execGetRp",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t020",targetState="getRpOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t021",targetState="execGetRp",cond=whenReply("moverobotfailed"))
 				}	 
 				state("getRpOk") { //this:State
 					action { //it:State
-						delay(500) 
 						answer("getrp", "getrp_status", "getrp_status(0)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t121",targetState="execDepositRp",cond=whenRequest("depositrp"))
+					 transition(edgeName="t122",targetState="execDepositRp",cond=whenRequest("depositrp"))
 				}	 
 				state("execDepositRp") { //this:State
 					action { //it:State
@@ -132,27 +131,26 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var X = payloadArg(0).toInt()
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing RP in ($X, $Y)")
+								delay(3000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delay(2000) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t222",targetState="depositRpOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t223",targetState="execDepositRp",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t223",targetState="depositRpOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t224",targetState="execDepositRp",cond=whenReply("moverobotfailed"))
 				}	 
 				state("depositRpOk") { //this:State
 					action { //it:State
-						delay(500) 
 						answer("depositrp", "depositrp_status", "depositrp_status(0)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t324",targetState="execGoHome",cond=whenRequest("gohome"))
+					 transition(edgeName="t325",targetState="execGoHome",cond=whenRequest("gohome"))
 				}	 
 				state("execExtractAsh") { //this:State
 					action { //it:State
@@ -164,16 +162,16 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								                var X = payloadArg(0).toInt()
 								                var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
+								delay(3000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delay(2000) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t025",targetState="extractAshOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t026",targetState="execExtractAsh",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t026",targetState="extractAshOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t027",targetState="execExtractAsh",cond=whenReply("moverobotfailed"))
 				}	 
 				state("extractAshOk") { //this:State
 					action { //it:State
@@ -183,7 +181,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t027",targetState="execDepositAsh",cond=whenRequest("depositash"))
+					 transition(edgeName="t028",targetState="execDepositAsh",cond=whenRequest("depositash"))
 				}	 
 				state("execDepositAsh") { //this:State
 					action { //it:State
@@ -195,16 +193,16 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var X = payloadArg(0).toInt()
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing Ash in ($X, $Y)")
+								delay(3000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
-								delay(2000) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t028",targetState="depositAshOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t029",targetState="execDepositAsh",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t029",targetState="depositAshOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t030",targetState="execDepositAsh",cond=whenReply("moverobotfailed"))
 				}	 
 				state("depositAshOk") { //this:State
 					action { //it:State
@@ -214,7 +212,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t030",targetState="execGoHome",cond=whenRequest("gohome"))
+					 transition(edgeName="t031",targetState="execGoHome",cond=whenRequest("gohome"))
 				}	 
 			}
 		}
