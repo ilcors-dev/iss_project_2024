@@ -131,8 +131,20 @@ QActor wis context ctxwis24 {
 
     Transition t1
 		whenReply depositrp_status -> goHome
-	
-	State goHome {
+
+	State moveToAshOut {
+	    printCurrentMessage
+	    onMsg(extractash_status : extractash_status(0)) {
+	        [# INHOME = 0 #]
+            println("$name - Moving to ash out") color green
+            request oprobot -m depositash : depositash($ASHOUT_POS_X, $ASHOUT_POS_Y)
+        }
+    }
+
+    Transition t5
+        whenReply depositash_status -> goHome
+
+    State goHome {
 		printCurrentMessage
 		println("$name - Moving to home") color green
 		request oprobot -m gohome : gohome($HOME_POS_X, $HOME_POS_Y)
@@ -159,8 +171,8 @@ QActor wis context ctxwis24 {
 	}
 
 	Goto checkStatus
-
-	State updateIncStatus { // update incinerator status
+    
+    State updateIncStatus { // update incinerator status
 		printCurrentMessage
 
 		onMsg(burning : burning(START_TIME)) {
@@ -171,6 +183,7 @@ QActor wis context ctxwis24 {
   		onMsg(finishedBurning : finishedBurning(TIME_ELAPSED)) {
 			[# INCSTATUS = 0 #]
   			println("$name - finish incinerator, update status") color magenta
+  			request oprobot -m extractash : extractash($ASHOUT_POS_X, $ASHOUT_POS_Y)
   		}
   	}
   	
@@ -178,6 +191,7 @@ QActor wis context ctxwis24 {
 		whenEvent burning			-> updateIncStatus
 		whenEvent finishedBurning	-> updateIncStatus
 		whenMsg ashMeasurement		-> updateAshLevel
+		whenReply extractash_status -> moveToAshOut
   	
 	State updateAshLevel { // update the ash level measurement
 		printCurrentMessage

@@ -118,6 +118,23 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					}	 	 
 					 transition(edgeName="t13",targetState="goHome",cond=whenReply("depositrp_status"))
 				}	 
+				state("moveToAshOut") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("extractash_status(0)"), Term.createTerm("extractash_status(0)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 INHOME = 0  
+								CommUtils.outgreen("$name - Moving to ash out")
+								request("depositash", "depositash($ASHOUT_POS_X,$ASHOUT_POS_Y)" ,"oprobot" )  
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t54",targetState="goHome",cond=whenReply("depositash_status"))
+				}	 
 				state("goHome") { //this:State
 					action { //it:State
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
@@ -129,7 +146,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t24",targetState="inHome",cond=whenReply("gohome_status"))
+					 transition(edgeName="t25",targetState="inHome",cond=whenReply("gohome_status"))
 				}	 
 				state("inHome") { //this:State
 					action { //it:State
@@ -167,15 +184,17 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 0  
 								CommUtils.outmagenta("$name - finish incinerator, update status")
+								request("extractash", "extractash($ASHOUT_POS_X,$ASHOUT_POS_Y)" ,"oprobot" )  
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t45",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t46",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t47",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					 transition(edgeName="t46",targetState="updateIncStatus",cond=whenEvent("burning"))
+					transition(edgeName="t47",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
+					transition(edgeName="t48",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					transition(edgeName="t49",targetState="moveToAshOut",cond=whenReply("extractash_status"))
 				}	 
 				state("updateAshLevel") { //this:State
 					action { //it:State
@@ -193,9 +212,9 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t08",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t09",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t010",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					 transition(edgeName="t010",targetState="updateIncStatus",cond=whenEvent("burning"))
+					transition(edgeName="t011",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
+					transition(edgeName="t012",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
 				}	 
 			}
 		}
