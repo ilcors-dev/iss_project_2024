@@ -71,19 +71,19 @@
 </style>
 
 <head>
-    <title>Sprint0 Corsetti, de Respinis, Sindaco</title>
+    <title>Sprint1 Corsetti, de Respinis, Sindaco</title>
 </head>
 
 <body class="mx-2">
     <main class="prose" style="max-width: 100%">
         <div id="top">
-            <h1>TEMA FINALE 2024 SPRINT0</h1>
+            <h1>TEMA FINALE 2024 SPRINT1</h1>
         </div>
 
         <div class="body">
             <h2>Introduction</h2>
             <div class="remark">
-                Questo documento contiene lo sprint0 del progetto per il tema finale
+                Questo documento contiene lo sprint1 del progetto per il tema finale
                 del corso.
             </div>
 
@@ -96,266 +96,28 @@
 
             <h2>Analisi dei requisiti</h2>
             <div class="remark">
-                Analizzando i requisiti del problema possiamo dire che:
+                Per l'analisi dei requisiti si faccia riferimento allo <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a>
+                realizzato precedentemente.
             </div>
-            <div class="remark">
-                Il servizio <span class="blue">WasteIncineratorService</span> non
-                trova una facile corrispondenza in Java, quindi non posso esprimerlo
-                come un oggetto. Per ovviare al problema, la nostra software house ha
-                sviluppato un DSL (Domain Specific Language) capace di utilizzare un
-                termine più adeguato per esprimere quello che il committente intende.
-                <br />
-                Il sistema, per essere modellato, necessita del termine di
-                <b>attore</b>, ovvero un componente software dotato di un
-                comportamento autonomo, capace di inviare, ricevere e gestire messaggi
-                in un contesto distribuito. Si veda
-                <a href="../../html/QakActors24.html">QakActors24</a> per maggiori
-                informazioni, soprattutto per conoscere meglio cosa può fare e che
-                interazioni può avere un attore.<br />
-                <br />
-                Gli attori non hanno memoria condivisa e interagiscono tra di loro
-                attraverso scambi di messaggi, che possono essere:
-                <ul class="sep">
-                    <li>
-                        <b>dispatch</b>: un messaggio inviato a un preciso destinatario
-                        senza attesa di una risposta (anche detto fire-and-forget).
-                    </li>
-                    <li>
-                        <b>request</b>: un messaggio inviato a un preciso destinatario
-                        aspettandosi da parte di questi una <b>reply</b> logicamente
-                        correlata alla richiesta (azione <b>bloccante</b>).
-                    </li>
-                    <li>
-                        <b>event</b>: un messaggio inviato a chiunque sia in grado di
-                        elaborarlo.
-                    </li>
-                </ul>
-                Per ulteriori informazioni sui messaggi e sulla loro sintassi, si
-                faccia sempre riferimento alla pagina
-                <a href="../../html/QakActors24.html">QakActors24</a> sopracitata.
-            </div>
+            
 
-            <div class="remark">
-                La <b>service area</b> è rappresentabile attraverso una matrice di X
-                righe e Y colonne:
-                <br />
-
-                <pre>
-                    class ServiceArea {
-                    public int X, Y;
-                    };
-                </pre>
-
-                Forniamo una rappresentazione della service area in modo da definire
-                gli elementi appertenenti ad essa.
-                <br />
-                La singola cella avrà dimensione pari a quella del robot, prendiamo
-                come riferimento quindi il DDR Robot fornito dal committente. <br />
-                <a class="reference internal image-reference" href="./immagini/scene.png"><img
-                        alt="./immagini/scene.png" class="align-center" src="./immagini/scene.png"
-                        style="width: 30%" /></a>
-                All'esterno della <b>service area</b> sono presenti due container, il
-                <span class="blue">WasteStorage</span> e l'<span class="blue">AshStorage</span>, e un <span
-                    class="blue">MonitoringDevice</span>.
-            </div>
-            <div class="remark">
-                Il <span class="blue">WasteStorage</span> container possiede una
-                bilancia come <b>weighing device</b>, che riporta il peso dei vari
-                Roll Packets (RP) depositati al suo interno. Il container è
-                considerato vuoto quando il valore della bilancia è
-                approssimativamente zero. Ogni RP ha un peso di circa 50kg, modellato
-                come costante dell'attore. <br />
-                Il container possiede una porta di ingresso
-                <span class="red">WASTEIN</span> all'interno della
-                <b>service area</b>, la rappresenteremo quindi con una cella della
-                matrice (prendendo d'esempio la figura in alto, ipotizziamo la cella
-                in posizione (4,1)).
-            </div>
-            <div class="remark">
-                L'<span class="blue">AshStorage</span> container può contenere al
-                massimo le ceneri di 3-4 RP. Il container possiede una porta di
-                ingresso <span class="red">ASHOUT</span> all'interno della
-                <b>service area</b>, la rappresenteremo quindi con una cella della
-                matrice (prendendo d'esempio la figura in alto, ipotizziamo la cella
-                in posizione (4,5)).
-            </div>
-            <div class="remark">
-                Il <span class="blue">MonitoringDevice</span> è composto da un
-                <b>Sonar</b> e da un <b>Led</b>, posti su un RaspberryPi.<br />
-                Il <b>Sonar</b> misura il livello delle ceneri nell'<span class="blue">AshStorage</span>
-                container. <span class="red"><b>DLIMIT</b></span> indica il valore
-                limite al di sotto del quale l'<span class="blue">AshStorage</span>
-                container è considerato pieno.
-                <br />
-                Il <b>Led</b> è usato come <b>warning device</b> e segnala lo stato
-                dell'<span class="blue">Inceneritore</span> e dell'<span class="blue">AshStorage</span>.
-                <br />
-                <br />
-                Il <b>Sonar</b> e il <b>Led</b> sono dispositivi fisici per i quali il
-                committente fornisce software di supporto nell'utilizzo (<a
-                    href="..\..\html\RaspBasicCode.html">RaspBasicCode</a>, <a
-                    href="..\..\html\RaspApplCode24.html">RaspApplCode24</a> ). Come
-                per l'<span class="blue">OpRobot</span> con il DDR robot, è possibile
-                definire questi due componenti come un <b>attore</b> posto in un
-                contesto esterno al sistema, che utilizza i dispositivi fisici
-                associati. La distanza <span class="red">DLIMIT</span> sarà quindi una
-                variabile dell'attore, intera e positiva. <br />
-                Ci riserveremo in futuro di discutere l'esatta relazione tra
-                <b>MonitoringDevice</b>, <b>Sonar</b> e <b>Led</b>.
-            </div>
-            <div class="remark">
-                All'interno della <b>service area</b> è presente un
-                <span class="blue">Inceneritore</span> che occuperà una cella della
-                matrice (prendendo d'esempio la figura in alto, ipotizziamo la cella
-                in posizione (2,4)), che può bruciare un RP alla volta in
-                <span class="red"><b>BTIME</b></span> secondi, una variabile
-                dell'attore intera e positiva. Sono presenti due porte, rappresentate
-                come celle della matrice adiacenti all'Incinerator,
-                <span class="red">BURNIN</span> e <span class="red">BURNOUT</span>,
-                che permettono rispettivamente l'ingresso del RP e l'uscita delle
-                ceneri dall'<span class="blue">Inceneritore</span>.
-            </div>
-            <div class="remark">
-                Un <b>DDR robot</b> è un robot che possiede due ruote motrici sullo
-                stesso asse e una terza ruota condotta (non motrice). Il committente
-                fornisce un servizio con cui è possibile interfacciarsi col robot che
-                sia fisico o virtuale (si veda
-                <a href="../../html/BasicRobot24.html">BasicRobot24</a> e
-                <a href="../../html/VirtualRobot23.html">VirtualRobot</a> per
-                ulteriori informazioni). Il servizio è realizzato ad attori ed ha la
-                seguente architettura:
-                <a class="reference internal image-reference" href="./immagini/ctxbasicrobot24.png"><img
-                        alt="./immagini/ctxbasicrobot24.png" class="align-center" src="./immagini/ctxbasicrobot24.png"
-                        style="width: 90%" /></a>
-                Attraverso messaggi è possibile ingaggiare il robot e farlo muovere
-                nell'area o effettuare piani di mosse.
-            </div>
-            <div class="remark">
-                L'<span class="blue">OpRobot</span> è un componente proattivo del
-                sistema che interagisce con il robot tramite l'interfaccia
-                <b>basicrobot24</b>, ed è pertinente modellarlo come un <b>actor</b>.
-                La <span class="red">HOME</span> è anch'essa una cella della matrice
-                rappresentante la <b>service area</b> (prendendo d'esempio la figura
-                in alto, ipotizziamo la cella in posizione (1,1)).<br />
-                L'<span class="blue">OpRobot</span> ha un comportamento specifico in
-                risposta a determinate condizioni. Non è possibile un'immediata
-                formalizzazione e quindi sarà necessario analizzare questa azione
-                nell'analisi del problema, in quanto si devono gestire le
-                problematiche del far muovere il robot e farlo andare nelle
-                determinate aree.
-            </div>
-            <div class="remark">
-                Due agenti esterni si occupano di depositare nuovi RP nel
-                <span class="blue">WasteStorage</span> container e di prelevare le
-                ceneri dall'<span class="blue">AshStorage</span> container. I
-                requisiti non forniscono dettagli che ne permettono un'immediata
-                formalizzazione.
-            </div>
-            <div class="remark">
-                La <span class="blue">ServiceStatusGUI</span> è un componente del
-                sistema che permette di visualizzare informazioni, quali lo stato del
-                WasteStorage, dell'AshStorage, dell'Incinerator e dell'OpRobot. È
-                quindi opportuno modellarlo (almeno inizialmente), come un
-                <b>attore</b>.
-            </div>
-
-            <h3>Analisi delle User Stories</h3>
-            <div class="remark-light">
-                <i>"1. The OpRobot is somewhere in the service area (initially in the
-                    HOME location). <br />
-                    2. If the WasteStorage container is not empty, and AshStorage
-                    container is not full, (i.e. the Led is not blinking ) and the
-                    Incinerator is not burning, the OpRobot moves to the WASTEIN port
-                    and gets a RP from the WasteStorage container. Otherwise, if returns
-                    to HOME, if not already here."
-                </i>
-            </div>
-            <div class="remark">
-                All'inizio, l'<span class="blue">OpRobot</span> si trova in una
-                posizione iniziale denominata <span class="red">HOME</span>, situata
-                nella Service Area.
-                <br />
-                Successivamente, verrà fatto un controllo sullo stato del
-                <b>WasteStorage</b>, dell'<b>AshStorage</b> e dell'<b>Incinerator</b>.
-                Viene richiesto che il <b>WasteStorage</b> non sia vuoto, che l'<b>AshStorage</b>
-                non sia pieno e che l'Incinerator non stia bruciando, ovvero che il
-                Led che segnala lo stato dell'<b>Incinerator</b> non stia
-                lampeggiando. <br />
-                Se i requisiti sono rispettati, verrà inviato un segnale all'<b>OpRobot</b>
-                chiedendogli di recuperare un Roll Packet <b>(RP)</b> dalla
-                <span class="red">WASTEIN</span> port del <b>WasteStorage</b>.
-                Altrimenti si dirigerà nella posizione
-                <span class="red">HOME</span> qualora non si trovasse già lì.
-            </div>
-            <div class="remark-light">
-                <i>
-                    "3. From now on, the ServiceStatusGUI shall properly change (part
-                    of) its content"
-                </i>
-            </div>
-            <div class="remark">
-                Non appena l'<span class="blue">OpRobot</span> riceverà il primo
-                comando, il sistema si occuperà di aggiornare anche il contenuto di
-                una GUI denominata <b>ServiceStatusGUI</b> utilizzata per visualizzare
-                lo stato del sistema.
-            </div>
-            <div class="remark-light">
-                <i>
-                    "4. The OpRobot moves to the BURNIN port and deposits the RP into
-                    the Incinerator (the Led is on). <br />
-                    5. While the Incinerator is burning, the OpRobot moves to its HOME
-                    port."
-                </i>
-            </div>
-            <div class="remark">
-                Dopo aver recuperato il RP, l'<span class="blue">OpRobot</span> si
-                dirigerà verso la <span class="red">BURNIN</span> port
-                dell'Incinerator depositando il RP nell'<b>Incinerator</b>. Si
-                attiverà il Led dell'Incinerator. <br />
-                Mentre l'<b>Incinerator</b> è attivo e brucia il RP, l'<span class="blue">OpRobot</span>
-                si avvierà verso la posizione <span class="red">HOME</span>.
-            </div>
-            <div class="remark-light">
-                <i>
-                    "6. When the Incinerator has completed a burning phase, the Led is
-                    off, and the OpRobot moves to the BURNOUT port picks up the ash and
-                    moves to the ASHOUT port.
-                    <br />
-                    7. The OpRobot deposits the ash into the AshStorage container and
-                    the Sonar gives a value less the the previous one."
-                </i>
-            </div>
-            <div class="remark">
-                Non appena l'<b>Incinerator</b> avrà terminato la sua fase di
-                incenerimento, il Led si spegnerà e verrà mandato un segnale all'<span class="blue">OpRobot</span>
-                chiedendogli di dirigersi verso la
-                <span class="red">BURNOUT</span> port dell'<b>Incinerator</b>, di
-                recuperare l'Ash (cenere) prodotta e di spostarsi verso l'<span class="red">ASHOUT</span>
-                port dell'<b>AshStorage</b>. <br />
-                L'<span class="blue">OpRobot</span> depositerà la cenere nell'<b>AshStorage</b>
-                e il Sonar restituirà un valore minore rispetto a quello precedente.
-            </div>
-            <div class="remark-light">
-                <i> "8. The OpRobot restarts from point 1." </i>
-            </div>
-            <div class="remark">
-                Il comportamento dell'<span class="blue">OpRobot</span> ripartirà dal
-                punto 1.
-            </div>
 
             <h3>Modello del sistema</h3>
             <div class="remark">
-                Il modello iniziale del sistema nello sprint 0 è raffigurato
+                Il modello del sistema per lo sprint1 è raffigurato
                 nell'immagine sottostante. <br />
-                L'attenzione è stata rivolta alla modellazione del business core
-                dell'applicazione, ossia il sistema di
-                <b>incenerimento dei rifiuti</b>. <br />
-                Di seguito si riportano i principali attori del sistema e le
-                interazioni tra di essi. Si riportano anche le motivazioni che hanno
-                portato a modellare il sistema in questo modo.
                 <a class="reference internal image-reference" href="./immagini/wis24arch.png"><img
-                        alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png"
-                        style="width: 40%" /></a>
+                    alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png"
+                    style="width: 40%" /></a>
+                L'obiettivo dello sprint1 è quello di implementare il movimento 
+                dell'<span class="blue">OpRobot</span> nella <span class="red">Service Area</span>, 
+                assicurandosi che raggiunga tutte le posizioni descritte nelle UserStory 
+                nello <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a>, 
+                nell'ordine corretto. <br />
+                Di seguito si riportano i principali attori del sistema, le
+                interazioni tra di essi ed anche le motivazioni che hanno
+                portato a modellare il sistema in questo modo.
+                
             </div>
 
             <div class="remark">
@@ -363,14 +125,14 @@
                 <p>
                     Si noti che la formalizzazione degli eventi come (Dispatch, Request,
                     Event) potrebbe cambiare negli Sprint successivi. Questa possibilità
-                    è facilitata dall'uso dei QAK forniti dal committente.
+                    è facilitata dall'uso dei QAK forniti dalla software house.
                 </p>
                 <b>Messaggi inseriti nello Sprint0 </b>(si faccia riferimento allo
-                User Doc dello Sprint0 per ulteriori dettagli):
+                User Doc dello <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a> per ulteriori dettagli):
                 <ul>
                     <li>
                         <b><code>Dispatch startIncinerator : startIncinerator(BTIME)</code></b><br />
-                        Modificato rispetto allo Sprint0, verrà utilizzato per la
+                        É stato modificato rispetto allo Sprint0. Verrà utilizzato per la
                         configurazione dell'Incinerator negli sviluppi futuri.
                     </li>
                     <li>
@@ -383,9 +145,8 @@
                         <b><code>Dispatch ashMeasurement : ashMeasurement(L)</code></b><br />
                     </li>
                 </ul>
-                <b>Messaggi utilizzati per i movimenti del BasicRobot forniti dal
-                    committente:
-                </b>
+                La software house mette a disposizione i seguenti messaggi per implementare i <b>movimenti del BasicRobot</b>:<br />
+                (Si veda la pagina <a href="../../html/BasicRobot24.html">QakActors24</a> per ulteriori dettagli)
                 <ul>
                     <li>
                         <b><code>Request engage : engage(OWNER,STEPTIME)</code></b><br />
@@ -680,10 +441,8 @@
         </div>
         <h3>Prossimi sviluppi</h3>
         <div class="remark">
-            Nel prossimo sprint (<b>Sprint 1</b>) si analizzerà nel dettaglio
-            l'interazione tra il <span class="blue">WIS</span> e l'<span class="blue">OpRobot</span>, formalizzandone i
-            messaggi e le azioni che i due attori dovranno
-            compiere. <br />
+            Nel prossimo sprint (<b>Sprint 2</b>) verranno implementati l'estrazione e il deposito di <b>RP</b> e <b>Ash</b>.
+            Inoltre si gestirà il <span class="blue">MonitoringDevice</span>. <br />
         </div>
 
         <h3>Footer</h3>
