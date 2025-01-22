@@ -90,7 +90,7 @@
       <h2>Requisiti</h2>
 
       <div class="remark">
-        I requisiti del sistema da creare possono essere trovati in
+        I requisiti del sistema possono essere trovati in
         <a href="../../html/TemaFinale24.html">TemaFinale24</a>.
       </div>
 
@@ -112,7 +112,7 @@
         assicurandosi che raggiunga tutte le posizioni descritte nelle UserStory
         nello <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a>,
         nell'ordine corretto. <br />
-        Di seguito si riportano i principali attori del sistema, le
+        Di seguito si riportano i principali attori del sistema trattati in questo sprint, le
         interazioni tra di essi ed anche le motivazioni che hanno
         portato a modellare il sistema in questo modo.
 
@@ -121,7 +121,7 @@
       <div class="remark">
         <h4>Messaggi scambiati</h4>
         <p>
-          Si noti che la formalizzazione degli eventi come (Dispatch, Request,
+          Si noti che la formalizzazione dei messaggi (come Dispatch, Request,
           Event) potrebbe cambiare negli Sprint successivi. Questa possibilità
           è facilitata dall'uso dei QAK forniti dalla software house.
         </p>
@@ -281,8 +281,7 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]</pre>
           Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/wis.qak">wis.qak</a>). Il suo
           compito in questa fase è quello di mantenere lo stato
           attuale dell'inceneritore (<span class="red">acceso</span> o
-          <span class="red">spento</span>) e il
-          <span class="red">livello della cenere</span>.
+          <span class="red">spento</span>) e comunicare con l'<span class="blue">OpRobot</span>.
         </div>
         <div>
           Per questo motivo il <span class="blue">WIS</span> interagirà con
@@ -385,18 +384,6 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]</pre>
         <b><code>finishedBurning</code></b>.
       </div>
 
-      <h4>MonitoringDevice</h4>
-      <div class="remark">
-        Il <span class="blue">MonitoringDevice</span> è collocato in un
-        contesto esterno rispetto a quello degli altri attori attualmente
-        modellati nello Sprint0, il suo compito in questa fase è quello di
-        simulare la misurazione e l'invio del livello della cenere dall'<span class="blue">AshStorage</span>
-        al sistema inviando il messaggio <b><code>ashMeasurement</code></b> al
-        <span class="blue">WIS</span>. <br />
-        In futuro verrà modellato in dettaglio per essere eseguito su un
-        supporto esterno, come il RaspberryPi.
-      </div>
-
       <h4>OpRobot</h4>
       <div class="remark">
         L'<span class="blue">OpRobot</span> sarà modellato come attore.
@@ -416,8 +403,9 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]</pre>
       e la sua interazione con il <span class="blue">WIS</span>, i test
       saranno focalizzati su queste due parti del sistema. <br />
       I test fanno uso di un <a href="../../html/QakActors24.html">Observer</a> e di un POJO (Plain Old Java Object)
-      "Logger" per salvare i log
-      rilevanti durante l'esecuzione in un file testuale. <br />
+      <a href="./../src/main/kotlin/Logger.kt">Logger.kt</a> per salvare i log
+      rilevanti durante l'esecuzione in un file testuale. La scelta del POJO risiede nel fatto che il Logger è un
+      elemento passivo dotato di un'interfaccia contenente metodi di scrittura.<br />
       <pre>
 QActor wisloggerobserver context ctxwis24 withobj logger using "main.kotlin.Logger.getInstance(\"wis.log\")" {
   State s0 initial {
@@ -444,9 +432,8 @@ QActor wisloggerobserver context ctxwis24 withobj logger using "main.kotlin.Logg
         </pre>
       Le classi di test, avviano l'intero sistema "wis_test.qak",
       pre-configurato per eseguire un ciclo completo
-      "avvio-getrp-incerimento-estrazione_cenere-scarico_cenere" e verificano
+      "avvio-getrp-depositrp-incerimento-estrazione_cenere-scarico_cenere" e verificano
       il contenuto del file di log generato. <br />
-      <a href="./../src/main/kotlin/Logger.kt">Logger.kt</a>
       <ul>
         <li>
           <b>testGetRP</b> verifica il corretto recupero del RP dopo aver
