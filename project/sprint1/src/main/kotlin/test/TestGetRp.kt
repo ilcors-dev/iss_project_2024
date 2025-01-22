@@ -2,7 +2,6 @@ import org.junit.BeforeClass
 import org.junit.Test
 import unibo.basicomm23.*
 import unibo.basicomm23.interfaces.*
-import unibo.basicomm23.msg.ProtocolType
 import unibo.basicomm23.utils.*
 import unibo.basicomm23.utils.CommUtils.delay
 import java.io.File
@@ -30,7 +29,7 @@ class TestGetRp {
 
         delay(50000)
         assertLogEntry("wis.log", "moving_to_WasteIn_port")
-        assertLogEntry("wis.log", "collected_RP_from_WasteIn_por")
+        assertLogEntry("wis.log", "collected_RP_from_WasteIn_port")
         assertLogEntry("wis.log", "moving_to_BurnIn_port")
         assertLogEntry("wis.log", "deposited_RP_in_BurnIn_port")
     }
