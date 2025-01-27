@@ -358,14 +358,20 @@ class ServiceArea {
                     </div>
                     Non è richiesta una risposta per il comando  di attivazione, quindi abbiamo optato per la scelta di una Dispatch.
                 </li>
-                    <li>
-                        <b><code>Dispatch startBurning : startBurning(BTIME)</code></b><br />
-                        Questo messaggio è stato ricavato dopo il primo incontro con il committente, in cui è stato evidenziato che il processo di incenerimento inizierà solamente quando viene depositato un RP. <br>
-                        È quindi fondamentale per
-                        il sistema in quanto istruisce l'inceneritore a iniziare la fase di incenerimento. Il tempo di
-                        incenerimento è rappresentato dal parametro <b>BTIME</b>. <br />
-                        Si è scelto di utilizzare una Dispatch in quanto la risposta a questo messaggio verrà inviata attraverso un Event, in modo da comunicare il corretto avvio del processo di incenerimento agli attori che necessitano l'informazione, quindi il WIS, la ServiceStatusGUI e il Monitoring Device.
-                    </li>
+                <li><b><code>Dispatch startBurning : startBurning(BTIME)</code></b> all'Incinerator.<br />
+                    Questo messaggio è ricavato dal seguente requisito:
+                    <div class="remark-light">
+                      <i>"The Incinerator is able to perceive a proper activation
+                        command sent by using a wireless (wifi, bluetooth)
+                        connection.<br />
+                        The Incinerator can process one RP at the time. The burning
+                        process requires (approximately) BTIME seconds."</i>
+                    </div>
+                    È quindi fondamentale per il sistema in quanto indica
+                    all'inceneritore che è stato inserito un RP e può iniziare la fase
+                    di incenerimento. Il tempo di incenerimento è rappresentato dal
+                    parametro <b>BTIME</b>. <br />
+                    Si è scelto di utilizzare una Dispatch in quanto la risposta a questo messaggio verrà inviata attraverso un Event, in modo da comunicare il corretto avvio del processo di incenerimento agli attori che necessitano l'informazione, quindi il WIS, la ServiceStatusGUI e il Monitoring Device. <br>
                     <li>
                         <b><code>Event burning : burning(START_TIME)</code></b><br />
                         <div class="remark-light">
