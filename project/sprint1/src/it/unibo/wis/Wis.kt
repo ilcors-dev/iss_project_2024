@@ -28,7 +28,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				
 				// variables
 				var ASHLEVEL  = 0;
-				var RPCONT    = 1;
+				var RPCONT    = 4;
 				var INCSTATUS = 0;    // 0 free, 1 busy
 				var INHOME    = 0;    // 0 in home, 1 not in home
 			
@@ -72,25 +72,27 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						CommUtils.outgreen("$name setupping system..")
 						forward("startIncinerator", "startIncinerator(0)" ,"incinerator" ) 
+						if(  (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0)  
+						 ){request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="checkStatus", cond=doswitch() )
+					 transition( edgeName="goto",targetState="printStatus", cond=doswitch() )
 				}	 
-				state("checkStatus") { //this:State
+				state("printStatus") { //this:State
 					action { //it:State
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						 
+						
 									val status = "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}"
-									println(status)
-									
-									if (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) {
-						request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
-						 
-									}
+									println(status)	
+						updateResourceRep( "info($name, RPCONT_$RPCONT)"  
+						)
+						updateResourceRep( "info($name, ASHLEVEL_$ASHLEVEL)"  
+						)
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -127,7 +129,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
 						CommUtils.outgreen("$name - Start burning phase")
-						forward("startBurning", "startBurning(8000)" ,"incinerator" ) 
+						forward("startBurning", "startBurning(9000)" ,"incinerator" ) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -173,13 +175,16 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INHOME = 1  
 								CommUtils.outgreen("$name - arrived in home")
+								if(  (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0)  
+								 ){request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
+								}
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="checkStatus", cond=doswitch() )
+					 transition( edgeName="goto",targetState="printStatus", cond=doswitch() )
 				}	 
 				state("updateIncStatus") { //this:State
 					action { //it:State
@@ -207,7 +212,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					}	 	 
 					 transition( edgeName="goto",targetState="goHome", cond=doswitchGuarded({ INHOME == 0  
 					}) )
-					transition( edgeName="goto",targetState="checkStatus", cond=doswitchGuarded({! ( INHOME == 0  
+					transition( edgeName="goto",targetState="printStatus", cond=doswitchGuarded({! ( INHOME == 0  
 					) }) )
 				}	 
 				state("updateAshLevel") { //this:State
@@ -228,7 +233,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="checkStatus", cond=doswitch() )
+					 transition( edgeName="goto",targetState="printStatus", cond=doswitch() )
 				}	 
 			}
 		}

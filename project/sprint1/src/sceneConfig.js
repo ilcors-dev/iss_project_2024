@@ -46,7 +46,7 @@ const config = {
     {
       name: "wallRight",
       centerPosition: { x: 1, y: 0.5 },
-      size: { x: 0.01, y: 0.99 },
+      size: { x: 0.001, y: 0.99 },
     },
   ],
 };

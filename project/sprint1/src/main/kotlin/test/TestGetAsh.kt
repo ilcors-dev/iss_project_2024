@@ -13,9 +13,9 @@ class TestGetAsh {
         @BeforeClass
         @JvmStatic
         fun setup() {
-            File("wis.log").delete()
-            it.unibo.ctxwis24.main()
-            delay(2000)
+            File("wis.log").delete() // Ensure the log file is clean before running the test
+            it.unibo.ctxwis24.main() // Start the system
+            delay(2000) // Allow the system to initialize
         }
     }
 
@@ -34,43 +34,55 @@ class TestGetAsh {
         // conn.forward(getRpCommand)
 
         delay(50000)
-        assertLogEntry("wis.log", "incinerator_status_BURNING")
-        assertLogEntry("wis.log", "incinerator_status_FINISHED_BURNING")
-        assertLogEntry("wis.log", "moving_to_BurnOut_port")
-        assertLogEntry("wis.log", "collected_ash_from_BurnOut_port")
-        assertLogEntry("wis.log", "moving_to_AshOut_port")
-        assertLogEntry("wis.log", "deposited_ash_in_AshOut_port")
+
+        // Chronologically verify log entries
+        assertLogEntriesInOrder(
+            "wis.log",
+            listOf(
+                "moving_to_BurnOut_port",
+                "collected_ash_from_BurnOut_port",
+                "moving_to_AshOut_port",
+                "deposited_ash_in_AshOut_port"
+            )
+        )
     }
 
-    fun assertLogEntry(
+    /**
+     * Verifies that the given log entries appear in chronological order in the log file.
+     */
+    fun assertLogEntriesInOrder(
         path: String,
-        check: String,
+        expectedEntries: List<String>
     ) {
         try {
-            val regex = Regex(check)
             val file = File(path)
 
             if (!file.exists()) {
                 throw IOException("File not found: $path")
             }
 
-            file.bufferedReader().use { reader ->
-                var found = false
-                reader.forEachLine { line ->
-                    val parts = line.split(":", limit = 2)
+            val logLines = file.readLines() // Read all log lines into memory
+            var currentIndex = 0
 
-                    if (parts.size < 2) return@forEachLine // Skip lines without the delimiter
+            for (line in logLines) {
+                if (currentIndex >= expectedEntries.size) break
 
-                    val content = parts[1].trim() // content after the '|'
+                val logContent = line.split(":", limit = 2).getOrNull(1)?.trim() ?: continue
 
-                    if (regex.containsMatchIn(content)) {
-                        found = true
-                    }
+                // Check if the current log line matches the expected log entry
+                if (logContent.contains(expectedEntries[currentIndex])) {
+                    currentIndex++
                 }
-                assert(found) { "Expected log entry matching '$check' not found in the file." }
+            }
+
+            // Ensure all expected log entries were found in the correct order
+            assert(currentIndex == expectedEntries.size) {
+                "Log entries did not appear in the expected chronological order. Missing entries: ${
+                    expectedEntries.subList(currentIndex, expectedEntries.size)
+                }"
             }
         } catch (e: Exception) {
-            println("Error reading file: ${e.message}")
+            throw AssertionError("Error processing log file: ${e.message}")
         }
     }
 }

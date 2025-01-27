@@ -57,7 +57,7 @@ QActor wis context ctxwis24 {
 		
 		// variables
 		var ASHLEVEL  = 0;
-		var RPCONT    = 1;
+		var RPCONT    = 4;
 		var INCSTATUS = 0;    // 0 free, 1 busy
 		var INHOME    = 0;    // 0 in home, 1 not in home
 	
@@ -95,23 +95,25 @@ QActor wis context ctxwis24 {
 	State setupSystem {
 		println("$name setupping system..") color green
 		forward incinerator -m startIncinerator : startIncinerator(0)
+		
+		if [# (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) #] {
+			println("STATUS INC ${INCSTATUS}")
+			request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
+		}
 	}
 	
-	Goto checkStatus
+	Goto printStatus
 	
-	State checkStatus {
+	State printStatus {
 		printCurrentMessage
-	 
-		[# 
+		
+		[#
 			val status = "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}"
-			println(status)
-			
-			if (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) {
+			println(status)	
 		#]
-				request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
-		[# 
-			}
-		#]
+		
+		updateResource [# "info($name, RPCONT_$RPCONT)" #]
+		updateResource [# "info($name, ASHLEVEL_$ASHLEVEL)" #]
 	}
 
 	Transition t0 
@@ -138,7 +140,7 @@ QActor wis context ctxwis24 {
 	State startBurningPhase {
         printCurrentMessage
         println("$name - Start burning phase") color green
-        forward incinerator -m startBurning : startBurning(8000)
+        forward incinerator -m startBurning : startBurning(9000)
     }
 
     Transition t0
@@ -170,10 +172,15 @@ QActor wis context ctxwis24 {
 		onMsg(gohome_status : gohome_status(0)) {
 			[# INHOME = 1 #] // 🥵
 			println("$name - arrived in home") color green
+			
+			if [# (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) #] {
+				println("STATUS INC ${INCSTATUS}")
+				request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
+			}
 		}
 	}
 
-	Goto checkStatus
+	Goto printStatus
     
     State updateIncStatus { // update incinerator status
 		printCurrentMessage
@@ -192,7 +199,7 @@ QActor wis context ctxwis24 {
   		}
   	}
   	
-  	Goto goHome if [# INHOME == 0 #] else checkStatus
+  	Goto goHome if [# INHOME == 0 #] else printStatus
 		
 	State updateAshLevel { // update the ash level measurement
 		printCurrentMessage
@@ -206,7 +213,7 @@ QActor wis context ctxwis24 {
   		}
   	}
   	
-	Goto checkStatus
+	Goto printStatus
 }
 
 QActor oprobot context ctxwis24 {
@@ -245,7 +252,7 @@ QActor oprobot context ctxwis24 {
 			#]
 			println("$name - Moving to ($X,$Y)") color green	      
 
-			delay 350 //simulating oprobot taking time to move
+			delay 500 //simulating oprobot taking time to move
 			request basicrobot -m moverobot : moverobot($X, $Y)
 		} 
     }
@@ -271,7 +278,7 @@ QActor oprobot context ctxwis24 {
 				var Y = payloadArg(1).toInt()
 			#]
 			println("$name - Moving to ($X,$Y)") color green	      
-			delay 350 //simulating oprobot taking time to go to wastein port
+			delay 500 //simulating oprobot taking time to go to wastein port
 			updateResource [# "info($name, moving_to_WasteIn_port)" #]
 			request basicrobot -m moverobot : moverobot($X, $Y)
 		} 
@@ -298,7 +305,7 @@ QActor oprobot context ctxwis24 {
 			#]
 
 			println("$name - Depositing RP in ($X, $Y)") color green
-			delay 350 // simulating deposit action
+			delay 500 // simulating deposit action
 			updateResource [# "info($name, moving_to_BurnIn_port)" #]
 			request basicrobot -m moverobot : moverobot($X, $Y)			
 	 	}
@@ -324,7 +331,7 @@ QActor oprobot context ctxwis24 {
                 var Y = payloadArg(1).toInt()
             #]
             println("$name - Moving to ($X,$Y)") color green
-            delay 350 //simulating oprobot taking time to moverobot
+            delay 500 //simulating oprobot taking time to moverobot
             updateResource [# "info($name, moving_to_BurnOut_port)" #]
             request basicrobot -m moverobot : moverobot($X, $Y)
         }
@@ -351,7 +358,7 @@ QActor oprobot context ctxwis24 {
 			#]
 
             println("$name - Depositing Ash in ($X, $Y)") color green
-            delay 350
+            delay 500
             updateResource [# "info($name, moving_to_AshOut_port)" #]
             request basicrobot -m moverobot : moverobot($X, $Y)
         }

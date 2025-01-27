@@ -69,7 +69,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var X = payloadArg(0).toInt()
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
-								delay(350) 
+								delay(500) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -102,7 +102,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var X = payloadArg(0).toInt()
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
-								delay(350) 
+								delay(500) 
 								updateResourceRep( "info($name, moving_to_WasteIn_port)"  
 								)
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
@@ -137,7 +137,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var X = payloadArg(0).toInt()
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing RP in ($X, $Y)")
-								delay(350) 
+								delay(500) 
 								updateResourceRep( "info($name, moving_to_BurnIn_port)"  
 								)
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
@@ -172,7 +172,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								                var X = payloadArg(0).toInt()
 								                var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
-								delay(350) 
+								delay(500) 
 								updateResourceRep( "info($name, moving_to_BurnOut_port)"  
 								)
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
@@ -207,7 +207,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var X = payloadArg(0).toInt()
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing Ash in ($X, $Y)")
-								delay(350) 
+								delay(500) 
 								updateResourceRep( "info($name, moving_to_AshOut_port)"  
 								)
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  

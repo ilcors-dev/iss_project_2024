@@ -93,7 +93,8 @@
         Questo documento contiene lo Sprint1 del progetto per il tema finale
         del corso. <br> <br>
 
-        <b>Goal:</b> L'obiettivo dello Sprint1 è quello di implementare il movimento dell'OpRobot nella Service Area, assicurandosi che raggiunga tutte le posizioni descritte nelle UserStory nello Sprint0, nell'ordine corretto.
+        <b>Goal:</b> L'obiettivo dello Sprint1 è quello di implementare il movimento dell'OpRobot nella Service Area,
+        assicurandosi che raggiunga tutte le posizioni descritte nelle UserStory nello Sprint0, nell'ordine corretto.
       </div>
 
       <h2>Requisiti</h2>
@@ -109,7 +110,9 @@
         <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a>
         realizzato precedentemente.
 
-        <a class="reference internal image-reference flex justify-center" href="../../sprint0/userDocs/immagini/wis24arch.png"><img alt="../../sprint0/userDocs/immagini/wis24arch.png" class="align-right" src="../../sprint0/userDocs/immagini/wis24arch.png" style="width: 70%" /></a>
+        <a class="reference internal image-reference flex justify-center"
+          href="../../sprint0/userDocs/immagini/wis24arch.png"><img alt="../../sprint0/userDocs/immagini/wis24arch.png"
+            class="align-right" src="../../sprint0/userDocs/immagini/wis24arch.png" style="width: 70%" /></a>
       </div>
 
       <h2>Analisi del problema</h2>
@@ -171,29 +174,29 @@
         <div>
           <ul>
             <li>
-                  <b>invierà</b> <b><code>Dispatch startBurning : startBurning(BTIME)</code></b> all'Incinerator.<br />
-                  Questo messaggio è ricavato dal seguente requisito:
-                  <div class="remark-light">
-                    <i>" The Incinerator is able to perceive a proper activation
-                      command sent by using a wireless (wifi, bluetooth)
-                      connection.<br />
-                      The Incinerator can process one RP at the time. The burning
-                      process requires (approximately) BTIME seconds."</i>
-                  </div>
-                  È quindi fondamentale per il sistema in quanto indica
-                  all'inceneritore che è stato inserito un RP e può iniziare la fase
-                  di incenerimento. Il tempo di incenerimento è rappresentato dal
-                  parametro <b>BTIME</b>. <br />
-                <br />
-                Le <b>interazioni tra il WIS e l'OpRobot</b>
-                verranno gestite attraverso un'interazione di tipo Request/Reply in
-                quanto la risposta dell'OpRobot potrà essere usata per la gestione
-                della ServiceStatusGUI, che dovrà riportare lo stato del robot:
-                <div class="remark-light">
-                  <i>" 4. the state of the OpRobot, i.e. an indication of its
-                    current location in the service area and of the job that it is
-                    doing.</i>
-                </div>
+              <b>invierà</b> <b><code>Dispatch startBurning : startBurning(BTIME)</code></b> all'Incinerator.<br />
+              Questo messaggio è ricavato dal seguente requisito:
+              <div class="remark-light">
+                <i>" The Incinerator is able to perceive a proper activation
+                  command sent by using a wireless (wifi, bluetooth)
+                  connection.<br />
+                  The Incinerator can process one RP at the time. The burning
+                  process requires (approximately) BTIME seconds."</i>
+              </div>
+              È quindi fondamentale per il sistema in quanto indica
+              all'inceneritore che è stato inserito un RP e può iniziare la fase
+              di incenerimento. Il tempo di incenerimento è rappresentato dal
+              parametro <b>BTIME</b>. <br />
+              <br />
+              Le <b>interazioni tra il WIS e l'OpRobot</b>
+              verranno gestite attraverso un'interazione di tipo Request/Reply in
+              quanto la risposta dell'OpRobot potrà essere usata per la gestione
+              della ServiceStatusGUI, che dovrà riportare lo stato del robot:
+              <div class="remark-light">
+                <i>" 4. the state of the OpRobot, i.e. an indication of its
+                  current location in the service area and of the job that it is
+                  doing.</i>
+              </div>
             </li>
             <li>
               <b>invierà</b> <b><code>Request getrp : getrp(TARGETX, TARGETY)</code></b> all'OpRobot<br />
@@ -205,8 +208,10 @@
                 true, wait at HOME, until it becomes true.<br />
                 3. get a RP from the WasteStorage container;"
               </div>
-              I parametri TARGETX e TARGETY contengono le coordinate in cui il robot dovrà dirigersi per svolgere il compito assegnatogli. <br>
-              Si è scelto di utilizzare una Request-Reply in modo da  ordinare il recupero dell'RP da WASTEIN e notificare al WIS il completamento del task da parte dell'OpRobot.
+              I parametri TARGETX e TARGETY contengono le coordinate in cui il robot dovrà dirigersi per svolgere il
+              compito assegnatogli. <br>
+              Si è scelto di utilizzare una Request-Reply in modo da ordinare il recupero dell'RP da WASTEIN e
+              notificare al WIS il completamento del task da parte dell'OpRobot.
             </li>
             <li>
               <b>invierà</b> <b><code>Request depositrp : depositrp(TARGETX, TARGETY)</code></b> all'OpRobot.<br />
@@ -216,7 +221,8 @@
                 "4. move to the BURNIN port and deposit the RP into the
                 Incinerator;"
               </div>
-              Si è scelto di utilizzare una Request-Reply in modo da  ordinare il deposito dell'RP in BURNIN e notificare al WIS il completamento del task da parte dell'OpRobot.
+              Si è scelto di utilizzare una Request-Reply in modo da ordinare il deposito dell'RP in BURNIN e notificare
+              al WIS il completamento del task da parte dell'OpRobot.
             </li>
             <li>
               <b>invierà</b> <b><code>Request extractash : extractash(TARGETX, TARGETY)</code></b> all'OpRobot.<br />
@@ -226,7 +232,8 @@
                 "6. move to the BURNOUT port to extract the ash, when the
                 Incinerator has completed a burning phase;"
               </div>
-              Si è scelto di utilizzare una Request-Reply in modo da  ordinare l'estrazione dell'Ash da BURNOUT e notificare al WIS il completamento del task da parte dell'OpRobot.
+              Si è scelto di utilizzare una Request-Reply in modo da ordinare l'estrazione dell'Ash da BURNOUT e
+              notificare al WIS il completamento del task da parte dell'OpRobot.
             </li>
             <li>
               <b>invierà</b> <b><code>Request depositash : depositash(TARGETX, TARGETY)</code></b> all'OpRobot.<br />
@@ -236,7 +243,8 @@
                 "7. move to the ASHOUT port and deposit the ash into the
                 AshStorage container;"
               </div>
-              Si è scelto di utilizzare una Request-Reply in modo da  ordinare il deposito dell'Ash in ASHOUT e notificare al WIS il completamento del task da parte dell'OpRobot.
+              Si è scelto di utilizzare una Request-Reply in modo da ordinare il deposito dell'Ash in ASHOUT e
+              notificare al WIS il completamento del task da parte dell'OpRobot.
             </li>
             <li>
               <b>invierà</b> <b><code>Request gohome : gohome(TARGETX, TARGETY)</code></b> all'OpRobot.<br />
@@ -244,7 +252,8 @@
               <div class="remark-light">
                 "8. reconsider the point 2 (and go back to HOME, if it is the case)."
               </div>
-              Si è scelto di utilizzare una Request-Reply in modo da  ordinare il ritorno in HOME e notificare al WIS il completamento del task da parte dell'OpRobot.
+              Si è scelto di utilizzare una Request-Reply in modo da ordinare il ritorno in HOME e notificare al WIS il
+              completamento del task da parte dell'OpRobot.
             </li>
           </ul>
         </div>
@@ -286,7 +295,8 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]</pre>
           gli attori <span class="blue">Incinerator</span> e
           <span class="blue">MonitoringDevice</span> che saranno descritti
           nelle sezioni immediatamente successive.<br />
-          Come detto nello Sprint0, abbiamo scelto di dare più responsabilità al WIS perchè in quanto rappresentazione del sistema ha senso che gestisca le azioni dell'OpRobot e dell'Incenerator. <br>
+          Come detto nello Sprint0, abbiamo scelto di dare più responsabilità al WIS perchè in quanto rappresentazione
+          del sistema ha senso che gestisca le azioni dell'OpRobot e dell'Incenerator. <br>
           Riepilogo messaggi:
           <ul>
             <li>
@@ -401,16 +411,16 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]</pre>
     </div>
 
     <h3>Modello del sistema</h3>
-      <div class="remark">
-        Il modello del sistema per lo Sprint1 è raffigurato
-        nell'immagine sottostante. <br />
-        <a class="reference internal image-reference flex justify-center" href="./immagini/wis24arch.png"><img
-            alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png" style="width: 70%" /></a>
-        Di seguito si riportano i principali attori del sistema trattati in questo sprint, le
-        interazioni tra di essi ed anche le motivazioni che hanno
-        portato a modellare il sistema in questo modo.
+    <div class="remark">
+      Il modello del sistema per lo Sprint1 è raffigurato
+      nell'immagine sottostante. <br />
+      <a class="reference internal image-reference flex justify-center" href="./immagini/wis24arch.png"><img
+          alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png" style="width: 70%" /></a>
+      Di seguito si riportano i principali attori del sistema trattati in questo sprint, le
+      interazioni tra di essi ed anche le motivazioni che hanno
+      portato a modellare il sistema in questo modo.
 
-      </div>
+    </div>
 
     <h3>Piani di testing</h3>
     <div class="remark">
@@ -418,7 +428,7 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]</pre>
       e la sua interazione con il <span class="blue">WIS</span>, i test
       saranno focalizzati su queste due parti del sistema. <br />
       I test fanno uso di un <a href="../../html/QakActors24.html">Observer</a> e di un POJO (Plain Old Java Object)
-      <a href="./../src/main/kotlin/Logger.kt">Logger.kt</a> per salvare i log
+      <a href="./../src/main/kotlin/Logger.kt">LINK Logger.kt</a> per salvare i log
       rilevanti durante l'esecuzione in un file testuale. La scelta del POJO risiede nel fatto che il Logger è un
       elemento passivo dotato di un'interfaccia contenente metodi di scrittura.<br />
       <pre>
@@ -451,16 +461,29 @@ QActor wisloggerobserver context ctxwis24 withobj logger using "main.kotlin.Logg
       il contenuto del file di log generato. <br />
       <ul>
         <li>
-          <b>testGetRP</b> verifica il corretto recupero del RP dopo aver
-          verificato i requisiti menzionati nello User Stories e lo
-          spostamento verso la <span class="red">BURNIN port</span> in cui
-          verrà depositato il <span class="red">RP</span>.<br />
-          <a href="./../src/main/kotlin/test/TestGetRp.kt">testGetRP.kt</a>
+          <b>Test4RP</b> verifica il corretto funzionamento del sistema visto ai morsetti. Ovvero il sistema viene
+          inizializzato con <b>RPCOUNT=4 all'interno della WasteIn</b> e verifica <b>dopo un certo tempo</b>, che tutti
+          gli RP siano stati prelevati <b>(RPCOUNT=0)</b> e inceneriti.<br />
+          <a href="./../src/main/kotlin/test/Test4rp.kt">LINK Test4RP.kt</a>
+        </li>
+        <li>
+          <b>testgetrp</b> verifica il corretto recupero del rp dopo aver
+          verificato i requisiti menzionati nello user stories e lo
+          spostamento verso la <span class="red">burnin port</span> in cui
+          verrà depositato il <span class="red">rp</span>.<br />
+          il test verifica <b>l'ordine cronologico</b> delle operazioni per garantire la corretta esecuzione in ordine
+          del movimento previsto.<br />
+          <a href="./../src/main/kotlin/test/TestGetRp.kt">LINK TestGetRP.kt</a>
           <pre class="whitespace-pre-wrap">
-assertLogEntry("wis.log", "moving_to_WasteIn_port")
-assertLogEntry("wis.log", "collected_RP_from_WasteIn_port")
-assertLogEntry("wis.log", "moving_to_BurnIn_port")
-assertLogEntry("wis.log", "deposited_RP_in_BurnIn_port")</pre>
+assertLogEntriesInOrder(
+  "wis.log",
+  listOf(
+          "moving_to_WasteIn_port",
+          "collected_RP_from_WasteIn_port",
+          "moving_to_BurnIn_port",
+          "deposited_RP_in_BurnIn_port"
+  )
+)</pre>
         </li>
         <li>
           <b>testGetAsh</b> verifica il corretto recupero dalla
@@ -470,20 +493,28 @@ assertLogEntry("wis.log", "deposited_RP_in_BurnIn_port")</pre>
           dovrà successivamente dirigersi verso la
           <span class="red">ASHOUT</span> port dell'AshStorage dove depositerà
           la cenere.<br />
-          <a href="./../src/main/kotlin/test/TestGetAsh.kt">testGetAsh.kt</a>
+          Il test verifica <b>l'ordine cronologico</b> delle operazioni per garantire la corretta esecuzione in ordine
+          del movimento previsto.<br />
+          <a href="./../src/main/kotlin/test/TestGetAsh.kt">LINK TestGetAsh.kt</a>
           <pre>
-assertLogEntry("wis.log", "incinerator_status_BURNING")
-assertLogEntry("wis.log", "incinerator_status_FINISHED_BURNING")
-assertLogEntry("wis.log", "moving_to_BurnOut_port")
-assertLogEntry("wis.log", "collected_ash_from_BurnOut_port")
-assertLogEntry("wis.log", "moving_to_AshOut_port")
-assertLogEntry("wis.log", "deposited_ash_in_AshOut_port")</pre>
+assertLogEntriesInOrder(
+  "wis.log",
+  listOf(
+      "moving_to_BurnOut_port",
+      "collected_ash_from_BurnOut_port",
+      "moving_to_AshOut_port",
+      "deposited_ash_in_AshOut_port"
+  )
+)</pre>
         </li>
       </ul>
 
+      <h4>Modello del sistema per i test</h4>
+      Riportiamo di seguito il modello del sistema con l'observer introdotto per i test.
       <a class="reference internal image-reference flex justify-center" href="./immagini/wis24arch.png"><img
-        alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png" style="width: 70%" /></a>
+          alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png" style="width: 70%" /></a>
     </div>
+
     <h3>Prossimi sviluppi</h3>
     <div class="remark">
       Nel prossimo sprint (<b>Sprint 2</b>) verranno implementati l'estrazione

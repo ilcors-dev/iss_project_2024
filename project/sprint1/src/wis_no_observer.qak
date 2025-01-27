@@ -88,7 +88,6 @@ QActor wis context ctxwis24 {
 	State s0 initial {
 		delay 500
 		println("$name start") color green
-		updateResource [# "info($name, start)" #]
 	}
 	Goto setupSystem
 	
@@ -110,9 +109,6 @@ QActor wis context ctxwis24 {
 			val status = "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}"
 			println(status)	
 		#]
-		
-		updateResource [# "info($name, RPCONT_$RPCONT)" #]
-		updateResource [# "info($name, ASHLEVEL_$ASHLEVEL)" #]
 	}
 
 	Transition t0 
@@ -128,7 +124,6 @@ QActor wis context ctxwis24 {
 			[# INHOME = 0 #]
 			[# RPCONT -= 1 #]
             println("$name - Moving to burn in") color green
-			updateResource [# "info($name, update_rp_count_to__$RPCONT)" #]
             request oprobot -m depositrp : depositrp($BURN_IN_POS_X, $BURN_IN_POS_Y)
         }
     }
@@ -186,13 +181,11 @@ QActor wis context ctxwis24 {
 		onMsg(burning : burning(START_TIME)) {
 			[# INCSTATUS = 1 #]
   			println("$name - start incinerator, update status") color magenta
-  			updateResource [# "info($name, incinerator_status_BURNING)" #]
   		}
   		
   		onMsg(finishedBurning : finishedBurning(TIME_ELAPSED)) {
 			[# INCSTATUS = 0 #]
   			println("$name - finish incinerator, update status") color magenta
-  			updateResource [# "info($name, incinerator_status_FINISHED_BURNING)" #]
   			request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
   		}
   	}
@@ -207,7 +200,6 @@ QActor wis context ctxwis24 {
 				ASHLEVEL += level
 			#]
   			println("$name - Update Ash level") color magenta
-  			updateResource [# "info($name, ash_level_to__$ASHLEVEL)" #]
   		}
   	}
   	
@@ -228,7 +220,6 @@ QActor oprobot context ctxwis24 {
 	State engage {
 		println("$name request engage") color green		
 		request basicrobot -m engage : engage($OWNER, 350)
-		updateResource [# "info($name, start)" #]
 	}
 	
 	Transition t0 
@@ -277,7 +268,6 @@ QActor oprobot context ctxwis24 {
 			#]
 			println("$name - Moving to ($X,$Y)") color green	      
 			delay 500 //simulating oprobot taking time to go to wastein port
-			updateResource [# "info($name, moving_to_WasteIn_port)" #]
 			request basicrobot -m moverobot : moverobot($X, $Y)
 		} 
 	}
@@ -287,7 +277,6 @@ QActor oprobot context ctxwis24 {
 		whenReply moverobotfailed -> execGetRp
 
 	State getRpOk {
-		updateResource [# "info($name, collected_RP_from_WasteIn_port)" #]
 		replyTo getrp with getrp_status : getrp_status(0)
 	}
 	
@@ -304,7 +293,6 @@ QActor oprobot context ctxwis24 {
 
 			println("$name - Depositing RP in ($X, $Y)") color green
 			delay 500 // simulating deposit action
-			updateResource [# "info($name, moving_to_BurnIn_port)" #]
 			request basicrobot -m moverobot : moverobot($X, $Y)			
 	 	}
 	}
@@ -314,7 +302,6 @@ QActor oprobot context ctxwis24 {
 		whenReply moverobotfailed -> execDepositRp
 
 	State depositRpOk {
-		updateResource [# "info($name, deposited_RP_in_BurnIn_port)" #]
 		replyTo depositrp with depositrp_status : depositrp_status(0)
 	}
 	
@@ -330,7 +317,6 @@ QActor oprobot context ctxwis24 {
             #]
             println("$name - Moving to ($X,$Y)") color green
             delay 500 //simulating oprobot taking time to moverobot
-            updateResource [# "info($name, moving_to_BurnOut_port)" #]
             request basicrobot -m moverobot : moverobot($X, $Y)
         }
     }
@@ -340,7 +326,6 @@ QActor oprobot context ctxwis24 {
         whenReply moverobotfailed -> execExtractAsh
 
     State extractAshOk {
-		updateResource [# "info($name, collected_ash_from_BurnOut_port)" #]
         replyTo extractash with extractash_status : extractash_status(0)
     }
 
@@ -357,7 +342,6 @@ QActor oprobot context ctxwis24 {
 
             println("$name - Depositing Ash in ($X, $Y)") color green
             delay 500
-            updateResource [# "info($name, moving_to_AshOut_port)" #]
             request basicrobot -m moverobot : moverobot($X, $Y)
         }
     }
@@ -367,7 +351,6 @@ QActor oprobot context ctxwis24 {
         whenReply moverobotfailed -> execDepositAsh
 
     State depositAshOk {
-		updateResource [# "info($name, deposited_ash_in_AshOut_port)" #]
         replyTo depositash with depositash_status : depositash_status(0)
     }
 
@@ -402,7 +385,6 @@ QActor incinerator context ctxwis24 {
 		onMsg(startBurning : startBurning(BTIME)){
 			[# var BurnTime = payloadArg(0).toLong() #]
   			println("$name - Start burning phase") color magenta	      
-  			updateResource [# "info($name, burning_phase_started)" #]
 			emit burning : burning(BurnTime)
 			
 			delayVar BurnTime 
@@ -432,26 +414,3 @@ QActor monitoringdevice context ctxmonitoringdevice {
 	Goto measure
 }
 */
-
-QActor wisloggerobserver context ctxwis24 withobj logger using "main.kotlin.Logger.getInstance(\"wis.log\")" {
-	State s0 initial {
-		println("$name STARTS in wis") color yellow
-		observeResource wis msgid info
-		observeResource oprobot msgid info
-		observeResource incinerator msgid info
-	  }
-	  Transition t0 whenMsg info -> handleInfo
-	  
-	  State handleInfo {
-
-	  	onMsg(info:info(SOURCE,TERM)) {
-	      [#
-        	val Source = payloadArg(0)
-	        val infoMsg = payloadArg(1)
-	        val M      = "$infoMsg from $Source"
-	      #]
-	      [# logger.log( M ) #]
-	    }
-	  }
-  	  Transition t0 whenMsg info -> handleInfo	  
-}
