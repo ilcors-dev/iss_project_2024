@@ -43,6 +43,13 @@
     padding-right: 10px;
   }
 
+  h6 {
+    background-color: #ccb6f0;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   .blue {
     color: blue;
     font-weight: 500;
@@ -84,7 +91,9 @@
       <h2>Introduction</h2>
       <div class="remark">
         Questo documento contiene lo Sprint1 del progetto per il tema finale
-        del corso.
+        del corso. <br> <br>
+
+        <b>Goal:</b> L'obiettivo dello Sprint1 è quello di implementare il movimento dell'OpRobot nella Service Area, assicurandosi che raggiunga tutte le posizioni descritte nelle UserStory nello Sprint0, nell'ordine corretto.
       </div>
 
       <h2>Requisiti</h2>
@@ -99,25 +108,11 @@
         Per l'analisi dei requisiti si faccia riferimento allo
         <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a>
         realizzato precedentemente.
+
+        <a class="reference internal image-reference flex justify-center" href="../../sprint0/userDocs/immagini/wis24arch.png"><img alt="../../sprint0/userDocs/immagini/wis24arch.png" class="align-right" src="../../sprint0/userDocs/immagini/wis24arch.png" style="width: 70%" /></a>
       </div>
 
-      <h3>Modello del sistema</h3>
-      <div class="remark">
-        Il modello del sistema per lo Sprint1 è raffigurato
-        nell'immagine sottostante. <br />
-        <a class="reference internal image-reference flex justify-center" href="./immagini/wis24arch.png"><img
-            alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png" style="width: 70%" /></a>
-        L'obiettivo dello Sprint1 è quello di implementare il movimento
-        dell'<span class="blue">OpRobot</span> nella <span class="red">Service Area</span>,
-        assicurandosi che raggiunga tutte le posizioni descritte nelle UserStory
-        nello <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a>,
-        nell'ordine corretto. <br />
-        Di seguito si riportano i principali attori del sistema trattati in questo sprint, le
-        interazioni tra di essi ed anche le motivazioni che hanno
-        portato a modellare il sistema in questo modo.
-
-      </div>
-
+      <h2>Analisi del problema</h2>
       <div class="remark">
         <h4>Messaggi scambiati</h4>
         <p>
@@ -172,82 +167,87 @@
           </li>
         </ul>
         <b>Messaggi aggiunti nello Sprint1: </b>
-        <ul>
-          <li>
-            <b><code>Dispatch startBurning : startBurning(BTIME)</code></b><br />
-            Questo messaggio è ricavato dal seguente requisito:
-            <div class="remark-light">
-              <i>" The Incinerator is able to perceive a proper activation
-                command sent by using a wireless (wifi, bluetooth)
-                connection.<br />
-                The Incinerator can process one RP at the time. The burning
-                process requires (approximately) BTIME seconds."</i>
-            </div>
-            È quindi fondamentale per il sistema in quanto indica
-            all'inceneritore che è stato inserito un RP e può iniziare la fase
-            di incenerimento. Il tempo di incenerimento è rappresentato dal
-            parametro <b>BTIME</b>. <br />
-          </li>
-          <br />
-          Le
-          <b>interazioni tra il WIS e l'OpRobot</b>
-          verranno gestite attraverso un'interazione di tipo Request/Reply in
-          quanto la risposta dell'OpRobot potrà essere usata per la gestione
-          della ServiceStatusGUI, che dovrà riportare lo stato del robot:
-          <div class="remark-light">
-            <i>" 4. the state of the OpRobot, i.e. an indication of its
-              current location in the service area and of the job that it is
-              doing.</i>
-          </div>
-          <li>
-            <b><code>Request getrp : getrp(TARGETX, TARGETY)</code></b><br />
-            <b><code>Reply getrp_status : getrp_status(0) for getrp</code></b><br />
-            <div class="remark-light">
-              "2. if the WasteStorage container is not empty, the AshStorage
-              container is not full, and the Incinerator is not in a burning
-              phase, move to the WASTEIN port. If one of the conditions is not
-              true, wait at HOME, until it becomes true.<br />
-              3. get a RP from the WasteStorage container;"
-            </div>
-            I parametri TARGETX e TARGETY contengono le coordinate in cui il
-            robot dovrà dirigersi per svolgere il compito assegnatogli.
-          </li>
-          <li>
-            <b><code>Request depositrp : depositrp(TARGETX, TARGETY)</code></b><br />
-            <b><code>Reply depositrp_status : depositrp_status(0) for
-                  depositrp</code></b><br />
-            <div class="remark-light">
-              "4. move to the BURNIN port and deposit the RP into the
-              Incinerator;"
-            </div>
-          </li>
-          <li>
-            <b><code>Request extractash : extractash(TARGETX, TARGETY)</code></b><br />
-            <b><code>Reply extractash_status : extractash_status(0) for
-                  extractash</code></b><br />
-            <div class="remark-light">
-              "6. move to the BURNOUT port to extract the ash, when the
-              Incinerator has completed a burning phase;"
-            </div>
-          </li>
-          <li>
-            <b><code>Request depositash : depositash(TARGETX, TARGETY)</code></b><br />
-            <b><code>Reply depositash_status : depositash_status(0) for
-                  depositash</code></b><br />
-            <div class="remark-light">
-              "7. move to the ASHOUT port and deposit the ash into the
-              AshStorage container;"
-            </div>
-          </li>
-          <li>
-            <b><code>Request gohome : gohome(TARGETX, TARGETY)</code></b><br />
-            <b><code>Reply gohome_status : gohome_status(0) for gohome</code></b><br />
-            <div class="remark-light">
-              "8. reconsider the point 2 (and go back to HOME, if it is the
-              case)."
-            </div>
-          </li>
-        </ul>
+        <h6><b>WIS</b></h6>
+        <div>
+          <ul>
+            <li>
+                  <b>invierà</b> <b><code>Dispatch startBurning : startBurning(BTIME)</code></b> all'Incinerator.<br />
+                  Questo messaggio è ricavato dal seguente requisito:
+                  <div class="remark-light">
+                    <i>" The Incinerator is able to perceive a proper activation
+                      command sent by using a wireless (wifi, bluetooth)
+                      connection.<br />
+                      The Incinerator can process one RP at the time. The burning
+                      process requires (approximately) BTIME seconds."</i>
+                  </div>
+                  È quindi fondamentale per il sistema in quanto indica
+                  all'inceneritore che è stato inserito un RP e può iniziare la fase
+                  di incenerimento. Il tempo di incenerimento è rappresentato dal
+                  parametro <b>BTIME</b>. <br />
+                <br />
+                Le <b>interazioni tra il WIS e l'OpRobot</b>
+                verranno gestite attraverso un'interazione di tipo Request/Reply in
+                quanto la risposta dell'OpRobot potrà essere usata per la gestione
+                della ServiceStatusGUI, che dovrà riportare lo stato del robot:
+                <div class="remark-light">
+                  <i>" 4. the state of the OpRobot, i.e. an indication of its
+                    current location in the service area and of the job that it is
+                    doing.</i>
+                </div>
+            </li>
+            <li>
+              <b>invierà</b> <b><code>Request getrp : getrp(TARGETX, TARGETY)</code></b> all'OpRobot<br />
+              <b>riceverà</b> <b><code>Reply getrp_status : getrp_status(0) for getrp</code></b> dall'OpRobot.<br />
+              <div class="remark-light">
+                "2. if the WasteStorage container is not empty, the AshStorage
+                container is not full, and the Incinerator is not in a burning
+                phase, move to the WASTEIN port. If one of the conditions is not
+                true, wait at HOME, until it becomes true.<br />
+                3. get a RP from the WasteStorage container;"
+              </div>
+              I parametri TARGETX e TARGETY contengono le coordinate in cui il robot dovrà dirigersi per svolgere il compito assegnatogli. <br>
+              Si è scelto di utilizzare una Request-Reply in modo da  ordinare il recupero dell'RP da WASTEIN e notificare al WIS il completamento del task da parte dell'OpRobot.
+            </li>
+            <li>
+              <b>invierà</b> <b><code>Request depositrp : depositrp(TARGETX, TARGETY)</code></b> all'OpRobot.<br />
+              <b>riceverà</b> <b><code>Reply depositrp_status : depositrp_status(0) for
+                    depositrp</code></b><br /> dall'OpRobot.
+              <div class="remark-light">
+                "4. move to the BURNIN port and deposit the RP into the
+                Incinerator;"
+              </div>
+              Si è scelto di utilizzare una Request-Reply in modo da  ordinare il deposito dell'RP in BURNIN e notificare al WIS il completamento del task da parte dell'OpRobot.
+            </li>
+            <li>
+              <b>invierà</b> <b><code>Request extractash : extractash(TARGETX, TARGETY)</code></b> all'OpRobot.<br />
+              <b>riceverà</b> <b><code>Reply extractash_status : extractash_status(0) for
+                    extractash</code></b> dall'OpRobot.<br />
+              <div class="remark-light">
+                "6. move to the BURNOUT port to extract the ash, when the
+                Incinerator has completed a burning phase;"
+              </div>
+              Si è scelto di utilizzare una Request-Reply in modo da  ordinare l'estrazione dell'Ash da BURNOUT e notificare al WIS il completamento del task da parte dell'OpRobot.
+            </li>
+            <li>
+              <b>invierà</b> <b><code>Request depositash : depositash(TARGETX, TARGETY)</code></b> all'OpRobot.<br />
+              <b>riceverà</b> <b><code>Reply depositash_status : depositash_status(0) for
+                    depositash</code></b> dall'OpRobot.<br />
+              <div class="remark-light">
+                "7. move to the ASHOUT port and deposit the ash into the
+                AshStorage container;"
+              </div>
+              Si è scelto di utilizzare una Request-Reply in modo da  ordinare il deposito dell'Ash in ASHOUT e notificare al WIS il completamento del task da parte dell'OpRobot.
+            </li>
+            <li>
+              <b>invierà</b> <b><code>Request gohome : gohome(TARGETX, TARGETY)</code></b> all'OpRobot.<br />
+              <b>riceverà</b> <b><code>Reply gohome_status : gohome_status(0) for gohome</code></b> dall'OpRobot.<br />
+              <div class="remark-light">
+                "8. reconsider the point 2 (and go back to HOME, if it is the case)."
+              </div>
+              Si è scelto di utilizzare una Request-Reply in modo da  ordinare il ritorno in HOME e notificare al WIS il completamento del task da parte dell'OpRobot.
+            </li>
+          </ul>
+        </div>
       </div>
       <h4>Contesti</h4>
       <div class="remark">
@@ -281,121 +281,136 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]</pre>
           Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/wis.qak">wis.qak</a>). Il suo
           compito in questa fase è quello di mantenere lo stato
           attuale dell'inceneritore (<span class="red">acceso</span> o
-          <span class="red">spento</span>) e comunicare con l'<span class="blue">OpRobot</span>.
-        </div>
-        <div>
-          Per questo motivo il <span class="blue">WIS</span> interagirà con
+          <span class="red">spento</span>) e comunicare con l'<span class="blue">OpRobot</span>. <br>
+          Inoltre il <span class="blue">WIS</span> interagirà con
           gli attori <span class="blue">Incinerator</span> e
           <span class="blue">MonitoringDevice</span> che saranno descritti
           nelle sezioni immediatamente successive.<br />
-          In particolare il WIS:
+          Come detto nello Sprint0, abbiamo scelto di dare più responsabilità al WIS perchè in quanto rappresentazione del sistema ha senso che gestisca le azioni dell'OpRobot e dell'Incenerator. <br>
+          Riepilogo messaggi:
           <ul>
             <li>
-              <b>invierà</b> il messaggio
-              <b><code>startIncinerator</code></b> all'<span class="blue">Incinerator</span>
-              per dare il via alla configurazione dell'inceneritore.
+              <b>invierà</b>:
+              <ul>
+                <li>
+                  <b><code>startIncinerator</code></b>
+                </li>
+                <li>
+                  <b><code>startBurning</code></b>
+                </li>
+                <li>
+                  <b><code>getrp</code></b>
+                </li>
+                <li>
+                  <b><code>depositrp</code></b>
+                </li>
+                <li>
+                  <b><code>extractash</code></b>
+                </li>
+                <li>
+                  <b><code>depositash</code></b>
+                </li>
+                <li>
+                  <b><code>gohome</code></b>
+                </li>
+              </ul>
             </li>
             <li>
-              <b>invierà</b> il messaggio
-              <b><code>startBurning</code></b> all'<span class="blue">Incinerator</span>
-              per dare il via all'incenerimento dell'RP appena inserito.
-            </li>
-            <li>
-              <b>riceverà</b> il messaggio
-              <b><code>burning</code></b> dall'<span class="blue">Incinerator</span>
-              per mantenere aggiornato il proprio stato interno.
-            </li>
-            <li>
-              <b>riceverà</b> il messaggio
-              <b><code>finishedBurning</code></b> dall'<span class="blue">Incinerator</span>
-              per mantenere aggiornato il proprio stato interno.
-            </li>
-            <li>
-              <b>riceverà</b> il messaggio
-              <b><code>ashMeasurement</code></b> dal
-              <span class="blue">MonitoringDevice</span>
-              per mantenere aggiornato il livello delle ceneri.
-            </li>
-            <li>
-              <b>invierà</b> il messaggio <b><code>getrp</code></b> all'<span class="blue">OpRobot</span>
-              per chiedergli di recarsi nella WASTEIN port per ritirare un RP.
-            </li>
-            <li>
-              <b>riceverà</b> il messaggio
-              <b><code>getrp_status</code></b> dal
-              <span class="blue">OpRobot</span>
-              per mantenere aggiornato lo stato dell'OpRobot.
-            </li>
-            <li>
-              <b>invierà</b> il messaggio
-              <b><code>depositrp</code></b> all'<span class="blue">OpRobot</span>
-              per chiedergli di recarsi nella BURNIN port e depositare un RP.
-            </li>
-            <li>
-              <b>riceverà</b> il messaggio
-              <b><code>depositrp_status</code></b> dal
-              <span class="blue">OpRobot</span>
-              per mantenere aggiornato lo stato dell'OpRobot.
-            </li>
-            <li>
-              <b>invierà</b> il messaggio
-              <b><code>extractash</code></b> all'<span class="blue">OpRobot</span>
-              per chiedergli di recarsi nella BURNOUT port e ritirare le
-              ceneri appena prodotte.
-            </li>
-            <li>
-              <b>riceverà</b> il messaggio
-              <b><code>extractash_status</code></b> dal
-              <span class="blue">OpRobot</span>
-              per mantenere aggiornato lo stato dell'OpRobot.
-            </li>
-            <li>
-              <b>invierà</b> il messaggio
-              <b><code>depositash</code></b> all'<span class="blue">OpRobot</span>
-              per chiedergli di recarsi nella ASHIN port e ritirare le ceneri
-              appena prodotte.
-            </li>
-            <li>
-              <b>riceverà</b> il messaggio
-              <b><code>depositash_status</code></b> dal
-              <span class="blue">OpRobot</span>
-              per mantenere aggiornato lo stato dell'OpRobot.
-            </li>
-            <li>
-              <b>invierà</b> il messaggio <b><code>gohome</code></b> all'<span class="blue">OpRobot</span>
-              per chiedergli di recarsi nella HOME.
-            </li>
-            <li>
-              <b>riceverà</b> il messaggio
-              <b><code>gohome_status</code></b> dal
-              <span class="blue">OpRobot</span>
-              per mantenere aggiornato lo stato dell'OpRobot.
+              <b>riceverà</b>:
+              <ul>
+                <li>
+                  <b><code>burning</code></b>
+                </li>
+                <li>
+                  <b><code>finishedBurning</code></b>
+                </li>
+                <li>
+                  <b><code>getrp_status</code></b>
+                </li>
+                <li>
+                  <b><code>depositrp_status</code></b>
+                </li>
+                <li>
+                  <b><code>extractash_status</code></b>
+                </li>
+                <li>
+                  <b><code>depositash_status</code></b>
+                </li>
+                <li>
+                  <b><code>gohome_status</code></b>
+                </li>
+                <li>
+                  <b><code>ashMeasurement</code></b>
+                </li>
+              </ul>
             </li>
           </ul>
         </div>
       </div>
       <h4>Incinerator</h4>
       <div class="remark">
-        L'<span class="blue">incinerator</span> sarà modellato come attore.
-        Interagirà con il <span class="blue">WIS</span> per ricevere il
-        comando <b><code>startIncinerator</code></b> e
-        <b><code>startBurning</code></b> di inizio incenerimento ed emetterà
-        gli eventi <b><code>burning</code></b> e
-        <b><code>finishedBurning</code></b>.
+        L'<span class="blue">Incinerator</span> sarà modellato come attore.
+        Interagirà con il <span class="blue">WIS</span> attraverso i messaggi riportati di seguito.<br>
+        Riepilogo messaggi:
+        <ul>
+          <li>
+            <b>riceverà</b>:
+            <ul>
+              <li><b><code>startIncinerator</code></b></li>
+              <li><b><code>startBurning</code></b></li>
+            </ul>
+          </li>
+          <li>
+            <b>invierà</b>:
+            <ul>
+              <li><b><code>burning</code></b></li>
+              <li><b><code>finishedBurning</code></b></li>
+            </ul>
+          </li>
+        </ul>
       </div>
 
       <h4>OpRobot</h4>
       <div class="remark">
         L'<span class="blue">OpRobot</span> sarà modellato come attore.
-        Interagirà con il <span class="blue">WIS</span> per ricevere i comandi
-        <b><code>getrp</code></b>, <b><code>depositrp</code></b>, <b><code>extractash</code></b>,
-        <b><code>depositash</code></b> e <b><code>gohome</code></b> e
-        risponderà con <b><code>getrp_status</code></b>, <b><code>depositrp_status</code></b>,
-        <b><code>extractash_status</code></b>, <b><code>depositash_status</code></b> e
-        <b><code>gohome_status</code></b>, i cui funzionamenti sono stati esplicitati nei paragrafi
-        precedenti.
+        Interagirà con il <span class="blue">WIS</span> attraverso i messaggi riportati di seguito. <br>
+        Riepilogo messaggi:
+        <ul>
+          <li>
+            <b>riceverà</b>:
+            <ul>
+              <li><b><code>getrp</code></b></li>
+              <li><b><code>depositrp</code></b></li>
+              <li><b><code>extractash</code></b></li>
+              <li><b><code>depositash</code></b></li>
+              <li><b><code>gohome</code></b></li>
+            </ul>
+          </li>
+          <li>
+            <b>invierà</b>:
+            <ul>
+              <li><b><code>getrp_status</code></b></li>
+              <li><b><code>depositrp_status</code></b></li>
+              <li><b><code>extractash_status</code></b></li>
+              <li><b><code>depositash_status</code></b></li>
+              <li><b><code>gohome_status</code></b></li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </div>
+
+    <h3>Modello del sistema</h3>
+      <div class="remark">
+        Il modello del sistema per lo Sprint1 è raffigurato
+        nell'immagine sottostante. <br />
+        <a class="reference internal image-reference flex justify-center" href="./immagini/wis24arch.png"><img
+            alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png" style="width: 70%" /></a>
+        Di seguito si riportano i principali attori del sistema trattati in questo sprint, le
+        interazioni tra di essi ed anche le motivazioni che hanno
+        portato a modellare il sistema in questo modo.
+
+      </div>
 
     <h3>Piani di testing</h3>
     <div class="remark">
@@ -465,6 +480,9 @@ assertLogEntry("wis.log", "moving_to_AshOut_port")
 assertLogEntry("wis.log", "deposited_ash_in_AshOut_port")</pre>
         </li>
       </ul>
+
+      <a class="reference internal image-reference flex justify-center" href="./immagini/wis24arch.png"><img
+        alt="./immagini/wis24arch.png" class="align-right" src="./immagini/wis24arch.png" style="width: 70%" /></a>
     </div>
     <h3>Prossimi sviluppi</h3>
     <div class="remark">

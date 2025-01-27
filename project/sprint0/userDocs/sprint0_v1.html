@@ -242,7 +242,7 @@ class ServiceArea {
                 La <span class="blue">ServiceStatusGUI</span> è un componente del
                 sistema che permette di visualizzare informazioni, quali lo stato del
                 WasteStorage, dell'AshStorage, dell'Incinerator e dell'OpRobot. È quindi
-                opportuno modellarlo (almeno inizialmente), come un <b>attore</b>.
+                opportuno modellarlo (almeno inizialmente), come un <b>attore</b>. Verrà formalizzata nei successivi Sprint.
             </div>
 
             <h3>Analisi delle User Stories</h3>
@@ -356,6 +356,7 @@ class ServiceArea {
                             wireless
                             (wifi, bluetotth) connection."</i>
                     </div>
+                    Non è richiesta una risposta per il comando  di attivazione, quindi abbiamo optato per la scelta di una Dispatch.
                 </li>
                     <li>
                         <b><code>Dispatch startBurning : startBurning(BTIME)</code></b><br />
@@ -363,6 +364,7 @@ class ServiceArea {
                         È quindi fondamentale per
                         il sistema in quanto istruisce l'inceneritore a iniziare la fase di incenerimento. Il tempo di
                         incenerimento è rappresentato dal parametro <b>BTIME</b>. <br />
+                        Si è scelto di utilizzare una Dispatch in quanto la risposta a questo messaggio verrà inviata attraverso un Event, in modo da comunicare il corretto avvio del processo di incenerimento agli attori che necessitano l'informazione, quindi il WIS, la ServiceStatusGUI e il Monitoring Device.
                     </li>
                     <li>
                         <b><code>Event burning : burning(START_TIME)</code></b><br />
@@ -377,7 +379,8 @@ class ServiceArea {
                         </div>
                         È quindi fondamentale per il <span class="blue">MonitoringDevice</span> sapere quando l'<span
                             class="blue">Incinerator</span> è in fase di incenerimento. <br />
-                        Il parametro <b>START_TIME</b> rappresenta il timestamp di inizio.
+                        Il parametro <b>START_TIME</b> rappresenta il timestamp di inizio. <br>
+                        Si è scelto di utilizzare un Event per segnalare lo stato dell'Incinerator a tutti gli attori.
                     </li>
                     <li>
                         <b><code>Event finishedBurning : finishedBurning(TIME_ELAPSED)</code></b><br />
@@ -386,7 +389,7 @@ class ServiceArea {
                                 can be perceived by the OpRobot and by the WIS."</i>
                         </div>
                         È fondamentale per il sistema sapere quando l'<span class="blue">Incinerator</span> ha
-                        terminato. <br />
+                        terminato. Per questo motivo, supportato anche dal verbo "emits" sopra riportato, abbiamo scelto di utilizzare un Event. <br />
                         Il parametro <b>TIME_ELAPSED</b> rappresenta il tempo trascorso dall'inizio dell'incenerimento.
                     </li>
                     <li>
@@ -400,7 +403,7 @@ class ServiceArea {
                         Per il corretto funzionamento del sistema, il <span class="blue">MonitoringDevice</span> deve
                         essere in grado di misurare il livello delle ceneri nell'<span class="blue">AshStorage</span> e
                         di
-                        inviarlo al <span class="blue">WIS</span> per essere processato. <br />
+                        inviarlo al <span class="blue">WIS</span> per essere processato. Verrà utilizzata una Dispatch inviata dal Monitoring Device non appena il sonar percepirà un cambiamento nel livello della cenere. Un Monitoring Device dovrebbe avere autonomia nella segnalazione, quindi non avrebbe senso una Request da parte del WIS.<br />
                         Il parametro <b>L</b> rappresenta il livello delle ceneri misurato.
                     </li>
                 </ul>
@@ -429,8 +432,7 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
             <div class="remark">
                 <div>
                     Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/wis.qak">wis.qak</a>).
-                    Il
-                    suo compito in questa fase è
+                    Il suo compito in questa fase è
                     quello di mantenere lo stato attuale dell'inceneritore (<span class="red">acceso</span> o <span
                         class="red">spento</span>) e il <span class="red">livello della cenere</span>.
                 </div>
@@ -439,6 +441,7 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
                         class="blue">Incinerator</span> e <span class="blue">MonitoringDevice</span> che saranno
                     descritti nelle
                     sezioni immediatamente successive.<br />
+                    Abbiamo scelto di dare più responsabilità al WIS perchè in quanto rappresentazione del sistema ha senso che gestisca le azioni dell'OpRobot e dell'Incenerator. <br>
                     In particolare il WIS:
                     <ul>
                         <li><b>invierà</b> il messaggio <b><code>startIncinerator</code></b> all <span
