@@ -26,6 +26,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
+						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						CommUtils.outmagenta("$name STARTS")
 						//genTimer( actor, state )
 					}
@@ -56,8 +57,8 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 var BurnTime = payloadArg(0).toLong()  
 								CommUtils.outmagenta("$name - Start burning phase")
-								updateResourceRep( "info($name, burning_phase_started)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "burning_phase_started" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","burning_phase_started").toString(), "it.unib0.iss.wis" )   
 								emit("burning", "burning(BurnTime)" ) 
 								delay(BurnTime)
 								CommUtils.outmagenta("$name - Finished burning RP")
