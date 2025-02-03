@@ -377,6 +377,30 @@ class ServiceArea {
                     </li>
                 </ul>
             </div>
+
+            <h2>Analisi del Problema</h2>
+            <div class="remark">
+                Problematiche evidenziate durante l'analisi dei requisiti:
+                <ul>
+                    <li>
+                        Dall'analisi dei requisiti viene evidenziato l'utilizzo di un messaggio per segnalare all'Incinerator l'avvio del sistema. <br>
+                        Questo messaggio può essere modellato come un <b>dispatch</b> inviato dall'attore <span class="blue">WIS</span> all'attore <span class="blue">Incinerator</span> in quanto non è previsto l'invio di una risposta. Inoltre il messaggio è diretto a un singolo componente del sistema e quindi non si ritiene utile l'utilizzo di un Event.
+                    </li>
+                    <li>
+                        Un secondo messaggio riguarda il corretto deposito di un RP nell'Incinerator e il conseguente avvio della fase di incenerimento. <br>
+                        Questo messaggio non richiede nessuna risposta e sarà diretto solamente all'Incinerator. <br>
+                        Anche in questo caso si consiglia di utilizzare un <b>dispatch</b> inviato dall'attore <span class="blue">WIS</span> all'attore <span class="blue">Incinerator</span>. <br>
+                        Il tempo di incenerimento <b>BTIME</b> potrà essere passato come parametro. <br />
+                    </li>
+                    <li>
+                        Il terzo messaggio verrà inviato per segnalare lo stato corrente utilizzato da un led posto sul Monitoring Device. <br>
+                        Non è prevista una risposta, quindi la scelta sulla tipologia del messaggio ricadrà su gli Event o su una Dispatch. <br />
+                    </li>
+                    <li>
+                        Per l'ultimo messaggio riguardante l'emissione del segnale alla fine della fase di incenerimento, come evidenziato dall'analista dei requisiti, si suggerisce l'uso di un Event che verrà percepito dal WIS e dall'OpRobot. <br>
+                    </li>
+                </ul>
+            </div>
             <h3>Modello del sistema</h3>
             <div class="remark">
                 Il modello iniziale del sistema nello Sprint0 è raffigurato nell'immagine sottostante. <br />
@@ -424,15 +448,11 @@ Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
                     Abbiamo scelto di dare più responsabilità al WIS perchè in quanto rappresentazione del sistema ha senso che gestisca le azioni dell'OpRobot e dell'Incenerator. <br>
                     In particolare il WIS:
                     <ul>
-                        <li><b>invierà</b> il messaggio <b><code>startIncinerator</code></b> all <span
-                                class="blue">Incinerator</span> non appena viene acceso l'intero sistema, in modo da attivare anche l'Incinerator.</li>
-                        <li><b>invierà</b> il messaggio <b><code>startBurning</code></b> all <span
-                                    class="blue">Incinerator</span> per far partire la fase di incenerimento che terminerà dopo BTIME secondi e porterà al completo incenerimento di un RP.</li>
-                        <li><b>riceverà</b> il messaggio <b><code>burning</code></b> dall'<span
-                                class="blue">Incinerator</span>
-                            per mantenere aggiornato il proprio stato interno.</li>
-                        <li><b>riceverà</b> il messaggio <b><code>finishedBurning</code></b> dall'<span
-                                class="blue">Incinerator</span> per mantenere aggiornato il proprio stato interno.
+                        <li><b>invierà</b> il messaggio <b><code>Dispatch startIncinerator : startIncinerator(BTIME)</code></b> all'<span class="blue">Incinerator</span> non appena viene acceso l'intero sistema, in modo da attivare anche l'Incinerator.</li>
+                        <li><b>invierà</b> il messaggio <b><code>Dispatch startBurning : startBurning(BTIME)</code></b> all <span class="blue">Incinerator</span> per far partire la fase di incenerimento che terminerà dopo BTIME secondi e porterà al completo incenerimento di un RP.</li>
+                        <li><b>riceverà</b> il messaggio <b><code>Event burning : burning(START_TIME)</code></b> dall'<span class="blue">Incinerator</span> per mantenere aggiornato il proprio stato interno. Si è scelto l'utilizzo di un Event per rimanere coerenti con l'Event che segnala la fine dell'incenerimento.
+                        </li>
+                        <li><b>riceverà</b> il messaggio <b><code>Event finishedBurning : finishedBurning(TIME_ELAPSED)</code></b> dall'<span class="blue">Incinerator</span> per mantenere aggiornato il proprio stato interno.
                         </li>
                     </ul>
                 </div>
