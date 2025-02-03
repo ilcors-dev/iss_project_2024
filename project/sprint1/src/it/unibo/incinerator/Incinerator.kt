@@ -58,7 +58,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 								 var BurnTime = payloadArg(0).toLong()  
 								CommUtils.outmagenta("$name - Start burning phase")
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "burning_phase_started" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","burning_phase_started").toString(), "it.unib0.iss.wis" )   
+								publish(MsgUtil.buildEvent(name,"mqtt_info","burning_phase_started").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								emit("burning", "burning(BurnTime)" ) 
 								delay(BurnTime)
 								CommUtils.outmagenta("$name - Finished burning RP")

@@ -90,7 +90,7 @@ QActor wis context ctxwis24 {
 		delay 500
 		println("$name start") color green
 		
-		publish "it.unib0.iss.wis" -m mqtt_info : start
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : start
 	}
 	Goto setupSystem
 	
@@ -114,8 +114,8 @@ QActor wis context ctxwis24 {
 			val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
 		#]
 		
-		publish "it.unib0.iss.wis" -m mqtt_info : $RP_STATUS
-		publish "it.unib0.iss.wis" -m mqtt_info : $ASHLEVEL_STATUS
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $RP_STATUS
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $ASHLEVEL_STATUS
 	}
 
 	Transition t0 
@@ -134,7 +134,7 @@ QActor wis context ctxwis24 {
             
             println("$name - Moving to burn in") color green
             
-			publish "it.unib0.iss.wis" -m mqtt_info : $STATUS
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
             request oprobot -m depositrp : depositrp($BURN_IN_POS_X, $BURN_IN_POS_Y)
         }
     }
@@ -193,14 +193,14 @@ QActor wis context ctxwis24 {
 			[# INCSTATUS = 1 #]
   			println("$name - start incinerator, update status") color magenta
   			
-  			publish "it.unib0.iss.wis" -m mqtt_info : incinerator_status_BURNING
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_BURNING
   		}
   		
   		onMsg(finishedBurning : finishedBurning(TIME_ELAPSED)) {
 			[# INCSTATUS = 0 #]
   			println("$name - finish incinerator, update status") color magenta
   			
-  			publish "it.unib0.iss.wis" -m mqtt_info : incinerator_status_FINISHED_BURNING
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_FINISHED_BURNING
   			
   			request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
   		}
@@ -218,7 +218,7 @@ QActor wis context ctxwis24 {
 			#]
   			println("$name - Update Ash level") color magenta
   			
-  			publish "it.unib0.iss.wis" -m mqtt_info : $STATUS
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
   		}
   	}
   	
@@ -240,7 +240,7 @@ QActor oprobot context ctxwis24 {
 	State engage {
 		println("$name request engage") color green		
 		request basicrobot -m engage : engage($OWNER, 350)
-		publish "it.unib0.iss.wis" -m mqtt_info : start
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : start
 	}
 	
 	Transition t0 
@@ -289,7 +289,7 @@ QActor oprobot context ctxwis24 {
 			#]
 			println("$name - Moving to ($X,$Y)") color green	      
 			delay 500 //simulating oprobot taking time to go to wastein port
-  			publish "it.unib0.iss.wis" -m mqtt_info : moving_to_WasteIn_port
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_WasteIn_port
 			
 			request basicrobot -m moverobot : moverobot($X, $Y)
 		} 
@@ -300,7 +300,7 @@ QActor oprobot context ctxwis24 {
 		whenReply moverobotfailed -> execGetRp
 
 	State getRpOk {
-		publish "it.unib0.iss.wis" -m mqtt_info : collected_RP_from_WasteIn_port
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : collected_RP_from_WasteIn_port
 		
 		replyTo getrp with getrp_status : getrp_status(0)
 	}
@@ -319,7 +319,7 @@ QActor oprobot context ctxwis24 {
 			println("$name - Depositing RP in ($X, $Y)") color green
 			delay 500 // simulating deposit action
 			
-			publish "it.unib0.iss.wis" -m mqtt_info : moving_to_BurnIn_port
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_BurnIn_port
 			
 			request basicrobot -m moverobot : moverobot($X, $Y)			
 	 	}
@@ -330,7 +330,7 @@ QActor oprobot context ctxwis24 {
 		whenReply moverobotfailed -> execDepositRp
 
 	State depositRpOk {
-		publish "it.unib0.iss.wis" -m mqtt_info : deposited_RP_in_BurnIn_port
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_RP_in_BurnIn_port
 		
 		replyTo depositrp with depositrp_status : depositrp_status(0)
 	}
@@ -348,7 +348,7 @@ QActor oprobot context ctxwis24 {
             println("$name - Moving to ($X,$Y)") color green
             delay 500 //simulating oprobot taking time to moverobot
 
-			publish "it.unib0.iss.wis" -m mqtt_info : moving_to_BurnOut_port
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_BurnOut_port
 
             request basicrobot -m moverobot : moverobot($X, $Y)
         }
@@ -359,7 +359,7 @@ QActor oprobot context ctxwis24 {
         whenReply moverobotfailed -> execExtractAsh
 
     State extractAshOk {
-		publish "it.unib0.iss.wis" -m mqtt_info : collected_ash_from_BurnOut_port
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : collected_ash_from_BurnOut_port
 
         replyTo extractash with extractash_status : extractash_status(0)
     }
@@ -378,7 +378,7 @@ QActor oprobot context ctxwis24 {
             println("$name - Depositing Ash in ($X, $Y)") color green
             delay 500
             
-			publish "it.unib0.iss.wis" -m mqtt_info : moving_to_AshOut_port
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_AshOut_port
             
             request basicrobot -m moverobot : moverobot($X, $Y)
         }
@@ -389,7 +389,7 @@ QActor oprobot context ctxwis24 {
         whenReply moverobotfailed -> execDepositAsh
 
     State depositAshOk {
-		publish "it.unib0.iss.wis" -m mqtt_info : deposited_ash_in_AshOut_port
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_ash_in_AshOut_port
     	
         replyTo depositash with depositash_status : depositash_status(0)
     }
@@ -426,7 +426,7 @@ QActor incinerator context ctxwis24 {
 		onMsg(startBurning : startBurning(BTIME)){
 			[# var BurnTime = payloadArg(0).toLong() #]
   			println("$name - Start burning phase") color magenta
-  			publish "it.unib0.iss.wis" -m mqtt_info : burning_phase_started
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : burning_phase_started
 
 			emit burning : burning(BurnTime)
 			

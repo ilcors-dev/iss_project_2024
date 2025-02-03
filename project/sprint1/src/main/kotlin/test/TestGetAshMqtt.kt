@@ -79,7 +79,7 @@ class TestGetAshMqtt {
             },
         )
 
-        client.subscribe("it.unib0.iss.wis")
+        client.subscribe("it.unib0.iss.waste-incinerator-service")
 
         delay(50000)
 

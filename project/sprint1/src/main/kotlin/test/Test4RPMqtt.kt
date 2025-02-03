@@ -78,7 +78,7 @@ class Test4RPMqtt {
             },
         )
 
-        client.subscribe("it.unib0.iss.wis")
+        client.subscribe("it.unib0.iss.waste-incinerator-service")
 
         delay(160000)
 
