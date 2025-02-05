@@ -81,10 +81,11 @@
     </div>
 
     <div class="body">
-      <h2>Introduction</h2>
+      <h2>Introduzione</h2>
       <div class="remark">
         Questo documento contiene lo sprint0 del progetto per il tema finale
-        del corso.
+        del corso. <br />
+        Il business core dello Sprint0 riguarda l'<b>incenerimento dei rifiuti.</b>
       </div>
 
       <h2>Requisiti</h2>
@@ -95,9 +96,6 @@
       </div>
 
       <h2>Analisi dei requisiti</h2>
-      <div class="remark">
-        Analizzando i requisiti del problema possiamo dire che:
-      </div>
       <div class="remark">
         Il servizio <span class="blue">WasteIncineratorService</span> non
         trova una facile corrispondenza in Java, quindi non posso esprimerlo
@@ -449,12 +447,7 @@ class ServiceArea {
       <div class="remark">
         Il modello iniziale del sistema nello Sprint0 è raffigurato
         nell'immagine sottostante. <br />
-        L'attenzione è stata rivolta alla modellazione del business core
-        dell'applicazione, ossia il sistema di
-        <b>incenerimento dei rifiuti</b>. <br />
-        Di seguito si riportano i principali attori del sistema e le
-        interazioni tra di essi. Si riportano anche le motivazioni che hanno
-        portato a modellare il sistema in questo modo.
+        
         <a class="reference internal image-reference flex justify-center" href="./immagini/wis24arch.png"><img
             alt="./immagini/wis24arch.png" src="./immagini/wis24arch.png" style="width: 40%" /></a>
       </div>
@@ -512,7 +505,7 @@ Context ctxbasicrobot ip [host="127.0.0.1" port=8020]</pre>
             </li>
             <li>
               <b>riceverà</b> il messaggio
-              <b><code>Event burning : burning(START_TIME)</code></b>
+              <b><code>Event burning : burning()</code></b>
               dall'<span class="blue">Incinerator</span> per mantenere
               aggiornato il proprio stato interno. Si è scelto l'utilizzo di
               un Event per rimanere coerenti con l'Event che segnala la fine
@@ -520,7 +513,7 @@ Context ctxbasicrobot ip [host="127.0.0.1" port=8020]</pre>
             </li>
             <li>
               <b>riceverà</b> il messaggio
-              <b><code>Event finishedBurning : finishedBurning(TIME_ELAPSED)</code></b>
+              <b><code>Event finishedBurning : finishedBurning()</code></b>
               dall'<span class="blue">Incinerator</span>
               per mantenere aggiornato il proprio stato interno.
             </li>
