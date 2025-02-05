@@ -50,12 +50,12 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("burning(START_TIME)"), Term.createTerm("burning(START_TIME)"), 
+						if( checkMsgContent( Term.createTerm("burning(0)"), Term.createTerm("burning(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 1  
 								CommUtils.outmagenta("$name - start incinerator, update status")
 						}
-						if( checkMsgContent( Term.createTerm("finishedBurning(TIME_ELAPSED)"), Term.createTerm("finishedBurning(TIME_ELAPSED)"), 
+						if( checkMsgContent( Term.createTerm("finishedBurning(0)"), Term.createTerm("finishedBurning(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 0  
 								CommUtils.outmagenta("$name - finish incinerator, update status")

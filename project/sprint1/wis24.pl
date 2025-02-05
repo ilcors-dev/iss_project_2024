@@ -3,9 +3,8 @@
 %====================================================================================
 dispatch( startIncinerator, startIncinerator(0) ).
 dispatch( startBurning, startBurning(BTIME) ).
-event( burning, burning(START_TIME) ).
-event( finishedBurning, finishedBurning(TIME_ELAPSED) ).
-dispatch( ashMeasurement, ashMeasurement(L) ).
+event( burning, burning(0) ).
+event( finishedBurning, finishedBurning(0) ).
 request( engage, engage(OWNER,STEPTIME) ).
 request( moverobot, moverobot(TARGETX,TARGETY) ).
 reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot
@@ -20,7 +19,7 @@ request( depositash, depositash(TARGETX,TARGETY) ).
 reply( depositash_status, depositash_status(0) ).  %%for depositash
 request( gohome, gohome(TARGETX,TARGETY) ).
 reply( gohome_status, gohome_status(0) ).  %%for gohome
-event( mqtt_info, mqtt_info(MSG) ).
+dispatch( info, info(SEARCH,TERM) ).
 %====================================================================================
 context(ctxwis24, "localhost",  "TCP", "8121").
 context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
@@ -31,3 +30,5 @@ context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
  static(oprobot).
   qactor( incinerator, ctxwis24, "it.unibo.incinerator.Incinerator").
  static(incinerator).
+  qactor( wisloggerobserver, ctxwis24, "it.unibo.wisloggerobserver.Wisloggerobserver").
+ static(wisloggerobserver).

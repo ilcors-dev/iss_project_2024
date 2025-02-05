@@ -34,7 +34,7 @@ class Wisloggerobserver ( name: String, scope: CoroutineScope, isconfined: Boole
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t030",targetState="handleInfo",cond=whenDispatch("info"))
+					 transition(edgeName="t029",targetState="handleInfo",cond=whenDispatch("info"))
 				}	 
 				state("handleInfo") { //this:State
 					action { //it:State
@@ -51,7 +51,7 @@ class Wisloggerobserver ( name: String, scope: CoroutineScope, isconfined: Boole
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t031",targetState="handleInfo",cond=whenDispatch("info"))
+					 transition(edgeName="t030",targetState="handleInfo",cond=whenDispatch("info"))
 				}	 
 			}
 		}

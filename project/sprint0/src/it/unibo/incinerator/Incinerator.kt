@@ -56,10 +56,10 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 var BurnTime = payloadArg(0).toLong()  
 								CommUtils.outmagenta("$name - Start burning phase")
-								emit("burning", "burning(BurnTime)" ) 
+								emit("burning", "burning(0)" ) 
 								delay(BurnTime)
 								CommUtils.outmagenta("$name - Finished burning RP")
-								emit("finishedBurning", "finishedBurning(BurnTime)" ) 
+								emit("finishedBurning", "finishedBurning(0)" ) 
 						}
 						//genTimer( actor, state )
 					}

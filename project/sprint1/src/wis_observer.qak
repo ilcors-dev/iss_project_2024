@@ -5,8 +5,8 @@ Dispatch startIncinerator   : startIncinerator(0) 		      // turns on the incine
 Dispatch startBurning       : startBurning(BTIME)			  // tell the incinerator to start burning a RP
 
 // - incinerator
-Event burning 				: burning(START_TIME)             // incinerator starts burning
-Event finishedBurning 	    : finishedBurning(TIME_ELAPSED)   // end of burning phase
+Event burning 				: burning(0)             // incinerator starts burning
+Event finishedBurning 	    : finishedBurning(0)   // end of burning phase
 
 // - monitoring device
 // Dispatch ashMeasurement     : ashMeasurement(L)
@@ -183,13 +183,13 @@ QActor wis context ctxwis24 {
     State updateIncStatus { // update incinerator status
 		printCurrentMessage
 
-		onMsg(burning : burning(START_TIME)) {
+		onMsg(burning : burning(0)) {
 			[# INCSTATUS = 1 #]
   			println("$name - start incinerator, update status") color magenta
   			updateResource [# "info($name, incinerator_status_BURNING)" #]
   		}
   		
-  		onMsg(finishedBurning : finishedBurning(TIME_ELAPSED)) {
+  		onMsg(finishedBurning : finishedBurning(0)) {
 			[# INCSTATUS = 0 #]
   			println("$name - finish incinerator, update status") color magenta
   			updateResource [# "info($name, incinerator_status_FINISHED_BURNING)" #]
@@ -405,12 +405,12 @@ QActor incinerator context ctxwis24 {
 			[# var BurnTime = payloadArg(0).toLong() #]
   			println("$name - Start burning phase") color magenta	      
   			updateResource [# "info($name, burning_phase_started)" #]
-			emit burning : burning(BurnTime)
+			emit burning : burning(0)
 			
 			delayVar BurnTime 
 			
 			println("$name - Finished burning RP") color magenta
-			emit finishedBurning : finishedBurning(BurnTime)
+			emit finishedBurning : finishedBurning(0)
 		}
  	}
  	Transition t0
