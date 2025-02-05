@@ -9,7 +9,7 @@ Event burning 				: burning(START_TIME)             // incinerator starts burnin
 Event finishedBurning 	    : finishedBurning(TIME_ELAPSED)   // end of burning phase
 
 // - monitoring device
-Dispatch ashMeasurement     : ashMeasurement(L)
+// Dispatch ashMeasurement     : ashMeasurement(L)
 
 // - basicrobot interaction
 Request engage			    : engage(OWNER,STEPTIME) 		  // engaging request
@@ -120,7 +120,7 @@ QActor wis context ctxwis24 {
 		whenEvent finishedBurning   -> updateIncStatus
 		whenReply getrp_status      -> moveToBurnIn
 		whenReply extractash_status -> moveToAshOut		
-		whenMsg ashMeasurement		-> updateAshLevel
+		// whenMsg ashMeasurement		-> updateAshLevel
 
 	State moveToBurnIn {
 	    printCurrentMessage
@@ -199,6 +199,7 @@ QActor wis context ctxwis24 {
   	
   	Goto goHome if [# INHOME == 0 #] else printStatus
 		
+	/*
 	State updateAshLevel { // update the ash level measurement
 		printCurrentMessage
 		onMsg(ashMeasurement : ashMeasurement(L)){
@@ -212,6 +213,7 @@ QActor wis context ctxwis24 {
   	}
   	
 	Goto printStatus
+	*/
 }
 
 QActor oprobot context ctxwis24 {

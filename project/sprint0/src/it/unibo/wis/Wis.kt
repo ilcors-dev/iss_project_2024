@@ -45,7 +45,6 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					sysaction { //it:State
 					}	 	 
 					 transition(edgeName="t00",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t01",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
 				}	 
 				state("updateIncStatus") { //this:State
 					action { //it:State
@@ -66,29 +65,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t03",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t04",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
-				}	 
-				state("updateAshLevel") { //this:State
-					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						if( checkMsgContent( Term.createTerm("ashMeasurement(L)"), Term.createTerm("ashMeasurement(L)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								
-												var level = payloadArg(0).toInt()
-												ASHLEVEL += level
-								CommUtils.outmagenta("$name - Update Ash level")
-						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t05",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t06",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
-					transition(edgeName="t07",targetState="updateAshLevel",cond=whenDispatch("ashMeasurement"))
+					 transition(edgeName="t01",targetState="updateIncStatus",cond=whenEvent("burning"))
+					transition(edgeName="t02",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
 				}	 
 			}
 		}
