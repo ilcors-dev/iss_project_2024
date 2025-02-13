@@ -1,0 +1,544 @@
+System wis24
+
+// MESSAGES
+Dispatch startIncinerator   : startIncinerator(0) 		      // turns on the incinerator at startup
+Dispatch startBurning       : startBurning(BTIME)			  // tell the incinerator to start burning a RP
+
+// - incinerator
+Event burning 				: burning(0)             // incinerator starts burning
+Event finishedBurning 	    : finishedBurning(0)   // end of burning phase
+
+// - monitoring device
+// Dispatch ashMeasurement     : ashMeasurement(L)
+
+// - basicrobot interaction
+Request engage			    : engage(OWNER,STEPTIME) 		  // engaging request
+Reply	engagedone		    : engagedone(ARG) 
+Reply	engagerefused	    : engagerefused(ARG)
+
+Request moverobot           :  moverobot(TARGETX, TARGETY)  
+Reply moverobotdone         :  moverobotok(ARG)                    for moverobot
+Reply moverobotfailed       :  moverobotfailed(PLANDONE, PLANTODO) for moverobot
+
+// - oprobot interaction
+Request getrp       		:  getrp(TARGETX, TARGETY)
+Reply   getrp_status		:  getrp_status(0)					   for getrp	
+
+Request depositrp           :  depositrp(TARGETX, TARGETY) 
+Reply   depositrp_status	:  depositrp_status(0)				   for depositrp
+
+Request extractash          :  extractash(TARGETX, TARGETY) 
+Reply   extractash_status	:  extractash_status(0)				   for extractash
+
+Request depositash          :  depositash(TARGETX, TARGETY) 
+Reply   depositash_status	:  depositash_status(0)				   for depositash
+
+Request gohome              :  gohome(TARGETX, TARGETY)        
+Reply   gohome_status		:  gohome_status(0)                    for gohome
+
+
+Dispatch load_weight   		: load_weight(WEIGHT)
+Dispatch unload_weight 		: unload_weight(WEIGHT)
+Dispatch update_scale_count : update_scale_count(COUNT) // the scale sends how many rp are currently present
+Event scale_data 			: scale_data(WEIGHT) // sent from the physical scale device
+
+Event mqtt_info       		: mqtt_info(MSG) 
+
+// Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
+
+// CONTEXTS
+Context ctxwis24 ip [host="localhost" port=8121]
+Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
+// Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
+
+ExternalQActor basicrobot context ctxbasicrobot
+
+// ACTORS
+QActor wis context ctxwis24 {
+	import "main.resources.Position"
+	[# 
+		// constants
+		val MAX_ASH_CAPACITY = 4; // max 4 rp in ash storage (capacity)
+		
+		// variables
+		var ASHLEVEL  = 0;
+		var RPCONT    = 4;
+		var INCSTATUS = 0;    // 0 free, 1 busy
+		var INHOME    = 0;    // 0 in home, 1 not in home
+	
+		val LOCATIONS = mapOf(
+			"home" 			to Position(0,0),
+			"wastein" 		to Position(0,4),
+			"burn_in"		to Position(3,2),
+			"burn_out"		to Position(5,3),
+			"ashout"		to Position(6,4)
+		);
+
+		val WASTEIN_POS_X = LOCATIONS["wastein"]?.x;
+		val WASTEIN_POS_Y = LOCATIONS["wastein"]?.y;
+
+		val HOME_POS_X = LOCATIONS["home"]?.x;
+		val HOME_POS_Y = LOCATIONS["home"]?.y;
+		
+		val BURN_IN_POS_X = LOCATIONS["burn_in"]?.x;
+		val BURN_IN_POS_Y = LOCATIONS["burn_in"]?.y;
+		
+		val BURN_OUT_POS_X = LOCATIONS["burn_out"]?.x;
+		val BURN_OUT_POS_Y = LOCATIONS["burn_out"]?.y;
+		
+		val ASHOUT_POS_X = LOCATIONS["ashout"]?.x;
+		val ASHOUT_POS_Y = LOCATIONS["ashout"]?.y;
+	#]
+	
+	State s0 initial {
+ 		connectToMqttBroker "tcp://broker.hivemq.com"		
+		delay 500
+		println("$name start") color green
+		
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : start
+	}
+	Goto setupSystem
+	
+	State setupSystem {
+		println("$name setupping system..") color green
+		forward incinerator -m startIncinerator : startIncinerator(0)
+		
+		if [# (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) #] {
+			request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
+		}
+	}
+	
+	Goto printStatus
+	
+	State printStatus {
+		printCurrentMessage
+		
+		[#
+			val status = "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}";
+			val RP_STATUS = "RPCONT_${RPCONT}";
+			val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
+		#]
+		
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $RP_STATUS
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $ASHLEVEL_STATUS
+	}
+
+	Transition t0 
+		whenEvent burning			-> updateIncStatus
+		whenEvent finishedBurning   -> updateIncStatus
+		whenReply getrp_status      -> moveToBurnIn
+		whenReply extractash_status -> moveToAshOut
+		whenMsg update_scale_count -> handleScaleRPStatus	
+		// whenMsg ashMeasurement		-> updateAshLevel
+
+	State moveToBurnIn {
+	    printCurrentMessage
+	    onMsg(getrp_status : getrp_status(0)) {
+			[# INHOME = 0 #]
+			[# RPCONT -= 1 #]
+			[# val STATUS = "update_rp_count_to__${RPCONT}" #]
+            
+            println("$name - Moving to burn in") color green
+            
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
+            request oprobot -m depositrp : depositrp($BURN_IN_POS_X, $BURN_IN_POS_Y)
+        }
+    }
+
+    Transition t1
+		whenReply depositrp_status -> startBurningPhase
+
+	State startBurningPhase {
+        printCurrentMessage
+        println("$name - Start burning phase") color green
+        forward incinerator -m startBurning : startBurning(9000)
+    }
+
+    Transition t0
+    	whenEvent burning -> updateIncStatus
+
+	State moveToAshOut {
+	    printCurrentMessage
+	    onMsg(extractash_status : extractash_status(0)) {
+	        [# INHOME = 0 #]
+            println("$name - Moving to ash out") color green
+            request oprobot -m depositash : depositash($ASHOUT_POS_X, $ASHOUT_POS_Y)
+        }
+    }
+
+    Transition t5
+        whenReply depositash_status -> goHome
+
+    State goHome {
+		printCurrentMessage
+		println("$name - Moving to home") color green
+		request oprobot -m gohome : gohome($HOME_POS_X, $HOME_POS_Y)
+	}
+
+	Transition t2
+		whenReply gohome_status -> inHome
+
+	State inHome {
+		printCurrentMessage
+		onMsg(gohome_status : gohome_status(0)) {
+			[# INHOME = 1 #] // 🥵
+			println("$name - arrived in home") color green
+			
+			if [# (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) #] {
+				request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
+			}
+		}
+	}
+
+	Goto printStatus
+    
+    State updateIncStatus { // update incinerator status
+		printCurrentMessage
+
+		onMsg(burning : burning(0)) {
+			[# INCSTATUS = 1 #]
+  			println("$name - start incinerator, update status") color magenta
+  			
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_BURNING
+  		}
+  		
+  		onMsg(finishedBurning : finishedBurning(0)) {
+			[# INCSTATUS = 0 #]
+  			println("$name - finish incinerator, update status") color magenta
+  			
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_FINISHED_BURNING
+  			
+  			request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
+  		}
+  	}
+  	
+  	Goto goHome if [# INHOME == 0 #] else printStatus
+  	
+  	State handleScaleRPStatus {
+  		printCurrentMessage
+  		
+  		onMsg(update_scale_count : update_scale_count(COUNT)) {
+			[#
+				RPCONT = payloadArg(0).toInt()
+			#]
+  			
+  			println("$name - scale status changed, update") color magenta
+  			
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : updated_scale_rp_status
+  		}
+  	}
+	
+	/*
+	State updateAshLevel { // update the ash level measurement
+		printCurrentMessage
+		onMsg(ashMeasurement : ashMeasurement(L)){
+			[#
+				var level = payloadArg(0).toInt()
+				ASHLEVEL += level
+				val STATUS = "ash_level_to__${ASHLEVEL}"
+			#]
+  			println("$name - Update Ash level") color magenta
+  			
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
+  		}
+  	}
+  	
+	Goto printStatus
+	*/
+}
+
+QActor oprobot context ctxwis24 {
+	[#
+		var OWNER = "$name";
+	#]
+	
+	State s0 initial{
+		connectToMqttBroker "tcp://broker.hivemq.com"		
+		println("$name STARTS") color green
+	}
+	
+	Goto engage
+	
+	State engage {
+		println("$name request engage") color green		
+		request basicrobot -m engage : engage($OWNER, 350)
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : start
+	}
+	
+	Transition t0 
+		whenReply engagedone     ->  inHome
+		whenReply engagerefused  ->  handleEngageRefused
+		
+	State handleEngageRefused{
+    	println("engage $name refused, re-trying after some delay..")
+    	delay 500
+    }
+    Goto engage
+    
+    State execGoHome {
+		printCurrentMessage 
+		onMsg(gohome : gohome(X, Y)) {
+			[#
+				var X = payloadArg(0).toInt()
+				var Y = payloadArg(1).toInt()
+			#]
+			println("$name - Moving to ($X,$Y)") color green	      
+
+			delay 500 //simulating oprobot taking time to move
+			request basicrobot -m moverobot : moverobot($X, $Y)
+		} 
+    }
+    
+    Transition t0
+    	whenReply moverobotdone -> inHome
+		whenReply moverobotfailed -> execGoHome
+    
+	State inHome { 
+		println("$name - waiting in home...") color green
+		replyTo gohome with gohome_status : gohome_status(0)
+	}
+	
+	Transition t0
+		whenRequest getrp -> execGetRp
+		whenRequest extractash -> execExtractAsh
+	
+	State execGetRp { // moving to wastein port
+		printCurrentMessage 
+		onMsg(getrp : getrp(X, Y)) {
+			[#
+				var X = payloadArg(0).toInt()
+				var Y = payloadArg(1).toInt()
+			#]
+			println("$name - Moving to ($X,$Y)") color green	      
+			delay 500 //simulating oprobot taking time to go to wastein port
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_WasteIn_port
+			
+			request basicrobot -m moverobot : moverobot($X, $Y)
+		} 
+	}
+	
+	Transition t0
+		whenReply moverobotdone -> getRpOk
+		whenReply moverobotfailed -> execGetRp
+
+	State getRpOk {
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : collected_RP_from_WasteIn_port
+		
+		forward scale_device -m unload_weight : unload_weight(50) // 🏃🏻
+		replyTo getrp with getrp_status : getrp_status(0)
+	}
+	
+	Transition t1
+		whenRequest depositrp -> execDepositRp
+ 
+	State execDepositRp {
+		printCurrentMessage 
+		onMsg(depositrp : depositrp(X, Y)) {
+			[#
+				var X = payloadArg(0).toInt()
+				var Y = payloadArg(1).toInt()
+			#]
+
+			println("$name - Depositing RP in ($X, $Y)") color green
+			delay 500 // simulating deposit action
+			
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_BurnIn_port
+			
+			request basicrobot -m moverobot : moverobot($X, $Y)			
+	 	}
+	}
+	 	
+	Transition t2
+		whenReply moverobotdone -> depositRpOk
+		whenReply moverobotfailed -> execDepositRp
+
+	State depositRpOk {
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_RP_in_BurnIn_port
+		
+		replyTo depositrp with depositrp_status : depositrp_status(0)
+	}
+	
+	Transition t3
+		whenRequest gohome -> execGoHome
+
+	State execExtractAsh {
+	    printCurrentMessage
+	    onMsg(extractash : extractash(X, Y)) {
+            [#
+                var X = payloadArg(0).toInt()
+                var Y = payloadArg(1).toInt()
+            #]
+            println("$name - Moving to ($X,$Y)") color green
+            delay 500 //simulating oprobot taking time to moverobot
+	 		// 💀🔫
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_BurnOut_port
+
+            request basicrobot -m moverobot : moverobot($X, $Y)
+        }
+    }
+
+    Transition t0
+        whenReply moverobotdone -> extractAshOk
+        whenReply moverobotfailed -> execExtractAsh
+
+    State extractAshOk {
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : collected_ash_from_BurnOut_port
+
+        replyTo extractash with extractash_status : extractash_status(0)
+    }
+
+    Transition t0
+        whenRequest depositash -> execDepositAsh
+    
+    State execDepositAsh {
+        printCurrentMessage
+        onMsg(depositash : depositash(X, Y)) {
+			[#
+				var X = payloadArg(0).toInt()
+				var Y = payloadArg(1).toInt()
+			#]
+
+            println("$name - Depositing Ash in ($X, $Y)") color green
+            delay 500
+            
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_AshOut_port
+        	 // 🔫🔫🔫
+            request basicrobot -m moverobot : moverobot($X, $Y)
+        }
+    }
+
+    Transition t0
+        whenReply moverobotdone -> depositAshOk
+        whenReply moverobotfailed -> execDepositAsh
+
+    State depositAshOk {
+		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_ash_in_AshOut_port
+    	
+        replyTo depositash with depositash_status : depositash_status(0)
+    }
+
+    Transition t0
+        whenRequest gohome -> execGoHome
+}
+
+QActor incinerator context ctxwis24 {
+	[#
+		var ACTIVE = false;
+	#]
+
+	State s0 initial{
+		connectToMqttBroker "tcp://broker.hivemq.com"
+		println("$name STARTS") color magenta
+	}
+	Transition t0
+		whenMsg startIncinerator -> startup
+		
+	State startup {
+  		onMsg(startIncinerator : startIncinerator(0)) {
+  			[# ACTIVE = true #]
+  			
+  			println("$name ACTIVATED")
+  		}
+	}
+		
+	Transition t0
+	  	whenMsg startBurning -> startBurning
+	 	
+ 	State startBurning {
+		printCurrentMessage 
+		onMsg(startBurning : startBurning(BTIME)){
+			[# var BurnTime = payloadArg(0).toLong() #]
+  			println("$name - Start burning phase") color magenta
+  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : burning_phase_started
+
+			emit burning : burning(0)
+			
+			delayVar BurnTime 
+			
+			println("$name - Finished burning RP") color magenta
+			emit finishedBurning : finishedBurning(0)
+		}
+ 	}
+ 	Transition t0
+	 	whenMsg startBurning -> startBurning
+}
+
+QActor scale context ctxwis24 {
+	[# val RPCONT = 0 #]
+	
+	State s0 initial {
+		println("$name starts") color yellow
+		delay 1000
+		subscribeTo scale_device for scale_data
+	}
+	
+	Transition t0
+		whenEvent scale_data -> handleScaleData
+	
+	State handleScaleData {
+		printCurrentMessage
+		onMsg(scale_data : scaledata(WEIGHT)){
+			println("$name weight=${payloadArg(0)}") color yellow
+			
+			[# RPCONT = (payloadArg(0).toInt() / 50) #]
+			println("$name the RP number now is $RPCONT") color yellow
+			
+			forward wis -m update_scale_count : update_scale_count($RPCONT)
+		}
+	}
+	
+	Transition t0
+		whenEvent scale_data -> handleScaleData
+}
+
+QActor scale_device context ctxwis24 {
+	[# CURRENT_WEIGHT = 0 #]
+	
+	State s0 initial {
+		println("$name starts") color yellow
+		delay 1000
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+	
+	State addWeight {
+ 		// rp incoming from external source
+ 		[# CURRENT_WEIGHT += 50 #]
+ 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+	
+	State removeWeight {
+		printCurrentMessage
+		onMsg(unload_weight : unload_weight(WEIGHT)) {
+			// weight is removed (extracted), likely from the oprobot
+	 		[# CURRENT_WEIGHT -= 50 #]
+	 		
+	 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+ 		}
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+}
+
+QActor mock_rp_loader_external context ctxwis24 {
+	State s0 initial {
+		println("$name starts")
+	}
+	
+	Goto work
+	
+	State work {
+		forward scale_device -m load_weight : load_weight(50)
+		delay 60000
+	}
+	
+	Goto work
+}
