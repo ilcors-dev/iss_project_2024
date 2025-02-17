@@ -44,14 +44,19 @@ Event scale_data 			: scale_data(WEIGHT) // sent from the physical scale device
 
 Event mqtt_info       		: mqtt_info(MSG) 
 
+// external contexts messages
+Dispatch update_led_mode 		 : update_led_mode(mode)
+
 // Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
 
 // CONTEXTS
 Context ctxwis24 ip [host="localhost" port=8121]
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
-// Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
+Context ctxmonitoringdevice ip [host="127.0.0.1" port=8125]
 
 ExternalQActor basicrobot context ctxbasicrobot
+ExternalQActor led context ctxmonitoringdevice
+ExternalQActor sonar context ctxmonitoringdevice
 
 // ACTORS
 QActor wis context ctxwis24 {
@@ -200,6 +205,7 @@ QActor wis context ctxwis24 {
   			println("$name - start incinerator, update status") color magenta
   			
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_BURNING
+  			forward led -m update_led_mode : update_led_mode("on")
   		}
   		
   		onMsg(finishedBurning : finishedBurning(0)) {
@@ -209,6 +215,7 @@ QActor wis context ctxwis24 {
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_FINISHED_BURNING
   			
   			request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
+  			forward led -m update_led_mode : update_led_mode("off")
   		}
   	}
   	
@@ -464,7 +471,7 @@ QActor incinerator context ctxwis24 {
 }
 
 QActor scale context ctxwis24 {
-	[# val RPCONT = 0 #]
+	[# var RPCONT = 0 #]
 	
 	State s0 initial {
 		println("$name starts") color yellow
@@ -492,7 +499,7 @@ QActor scale context ctxwis24 {
 }
 
 QActor scale_device context ctxwis24 {
-	[# CURRENT_WEIGHT = 0 #]
+	[# var CURRENT_WEIGHT = 0 #]
 	
 	State s0 initial {
 		println("$name starts") color yellow

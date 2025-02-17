@@ -24,10 +24,14 @@ dispatch( unload_weight, unload_weight(WEIGHT) ).
 dispatch( update_scale_count, update_scale_count(COUNT) ).
 event( scale_data, scale_data(WEIGHT) ).
 event( mqtt_info, mqtt_info(MSG) ).
+dispatch( update_led_mode, update_led_mode(mode) ).
 %====================================================================================
 context(ctxwis24, "localhost",  "TCP", "8121").
 context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
+context(ctxmonitoringdevice, "127.0.0.1",  "TCP", "8125").
  qactor( basicrobot, ctxbasicrobot, "external").
+  qactor( led, ctxmonitoringdevice, "external").
+  qactor( sonar, ctxmonitoringdevice, "external").
   qactor( wis, ctxwis24, "it.unibo.wis.Wis").
  static(wis).
   qactor( oprobot, ctxwis24, "it.unibo.oprobot.Oprobot").

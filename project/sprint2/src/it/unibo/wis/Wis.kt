@@ -199,6 +199,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								CommUtils.outmagenta("$name - start incinerator, update status")
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_BURNING" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
+								forward("update_led_mode", "update_led_mode("on")" ,"led" ) 
 						}
 						if( checkMsgContent( Term.createTerm("finishedBurning(0)"), Term.createTerm("finishedBurning(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
@@ -207,6 +208,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_FINISHED_BURNING" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_FINISHED_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("extractash", "extractash($BURN_OUT_POS_X,$BURN_OUT_POS_Y)" ,"oprobot" )  
+								forward("update_led_mode", "update_led_mode("off")" ,"led" ) 
 						}
 						//genTimer( actor, state )
 					}

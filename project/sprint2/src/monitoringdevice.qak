@@ -1,0 +1,74 @@
+System monitoringdevice
+
+Dispatch update_led_mode 			  : update_led_mode(mode)
+Dispatch update_physical_led_mode     : update_physical_led_mode(mode)
+
+Context ctxmonitoringdevice ip [host="localhost" port=8125]
+Context ctxwis24 ip [host="localhost" port=8121]
+
+ExternalQActor wis context ctxwis24
+
+QActor led context ctxmonitoringdevice {
+	State s0 initial {
+		println("$name starts") color green
+	}
+
+	Transition t0
+		whenMsg update_led_mode -> handleUpdateLedStatus
+		
+	State handleUpdateLedStatus {
+		printCurrentMessage
+		
+		onMsg (update_led_mode : update_led_mode(mode)) {
+			[# val NEW_MODE = payloadArg(0).toString() #]
+			
+			forward led_device -m update_physical_led_mode : update_physical_led_mode($NEW_MODE)
+		}
+	}
+	
+	Transition t0
+		whenMsg update_led_mode -> handleUpdateLedStatus
+}
+
+QActor led_device context ctxmonitoringdevice {
+	[#
+		var P = Runtime.getRuntime().exec("python ledOff.py");
+	#]
+	
+	State s0 initial{
+		println("$name starts") color green
+	}
+	
+	Transition t0 whenMsg update_physical_led_mode -> handleUpdateMode
+				 
+	State handleUpdateMode {
+		printCurrentMessage color green
+		onMsg(update_physical_led_mode : update_physical_led_mode(M)) {
+			[#
+				val S = LedState.parseStr(payloadArg(0));
+				
+				P.destroy();
+				
+				P = when (S) {
+					"blink" 	-> Runtime.getRuntime().exec("python ledBlink.py")
+					"on"		-> Runtime.getRuntime().exec("python ledOn.py")
+					"off" 		-> Runtime.getRuntime().exec("python ledOff.py")
+				}
+			#]
+		}
+	}
+
+	Transition t0 whenMsg update_physical_led_mode -> handleUpdateMode
+}
+
+QActor sonar context ctxmonitoringdevice {
+	State s0 initial {
+		println("$name starts") color green
+	}	
+}
+
+QActor sonar_device context ctxmonitoringdevice {
+	State s0 initial {
+		println("$name starts") color green
+	}
+}

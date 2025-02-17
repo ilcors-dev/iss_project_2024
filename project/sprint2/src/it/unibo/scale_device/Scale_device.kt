@@ -21,7 +21,7 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		 CURRENT_WEIGHT = 0  
+		 var CURRENT_WEIGHT = 0  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
