@@ -33,7 +33,7 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t030",targetState="handleScaleData",cond=whenEvent("scale_data"))
+					 transition(edgeName="t00",targetState="handleScaleData",cond=whenEvent("scale_data"))
 				}	 
 				state("handleScaleData") { //this:State
 					action { //it:State
@@ -51,7 +51,7 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t031",targetState="handleScaleData",cond=whenEvent("scale_data"))
+					 transition(edgeName="t01",targetState="handleScaleData",cond=whenEvent("scale_data"))
 				}	 
 			}
 		}

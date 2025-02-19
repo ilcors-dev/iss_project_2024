@@ -32,8 +32,8 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t032",targetState="addWeight",cond=whenDispatch("load_weight"))
-					transition(edgeName="t033",targetState="removeWeight",cond=whenDispatch("unload_weight"))
+					 transition(edgeName="t02",targetState="addWeight",cond=whenDispatch("load_weight"))
+					transition(edgeName="t03",targetState="removeWeight",cond=whenDispatch("unload_weight"))
 				}	 
 				state("addWeight") { //this:State
 					action { //it:State
@@ -44,8 +44,8 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t034",targetState="addWeight",cond=whenDispatch("load_weight"))
-					transition(edgeName="t035",targetState="removeWeight",cond=whenDispatch("unload_weight"))
+					 transition(edgeName="t04",targetState="addWeight",cond=whenDispatch("load_weight"))
+					transition(edgeName="t05",targetState="removeWeight",cond=whenDispatch("unload_weight"))
 				}	 
 				state("removeWeight") { //this:State
 					action { //it:State
@@ -61,8 +61,8 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t036",targetState="addWeight",cond=whenDispatch("load_weight"))
-					transition(edgeName="t037",targetState="removeWeight",cond=whenDispatch("unload_weight"))
+					 transition(edgeName="t06",targetState="addWeight",cond=whenDispatch("load_weight"))
+					transition(edgeName="t07",targetState="removeWeight",cond=whenDispatch("unload_weight"))
 				}	 
 			}
 		}

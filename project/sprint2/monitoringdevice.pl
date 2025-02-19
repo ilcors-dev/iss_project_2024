@@ -3,6 +3,9 @@
 %====================================================================================
 dispatch( update_led_mode, update_led_mode(mode) ).
 dispatch( update_physical_led_mode, update_physical_led_mode(mode) ).
+event( sonar_data, distance(d) ).
+dispatch( sonar_sensitivity, sonar_sensitivity(s) ).
+dispatch( ash_measurement, ash_measurement(l) ).
 %====================================================================================
 context(ctxmonitoringdevice, "localhost",  "TCP", "8125").
 context(ctxwis24, "localhost",  "TCP", "8121").

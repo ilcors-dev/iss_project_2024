@@ -1,0 +1,93 @@
+System scale
+
+Dispatch load_weight   		: load_weight(WEIGHT)
+Dispatch unload_weight 		: unload_weight(WEIGHT)
+Dispatch update_scale_count : update_scale_count(COUNT) // the scale sends how many rp are currently present
+Event scale_data 			: scale_data(WEIGHT) // sent from the physical scale device
+
+Context ctxscale ip [host="localhost" port=8130]
+Context ctxwis24 ip [host="localhost" port=8121]
+
+ExternalQActor wis context ctxwis24
+
+QActor scale context ctxscale {
+	[# var RPCONT = 0 #]
+	
+	State s0 initial {
+		println("$name starts") color yellow
+		delay 1000
+		subscribeTo scale_device for scale_data
+	}
+	
+	Transition t0
+		whenEvent scale_data -> handleScaleData
+	
+	State handleScaleData {
+		printCurrentMessage
+		onMsg(scale_data : scaledata(WEIGHT)){
+			println("$name weight=${payloadArg(0)}") color yellow
+			
+			[# RPCONT = (payloadArg(0).toInt() / 50) #]
+			println("$name the RP number now is $RPCONT") color yellow
+			
+			forward wis -m update_scale_count : update_scale_count($RPCONT)
+		}
+	}
+	
+	Transition t0
+		whenEvent scale_data -> handleScaleData
+}
+
+QActor scale_device context ctxwis24 {
+	[# var CURRENT_WEIGHT = 0 #]
+	
+	State s0 initial {
+		println("$name starts") color yellow
+		delay 1000
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+	
+	State addWeight {
+ 		// rp incoming from external source
+ 		[# CURRENT_WEIGHT += 50 #]
+ 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+	
+	State removeWeight {
+		printCurrentMessage
+		onMsg(unload_weight : unload_weight(WEIGHT)) {
+			// weight is removed (extracted), likely from the oprobot
+	 		[# CURRENT_WEIGHT -= 50 #]
+	 		
+	 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+ 		}
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+}
+
+/*
+QActor mock_rp_loader_external context ctxwis24 {
+	State s0 initial {
+		println("$name starts")
+	}
+	
+	Goto work
+	
+	State work {
+		forward scale_device -m load_weight : load_weight(50)
+		delay 60000
+	}
+	
+	Goto work
+}
+*/

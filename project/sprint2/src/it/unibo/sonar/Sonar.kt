@@ -21,15 +21,68 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
+		 
+				var CURRENT = 0
+				var PREVIOUS = 0
+				val MIN_DISTANCE = 0
+				val MAX_DISTANCE = 4
+				
+				var SONAR_SENSITIVITY = 1
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name starts")
+						delay(1000) 
+						subscribeToLocalActor("sonar_device") 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition(edgeName="t04",targetState="handleSonarData",cond=whenEvent("sonar_data"))
+					transition(edgeName="t05",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
+				}	 
+				state("updateSensitivity") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("sonar_sensitivity(s)"), Term.createTerm("sonar_sensitivity(s)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 SONAR_SENSITIVITY =   
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t06",targetState="handleSonarData",cond=whenEvent("sonar_data"))
+					transition(edgeName="t07",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
+				}	 
+				state("handleSonarData") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("distance(d)"), Term.createTerm("distance(DISTANCE)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								  
+									      		CURRENT = payloadArg(0).toInt()
+										
+									      		if(CURRENT <= MIN_DISTANCE) CURRENT = MIN_DISTANCE
+									      		if(CURRENT >= MAX_DISTANCE) CURRENT = MAX_DISTANCE
+								CommUtils.outgreen("current ash level $CURRENT")
+								if(  CURRENT >= (PREVIOUS + SONAR_SENSITIVITY) || CURRENT <= (PREVIOUS - SONAR_SENSITIVITY)  
+								 ){CommUtils.outgreen("current ash level $CURRENT")
+								forward("ash_measurement", "ash_measurement($CURRENT)" ,"wis" ) 
+								 PREVIOUS = CURRENT  
+								}
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t08",targetState="handleSonarData",cond=whenEvent("sonar_data"))
+					transition(edgeName="t09",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
 				}	 
 			}
 		}

@@ -32,5 +32,8 @@ with Diagram('monitoringdeviceArch', show=False, outformat='png', graph_attr=gra
           sonar_device=Custom('sonar_device','./qakicons/symActorSmall.png')
      with Cluster('ctxwis24', graph_attr=nodeattr):
           wis=Custom('wis(ext)','./qakicons/externalQActor.png')
+     sonar_device >> Edge( label='sonar_data', **eventedgeattr, decorate='true', fontcolor='red') >> sonar
+     sonar_device >> Edge(color='blue', style='solid',  decorate='true', label='<sonar_sensitivity &nbsp; >',  fontcolor='blue') >> sonar
      led >> Edge(color='blue', style='solid',  decorate='true', label='<update_physical_led_mode &nbsp; >',  fontcolor='blue') >> led_device
+     sonar >> Edge(color='blue', style='solid',  decorate='true', label='<ash_measurement &nbsp; >',  fontcolor='blue') >> wis
 diag

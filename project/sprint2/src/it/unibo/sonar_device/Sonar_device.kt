@@ -21,15 +21,50 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
+		 
+				lateinit var reader  : java.io.BufferedReader
+			    lateinit var process : Process	
+			    var Distance = 0
+			    
+			    val SENSITIVITY = 1
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						CommUtils.outgreen("$name starts")
+						CommUtils.outblue("$name starts")
+						delay(1000) 
+						forward("sonar_sensitivity", "sonar_sensitivity($SENSITIVITY)" ,"sonar" ) 
+							
+									process = Runtime.getRuntime().exec("python sonar.py")
+									reader  = java.io.BufferedReader(java.io.InputStreamReader(process.getInputStream()))
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
+					 transition( edgeName="goto",targetState="readData", cond=doswitch() )
+				}	 
+				state("readData") { //this:State
+					action { //it:State
+						 
+									var data = reader.readLine()
+									
+									CommUtils.outyellow("$name with python: data = $data"   ) 
+									
+									if (data != null) {
+										try { 
+											Distance = (data.toFloat()).toInt();
+										} catch(e: Exception){
+											CommUtils.outred("$name sonar error: $e "   )
+										}
+									}
+						emitLocalStreamEvent("sonar_data", "distance($Distance)" ) 
+						delay(1000) 
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="readData", cond=doswitch() )
 				}	 
 			}
 		}
