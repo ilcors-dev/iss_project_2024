@@ -25,13 +25,13 @@ with Diagram('monitoringdeviceArch', show=False, outformat='png', graph_attr=gra
   with Cluster('env'):
      sys = Custom('','./qakicons/system.png')
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
+     with Cluster('ctxwis24', graph_attr=nodeattr):
+          wis=Custom('wis(ext)','./qakicons/externalQActor.png')
      with Cluster('ctxmonitoringdevice', graph_attr=nodeattr):
           led=Custom('led','./qakicons/symActorSmall.png')
           led_device=Custom('led_device','./qakicons/symActorSmall.png')
           sonar=Custom('sonar','./qakicons/symActorSmall.png')
           sonar_device=Custom('sonar_device','./qakicons/symActorSmall.png')
-     with Cluster('ctxwis24', graph_attr=nodeattr):
-          wis=Custom('wis(ext)','./qakicons/externalQActor.png')
      sonar_device >> Edge( label='sonar_data', **eventedgeattr, decorate='true', fontcolor='red') >> sonar
      sonar_device >> Edge(color='blue', style='solid',  decorate='true', label='<sonar_sensitivity &nbsp; >',  fontcolor='blue') >> sonar
      led >> Edge(color='blue', style='solid',  decorate='true', label='<update_physical_led_mode &nbsp; >',  fontcolor='blue') >> led_device

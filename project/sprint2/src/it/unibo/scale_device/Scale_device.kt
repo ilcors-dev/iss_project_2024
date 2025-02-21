@@ -26,7 +26,7 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				state("s0") { //this:State
 					action { //it:State
 						CommUtils.outyellow("$name starts")
-						delay(1000) 
+						delay(500) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -37,8 +37,12 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				}	 
 				state("addWeight") { //this:State
 					action { //it:State
-						 CURRENT_WEIGHT += 50  
-						emitLocalStreamEvent("scale_data", "scale_data($CURRENT_WEIGHT)" ) 
+						if( checkMsgContent( Term.createTerm("load_weight(WEIGHT)"), Term.createTerm("load_weight(WEIGHT)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 CURRENT_WEIGHT += payloadArg(0).toInt()  
+								emitLocalStreamEvent("scale_data", "scale_data($CURRENT_WEIGHT)" ) 
+								CommUtils.outblack("$name weight added, current = $CURRENT_WEIGHT")
+						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

@@ -48,7 +48,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 						 	   
 						if( checkMsgContent( Term.createTerm("sonar_sensitivity(s)"), Term.createTerm("sonar_sensitivity(s)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 SONAR_SENSITIVITY =   
+								 SONAR_SENSITIVITY = payloadArg(0).toInt()  
 						}
 						//genTimer( actor, state )
 					}

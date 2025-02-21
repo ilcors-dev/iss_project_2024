@@ -26,11 +26,14 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				// constants
 				val MAX_ASH_CAPACITY = 100; // max 4 rp in ash storage (capacity - DLIMIT)
 				val ASH_STORAGE_THRESHOLD = 25;
+				val LED_OFF = "off";
+				val LED_ON = "on";
+				val LED_BLINK = "blink";
 				
 				// variables
 				var ASHLEVEL  = 0;
 				var RPCONT    = 4;
-				var INCSTATUS = 0;    // 0 free, 1 busy
+				var INCSTATUS = 1;    // 0 free, 1 busy
 				var INHOME    = 0;    // 0 in home, 1 not in home
 			
 				val LOCATIONS = mapOf(
@@ -201,7 +204,6 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								CommUtils.outmagenta("$name - start incinerator, update status")
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_BURNING" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
-								forward("update_led_mode", "update_led_mode("on")" ,"led" ) 
 						}
 						if( checkMsgContent( Term.createTerm("finishedBurning(0)"), Term.createTerm("finishedBurning(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
@@ -210,7 +212,6 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_FINISHED_BURNING" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_FINISHED_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("extractash", "extractash($BURN_OUT_POS_X,$BURN_OUT_POS_Y)" ,"oprobot" )  
-								forward("update_led_mode", "update_led_mode("off")" ,"led" ) 
 						}
 						//genTimer( actor, state )
 					}
@@ -230,7 +231,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
 												RPCONT = payloadArg(0).toInt()
-								CommUtils.outmagenta("$name - scale status changed, update")
+								CommUtils.outmagenta("$name - scale status changed, rp in storage = $RPCONT")
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "updated_scale_rp_status" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","updated_scale_rp_status").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
@@ -251,13 +252,11 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 												var level = payloadArg(0).toInt()
 												ASHLEVEL = level
 												val STATUS = "ash_level_to__${ASHLEVEL}"
-												
-												if ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= MAX_ASH_CAPACITY) {
-										  			forward led -m update_led_mode : update_led_mode("blink")
-										  			
-										  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
-												}
-								CommUtils.outmagenta("$name - ash level changed, update")
+								if( ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= MAX_ASH_CAPACITY) 
+								 ){CommUtils.outmagenta("$name - ash level changed, update")
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
+								}
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}

@@ -41,7 +41,7 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 						if( checkMsgContent( Term.createTerm("update_physical_led_mode(mode)"), Term.createTerm("update_physical_led_mode(M)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
-												val S = LedState.parseStr(payloadArg(0));
+												val S = payloadArg(0)
 												
 												P.destroy();
 												
@@ -49,6 +49,10 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 													"blink" 	-> Runtime.getRuntime().exec("python ledBlink.py")
 													"on"		-> Runtime.getRuntime().exec("python ledOn.py")
 													"off" 		-> Runtime.getRuntime().exec("python ledOff.py")
+												    else -> {
+												        println("Invalid command: $S") // Or log it, or throw an exception
+												        null // Or some other default value for P, depending on its type
+												    }
 												}
 						}
 						//genTimer( actor, state )

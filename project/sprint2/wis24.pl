@@ -26,14 +26,12 @@ event( mqtt_info, mqtt_info(MSG) ).
 dispatch( update_led_mode, update_led_mode(mode) ).
 dispatch( ash_measurement, ash_measurement(l) ).
 %====================================================================================
-context(ctxwis24, "localhost",  "TCP", "8121").
 context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
-context(ctxmonitoringdevice, "127.0.0.1",  "TCP", "8125").
-context(ctxscale, "127.0.0.1",  "TCP", "8130").
+context(ctxwis24, "localhost",  "TCP", "8121").
+context(ctxmonitoringdevice, "127.0.0.1",  "TCP", "8122").
+context(ctxscale, "127.0.0.1",  "TCP", "8123").
  qactor( basicrobot, ctxbasicrobot, "external").
   qactor( scale_device, ctxscale, "external").
-  qactor( led, ctxmonitoringdevice, "external").
-  qactor( sonar, ctxmonitoringdevice, "external").
   qactor( wis, ctxwis24, "it.unibo.wis.Wis").
  static(wis).
   qactor( oprobot, ctxwis24, "it.unibo.oprobot.Oprobot").

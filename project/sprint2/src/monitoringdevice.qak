@@ -7,8 +7,8 @@ Event sonar_data 					  : distance(d)
 Dispatch sonar_sensitivity            : sonar_sensitivity(s)
 Dispatch ash_measurement		 	  : ash_measurement(l)
 
-Context ctxmonitoringdevice ip [host="localhost" port=8125]
-Context ctxwis24 ip [host="localhost" port=8121]
+Context ctxwis24 ip [host="127.0.0.1" port=8121]
+Context ctxmonitoringdevice ip [host="localhost" port=8122]
 
 ExternalQActor wis context ctxwis24
 
@@ -49,7 +49,7 @@ QActor led_device context ctxmonitoringdevice {
 		printCurrentMessage color green
 		onMsg(update_physical_led_mode : update_physical_led_mode(M)) {
 			[#
-				val S = LedState.parseStr(payloadArg(0));
+				val S = payloadArg(0)
 				
 				P.destroy();
 				
@@ -57,6 +57,10 @@ QActor led_device context ctxmonitoringdevice {
 					"blink" 	-> Runtime.getRuntime().exec("python ledBlink.py")
 					"on"		-> Runtime.getRuntime().exec("python ledOn.py")
 					"off" 		-> Runtime.getRuntime().exec("python ledOff.py")
+				    else -> {
+				        println("Invalid command: $S") // Or log it, or throw an exception
+				        null // Or some other default value for P, depending on its type
+				    }
 				}
 			#]
 		}
@@ -91,7 +95,7 @@ QActor sonar context ctxmonitoringdevice {
 		printCurrentMessage
 		
 		onMsg(sonar_sensitivity : sonar_sensitivity(s)) {
-			[# SONAR_SENSITIVITY =  #]
+			[# SONAR_SENSITIVITY = payloadArg(0).toInt() #]
 		}
 	}
 	

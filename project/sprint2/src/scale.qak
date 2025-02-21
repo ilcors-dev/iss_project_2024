@@ -5,8 +5,8 @@ Dispatch unload_weight 		: unload_weight(WEIGHT)
 Dispatch update_scale_count : update_scale_count(COUNT) // the scale sends how many rp are currently present
 Event scale_data 			: scale_data(WEIGHT) // sent from the physical scale device
 
-Context ctxscale ip [host="localhost" port=8130]
-Context ctxwis24 ip [host="localhost" port=8121]
+Context ctxwis24 ip [host="127.0.0.1" port=8121]
+Context ctxscale ip [host="localhost" port=8123]
 
 ExternalQActor wis context ctxwis24
 
@@ -21,10 +21,10 @@ QActor scale context ctxscale {
 	
 	Transition t0
 		whenEvent scale_data -> handleScaleData
-	
+
 	State handleScaleData {
 		printCurrentMessage
-		onMsg(scale_data : scaledata(WEIGHT)){
+		onMsg(scale_data : scale_data(WEIGHT)){
 			println("$name weight=${payloadArg(0)}") color yellow
 			
 			[# RPCONT = (payloadArg(0).toInt() / 50) #]
@@ -38,12 +38,12 @@ QActor scale context ctxscale {
 		whenEvent scale_data -> handleScaleData
 }
 
-QActor scale_device context ctxwis24 {
+QActor scale_device context ctxscale {
 	[# var CURRENT_WEIGHT = 0 #]
 	
 	State s0 initial {
 		println("$name starts") color yellow
-		delay 1000
+		delay 500
 	}
 	
 	Transition t0
@@ -52,8 +52,11 @@ QActor scale_device context ctxwis24 {
 	
 	State addWeight {
  		// rp incoming from external source
- 		[# CURRENT_WEIGHT += 50 #]
- 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+		onMsg(load_weight : load_weight(WEIGHT)) {
+	 		[# CURRENT_WEIGHT += payloadArg(0).toInt() #]
+	 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+			println("$name weight added, current = $CURRENT_WEIGHT") 
+		}
 	}
 	
 	Transition t0
@@ -75,19 +78,20 @@ QActor scale_device context ctxwis24 {
 		whenMsg unload_weight -> removeWeight
 }
 
-/*
-QActor mock_rp_loader_external context ctxwis24 {
+QActor mock_rp_loader_external context ctxscale {
 	State s0 initial {
 		println("$name starts")
+		delay 10000
 	}
 	
 	Goto work
 	
 	State work {
 		forward scale_device -m load_weight : load_weight(50)
-		delay 60000
+		println("$name new rp")
+		delay 5000
 	}
 	
 	Goto work
 }
-*/
+

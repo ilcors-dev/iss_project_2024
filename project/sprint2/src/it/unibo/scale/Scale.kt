@@ -39,7 +39,7 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					action { //it:State
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("scale_data(WEIGHT)"), Term.createTerm("scaledata(WEIGHT)"), 
+						if( checkMsgContent( Term.createTerm("scale_data(WEIGHT)"), Term.createTerm("scale_data(WEIGHT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("$name weight=${payloadArg(0)}")
 								 RPCONT = (payloadArg(0).toInt() / 50)  

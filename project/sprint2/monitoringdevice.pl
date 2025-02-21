@@ -7,8 +7,8 @@ event( sonar_data, distance(d) ).
 dispatch( sonar_sensitivity, sonar_sensitivity(s) ).
 dispatch( ash_measurement, ash_measurement(l) ).
 %====================================================================================
-context(ctxmonitoringdevice, "localhost",  "TCP", "8125").
-context(ctxwis24, "localhost",  "TCP", "8121").
+context(ctxwis24, "127.0.0.1",  "TCP", "8121").
+context(ctxmonitoringdevice, "localhost",  "TCP", "8122").
  qactor( wis, ctxwis24, "external").
   qactor( led, ctxmonitoringdevice, "it.unibo.led.Led").
  static(led).

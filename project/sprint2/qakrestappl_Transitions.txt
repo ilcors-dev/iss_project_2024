@@ -1,7 +1,5 @@
-{"actor":"led", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleUpdateLedStatus", "msgId":"update_led_mode"}
-{"actor":"led", "msgType":"dispatch", "curstate":"handleUpdateLedStatus", "nextstate":"handleUpdateLedStatus", "msgId":"update_led_mode"}
-{"actor":"led_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleUpdateMode", "msgId":"update_physical_led_mode"}
-{"actor":"led_device", "msgType":"dispatch", "curstate":"handleUpdateMode", "nextstate":"handleUpdateMode", "msgId":"update_physical_led_mode"}
-{"actor":"sonar", "msgType":"dispatch", "curstate":"s0", "nextstate":"updateSensitivity", "msgId":"sonar_sensitivity"}
-{"actor":"sonar", "msgType":"dispatch", "curstate":"updateSensitivity", "nextstate":"updateSensitivity", "msgId":"sonar_sensitivity"}
-{"actor":"sonar", "msgType":"dispatch", "curstate":"handleSonarData", "nextstate":"updateSensitivity", "msgId":"sonar_sensitivity"}
+{"actor":"wis", "msgType":"dispatch", "curstate":"printStatus", "nextstate":"handleScaleRPStatus", "msgId":"update_scale_count"}
+{"actor":"wis", "msgType":"dispatch", "curstate":"printStatus", "nextstate":"handleAshMeasurement", "msgId":"ash_measurement"}
+{"actor":"incinerator", "msgType":"dispatch", "curstate":"s0", "nextstate":"startup", "msgId":"startIncinerator"}
+{"actor":"incinerator", "msgType":"dispatch", "curstate":"startup", "nextstate":"startBurning", "msgId":"startBurning"}
+{"actor":"incinerator", "msgType":"dispatch", "curstate":"startBurning", "nextstate":"startBurning", "msgId":"startBurning"}

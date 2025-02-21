@@ -24,7 +24,7 @@ Reply   getrp_status		:  getrp_status(0)					   for getrp
 Request depositrp           :  depositrp(TARGETX, TARGETY) 
 Reply   depositrp_status	:  depositrp_status(0)				   for depositrp
 
-Request extractash          :  extractash(TARGETX, TARGETY) 
+Request extractash          :  extractash(TARGETX, TARGETY)
 Reply   extractash_status	:  extractash_status(0)				   for extractash
 
 Request depositash          :  depositash(TARGETX, TARGETY) 
@@ -32,7 +32,6 @@ Reply   depositash_status	:  depositash_status(0)				   for depositash
 
 Request gohome              :  gohome(TARGETX, TARGETY)        
 Reply   gohome_status		:  gohome_status(0)                    for gohome
-
 
 Dispatch load_weight   		: load_weight(WEIGHT)
 Dispatch unload_weight 		: unload_weight(WEIGHT)
@@ -47,15 +46,15 @@ Dispatch ash_measurement		   	 : ash_measurement(l)  // sent from the monitoring
 // Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
 
 // CONTEXTS
-Context ctxwis24 ip [host="localhost" port=8121]
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
-Context ctxmonitoringdevice ip [host="127.0.0.1" port=8125]
-Context ctxscale ip [host="127.0.0.1" port=8130]
+Context ctxwis24 ip [host="localhost" port=8121]
+Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
+Context ctxscale ip [host="127.0.0.1" port=8123]
 
 ExternalQActor basicrobot context ctxbasicrobot
 ExternalQActor scale_device context ctxscale
-ExternalQActor led context ctxmonitoringdevice
-ExternalQActor sonar context ctxmonitoringdevice
+// ExternalQActor led context ctxmonitoringdevice
+// ExternalQActor sonar context ctxmonitoringdevice
 
 // ACTORS
 QActor wis context ctxwis24 {
@@ -64,11 +63,14 @@ QActor wis context ctxwis24 {
 		// constants
 		val MAX_ASH_CAPACITY = 100; // max 4 rp in ash storage (capacity - DLIMIT)
 		val ASH_STORAGE_THRESHOLD = 25;
+		val LED_OFF = "off";
+		val LED_ON = "on";
+		val LED_BLINK = "blink";
 		
 		// variables
 		var ASHLEVEL  = 0;
 		var RPCONT    = 4;
-		var INCSTATUS = 0;    // 0 free, 1 busy
+		var INCSTATUS = 1;    // 0 free, 1 busy
 		var INHOME    = 0;    // 0 in home, 1 not in home
 	
 		val LOCATIONS = mapOf(
@@ -205,7 +207,7 @@ QActor wis context ctxwis24 {
   			println("$name - start incinerator, update status") color magenta
   			
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_BURNING
-  			forward led -m update_led_mode : update_led_mode("on")
+  			// forward led -m update_led_mode : update_led_mode($LED_ON)
   		}
   		
   		onMsg(finishedBurning : finishedBurning(0)) {
@@ -215,7 +217,7 @@ QActor wis context ctxwis24 {
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_FINISHED_BURNING
   			
   			request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
-  			forward led -m update_led_mode : update_led_mode("off")
+  			// forward led -m update_led_mode : update_led_mode($LED_OFF)
   		}
   	}
   	
@@ -229,7 +231,7 @@ QActor wis context ctxwis24 {
 				RPCONT = payloadArg(0).toInt()
 			#]
   			
-  			println("$name - scale status changed, update") color magenta
+  			println("$name - scale status changed, rp in storage = $RPCONT") color magenta
   			
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : updated_scale_rp_status
   		}
@@ -244,14 +246,13 @@ QActor wis context ctxwis24 {
 				var level = payloadArg(0).toInt()
 				ASHLEVEL = level
 				val STATUS = "ash_level_to__${ASHLEVEL}"
+		  	#]
 				
-				if ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= MAX_ASH_CAPACITY) {
-		  			forward led -m update_led_mode : update_led_mode("blink")
-		  			
-		  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
-				}
-			#]
-  			println("$name - ash level changed, update") color magenta
+			if [#((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= MAX_ASH_CAPACITY)#] {
+	  			// forward led -m update_led_mode : update_led_mode($LED_BLINK)
+  				println("$name - ash level changed, update") color magenta
+	  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
+			}
   			
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
   		}
