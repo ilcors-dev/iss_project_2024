@@ -94,8 +94,14 @@
         del corso. <br />
         <br />
 
-        <b>Goal:</b> L'obiettivo dello Sprint2 è quello di implementare l'estrazione e il deposito di Roll Packets, rispettivamente dal WasteStorage Container e nell'Incinerator, e Ash, rispettivamente dall'Incinerator e nell'AshStorage Container. <br />
-        Verrà gestito inoltre il MonitoringDevice, comprendente il Sonar e il Led, oltre alla bilancia del WasteStorage Container. <br />
+        <b>Goal:</b> L'obiettivo dello Sprint2 è quello di implementare l'estrazione e il deposito sia di Roll Packets (RP) e sia di Ash. <br />
+        Inoltre, verranno modellati il MonitoringDevice - composto dal Sonar e dal Led - e la Scale del WasteStorage Container. <br />
+      </div>
+
+      <div class="remark">
+        Link allo
+        <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a> e allo <a href="../../sprint1/userDocs/sprint1.html">Sprint1</a>
+        realizzati precedentemente.
       </div>
 
       <h2>Requisiti</h2>
@@ -107,38 +113,28 @@
 
       <h2>Analisi dei requisiti</h2>
       <div class="remark">
-        Per l'analisi dei requisiti si faccia riferimento allo
-        <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a>
-        realizzato precedentemente.
-
-        <a class="reference internal image-reference flex justify-center"
-          href="../../sprint0/userDocs/immagini/sprint1_wis24arch.png"><img
-            alt="../../sprint0/userDocs/immagini/sprint1_wis24arch.png" class="align-right"
-            src="../../sprint0/userDocs/immagini/sprint1_wis24arch.png" style="width: 70%" /></a>
-
-      QUESTA PARTE DOVREBBE ESSERE AGGIORNATA FORSE
-      </div>
-
-      <div class="remark">
         <ul>
           <li>
             <div class="remark-light">
               "3. a MonitoringDevice, composed by a a Sonar and a Led working on a RaspberryPi."
             </div>
-            Dal seguente requisito si evince la presenza di un dispositivo fisico denominato MonitoringDevice contenente un Led e un Sonar. <br>
+            Dal seguente requisito si evince la presenza di un dispositivo fisico denominato MonitoringDevice composto da un Led e un Sonar. <br>
           </li>
           <li>
             <div class="remark-light">
-              "The WasteStorage owns a weighing device (Scale) that reports the current weigth of all the RP currently stored into the container. The container can be considered empty when the value of the Scale is (approximately) 0."
+              "The WasteStorage owns a weighing device (Scale) that reports the current weigth of all the RP currently stored into the container. The container can be considered empty when the value of the Scale is (approximately) 0." <br>
+              <br>"The WIS can acquire information from the input devices Scale and Sonar through
+ software supports that must be properly designed and implemented"
             </div>
-            VALENTINA
+            Da ciò si evince che è presente una bilancia (Scale) nel WasteStorage, che misura il peso di tutti gli RP presenti nel WasteStorage Container. Il container è considerato vuoto quando il valore della Scale è (approssimativamente) 0.
+            Inoltre, da requisito il WIS acquisirà informazioni sugli RP presenti nel WasteStorage direttamente dalla Scale <br>
           </li>
           <li>
             <div class="remark-light">
               "The Sonar of the MonitoringDevice is used to measures the level of the ash in the AshStorage container, by measuring the distance between the top of the ash and the Sonar itself. When the distance is less than a prefixed value DLIMT, the
               AshStorage container is considered full."
             </div>
-            Questo requisito ci indica che è presente nel sistema un Sonar posto su un MonitoringDevice utilizzato per misurare il livello della cenere nell'AshContainer. Quando la distanza tra la cenere e il Sonar è minore di un valore prefissato DLIMT, l'AshContainer è considerato pieno. <br>
+            Questo requisito ci indica che è presente nel sistema un Sonar nel MonitoringDevice, utilizzato per misurare il livello della cenere nell'AshContainer. Quando la distanza tra la cenere e il Sonar è minore di un valore prefissato DLIMT, l'AshContainer è considerato pieno. <br>
             Sarà necessario quindi leggere il valore del Sonar e inviare un messaggio al WIS contenente il valore letto, che verrà utilizzato per determinare lo stato dell'AshStorage Container.
           </li>
           <li>
@@ -181,7 +177,7 @@
             Il Sonar dovrà misurare la distanza tra la cenere e il suo sensore. Il valore letto dovrà essere inviato al WIS per determinare lo stato dell'AshStorage Container.
           </li>
           <li>
-            Sarà necessario l'utilizzo di un attore in grado di gestire il dispositivo fisico del Sonar.
+            Si suggerisce l'utilizzo di un attore in grado di gestire il dispositivo fisico del Sonar.
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del dispositivo fisico, qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
@@ -196,7 +192,7 @@
             Il Led dovrà segnalare lo stato del sistema. Riceverà quindi dal WIS un messaggio contenente il comportamento da adottare.
           </li>
           <li>
-            Sarà necessario l'utilizzo di un attore in grado di gestire il dispositivo fisico del Led.
+            Si suggerisce l'utilizzo di un attore in grado di gestire il dispositivo fisico del Led.
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del dispositivo fisico, qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un led), si consiglia di inserire un ulteriore attore. <br>
@@ -206,7 +202,21 @@
       </div>
       <h6><b>Scale</b></h6>
       <div class="remark">
-        VALENTINA
+        <ul>
+          <li>
+            Si suggerisce di modellare la Scale come un attore, poichè essendo un dispositivo fisico potrebbe aver bisogno di essere operato da altri contesti.
+          </li>
+          <li>
+            La scale riporta un peso, però questa informazione va processata perchè al WIS serve sapere il numero di RP presenti. Questa elaborazione può essere fatta dal WIS, inviandogli il dato grezzo (il peso) oppure far elaborare questo dato alla bilancia stessa e inviare direttamente la conversione in RP al WIS. Si consiglia questa seconda opzione per tenere separate le varie responsabilità.
+          </li>
+          <li>
+            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del dispositivo fisico, si consiglia l'uso di un ulteriore attore. <br>
+            L'attore di alto livello che gestisce la logica si occuperà di convertire il peso ricevuto dall'attore di basso livello che gestisce il dispositivo fisico in RP, inoltrando il valore al WIS solamente quando si avrà un cambiamento di peso.
+          </li>
+          <li>
+            Il WIS può venire a conoscenza del cambiamento di peso nel WasteStorage (quando per esempio viene depositato un RP) attraverso un meccanismo di polling oppure sarà la bilancia a mandare un messaggio al WIS. Considerando che il peso varia in momenti variabili, non è consigliabile un meccanismo di polling da parte del WIS, perciò è preferibile il secondo metodo perchè si ritiene più appropriato che sia la Scale ad aggiornare il WIS non appena percepisce un cambiamento di peso. Inoltre, si suggerisce di modellare questo messaggio come una Dispatch, non essendo necessaria una risposta e che il destinatario è un solo attore
+           </li>
+        </ul>
       </div>
 
       <h2>Modello del sistema</h2>
@@ -229,7 +239,7 @@
       <h4>WIS</h4>
       <div class="remark">
         Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/wis.qak">system.qak</a>). Il suo
-        compito in questa fase è quello di comunicare con il MonitoringDevice per misurare il livello di cenere presente nell'AshStorage Container e per gestire il comportamento del Led legato allo stato del sistema. Comunicherà inoltre con il WeighingDevice per misurare la quantità di RP presenti nel WasteStorage Container. <br />
+        compito in questa fase è quello di comunicare con il MonitoringDevice per monitorare il livello di cenere presente nell'AshStorage e per gestire il comportamento del Led legato allo stato del sistema. Comunicherà inoltre con la Scale per controllare la quantità di RP presenti nel WasteStorage. <br />
         Come detto nello Sprint0, abbiamo scelto di dare più responsabilità
         al WIS perchè in quanto rappresentazione del sistema ha senso che
         gestisca le azioni dell'OpRobot e dell'Incenerator. <br />
@@ -284,7 +294,18 @@
 
       <h4>Scale</h4>
       <div class="remark">
-        VALENTINA
+        Per la gestione della bilancia, verranno usati 2 attori: <span class="blue">Scale</span> e <span class="blue">Scale_device</span>. <br />
+        <br>
+        <span class="blue">Scale_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico della bilancia. <br>
+        Riceverà da un attore mock che simula l'agente esterno il messaggio <b><code>Dispatch load_weight   		: load_weight(WEIGHT)</code></b> per simulare il deposito di un nuovo RP. WEIGHT corrisponde a 50, una quantità intera e positiva, come specificato da requisiti <br>
+
+        Successivamente, attraverso una EmitLocalStream, invierà a <span class="blue">Scale</span> il valore pesato dal dispositivo fisico <b><code>Event scale_data 			: scale_data(WEIGHT)</code></b>.<br>
+        Inoltre, riceverà dal WIS il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per simulare la rimozione di un RP. <br>
+        <br />
+        <br />
+        <span class="blue">Scale</span> sarà modellato come attore e si occuperà convertire in RP il peso della bilancia in quel momento.  <br />
+        <b>Invierà</b> quindi il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>  al <span class="blue">WIS</span> contenente il numero di RP presenti nel WasteStorage. <br />
+
       </div>
 
       <h3>Piani di testing</h3>
@@ -363,10 +384,7 @@
 
       <h3>Prossimi sviluppi</h3>
       <div class="remark">
-        DA FARE
-        Nel prossimo sprint (<b>Sprint 2</b>) verranno implementati l'estrazione
-        e il deposito di <b>RP</b> e <b>Ash</b>. Inoltre si gestirà il
-        <span class="blue">MonitoringDevice</span>. <br />
+        Nel prossimo sprint (<b>Sprint 3</b>) verrà modellata e implementata la <span class="blue">ServiceStatusGUI</span>. <br />
       </div>
 
       <h3>Footer</h3>
