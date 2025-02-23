@@ -89,7 +89,7 @@ QActor mock_rp_loader_external context ctxscale {
 	State work {
 		forward scale_device -m load_weight : load_weight(50)
 		println("$name new rp")
-		delay 5000
+		delay 60000
 	}
 	
 	Goto work

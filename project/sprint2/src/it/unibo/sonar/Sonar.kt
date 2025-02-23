@@ -25,7 +25,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 				var CURRENT = 0
 				var PREVIOUS = 0
 				val MIN_DISTANCE = 0
-				val MAX_DISTANCE = 4
+				val MAX_DISTANCE = 100
 				
 				var SONAR_SENSITIVITY = 1
 		return { //this:ActionBasciFsm
@@ -46,7 +46,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					action { //it:State
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("sonar_sensitivity(s)"), Term.createTerm("sonar_sensitivity(s)"), 
+						if( checkMsgContent( Term.createTerm("sonar_sensitivity(S)"), Term.createTerm("sonar_sensitivity(S)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 SONAR_SENSITIVITY = payloadArg(0).toInt()  
 						}
@@ -62,7 +62,7 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					action { //it:State
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("distance(d)"), Term.createTerm("distance(DISTANCE)"), 
+						if( checkMsgContent( Term.createTerm("distance(D)"), Term.createTerm("distance(D)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								  
 									      		CURRENT = payloadArg(0).toInt()
@@ -72,7 +72,6 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 								CommUtils.outgreen("current ash level $CURRENT")
 								if(  CURRENT >= (PREVIOUS + SONAR_SENSITIVITY) || CURRENT <= (PREVIOUS - SONAR_SENSITIVITY)  
 								 ){CommUtils.outgreen("current ash level $CURRENT")
-								forward("ash_measurement", "ash_measurement($CURRENT)" ,"wis" ) 
 								 PREVIOUS = CURRENT  
 								}
 						}

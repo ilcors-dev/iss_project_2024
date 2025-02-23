@@ -61,14 +61,14 @@ QActor wis context ctxwis24 {
 	import "main.resources.Position"
 	[# 
 		// constants
-		val MAX_ASH_CAPACITY = 100; // max 4 rp in ash storage (capacity - DLIMIT)
+		val DLIMIT = 100; // max 4 rp in ash storage (capacity - DLIMIT)
 		val ASH_STORAGE_THRESHOLD = 25;
 		val LED_OFF = "off";
 		val LED_ON = "on";
 		val LED_BLINK = "blink";
 		
 		// variables
-		var ASHLEVEL  = 0;
+		var ASHLEVEL  = 100;
 		var RPCONT    = 4;
 		var INCSTATUS = 1;    // 0 free, 1 busy
 		var INHOME    = 0;    // 0 in home, 1 not in home
@@ -110,7 +110,7 @@ QActor wis context ctxwis24 {
 		println("$name setupping system..") color green
 		forward incinerator -m startIncinerator : startIncinerator(0)
 		
-		if [# (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) #] {
+		if [# (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) < DLIMIT && INCSTATUS == 0) #] {
 			request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
 		}
 	}
@@ -191,7 +191,7 @@ QActor wis context ctxwis24 {
 			[# INHOME = 1 #] // 🥵
 			println("$name - arrived in home") color green
 			
-			if [# (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0) #] {
+			if [# (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) < DLIMIT && INCSTATUS == 0) #] {
 				request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
 			}
 		}
@@ -248,7 +248,7 @@ QActor wis context ctxwis24 {
 				val STATUS = "ash_level_to__${ASHLEVEL}"
 		  	#]
 				
-			if [#((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= MAX_ASH_CAPACITY)#] {
+			if [#((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)#] {
 	  			// forward led -m update_led_mode : update_led_mode($LED_BLINK)
   				println("$name - ash level changed, update") color magenta
 	  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink

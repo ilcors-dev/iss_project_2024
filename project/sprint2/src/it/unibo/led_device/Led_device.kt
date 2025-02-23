@@ -22,11 +22,12 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		
-				var P = Runtime.getRuntime().exec("python ledOff.py");
+				var P = Runtime.getRuntime().exec("echo ledOff.py");
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name starts")
+						delay(200) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -38,7 +39,7 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					action { //it:State
 						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("update_physical_led_mode(mode)"), Term.createTerm("update_physical_led_mode(M)"), 
+						if( checkMsgContent( Term.createTerm("update_physical_led_mode(MODE)"), Term.createTerm("update_physical_led_mode(M)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
 												val S = payloadArg(0)
@@ -46,9 +47,9 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 												P.destroy();
 												
 												P = when (S) {
-													"blink" 	-> Runtime.getRuntime().exec("python ledBlink.py")
-													"on"		-> Runtime.getRuntime().exec("python ledOn.py")
-													"off" 		-> Runtime.getRuntime().exec("python ledOff.py")
+													"blink" 	-> Runtime.getRuntime().exec("echo ledBlink.py")
+													"on"		-> Runtime.getRuntime().exec("echo ledOn.py")
+													"off" 		-> Runtime.getRuntime().exec("echo ledOff.py")
 												    else -> {
 												        println("Invalid command: $S") // Or log it, or throw an exception
 												        null // Or some other default value for P, depending on its type

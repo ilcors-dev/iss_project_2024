@@ -34,7 +34,7 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						delay(1000) 
 						forward("sonar_sensitivity", "sonar_sensitivity($SENSITIVITY)" ,"sonar" ) 
 							
-									process = Runtime.getRuntime().exec("python sonar.py")
+									process = Runtime.getRuntime().exec("echo sonar.py")
 									reader  = java.io.BufferedReader(java.io.InputStreamReader(process.getInputStream()))
 						//genTimer( actor, state )
 					}
@@ -57,8 +57,10 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 											CommUtils.outred("$name sonar error: $e "   )
 										}
 									}
-						emitLocalStreamEvent("sonar_data", "distance($Distance)" ) 
-						delay(1000) 
+						if(  data != null  
+						 ){emitLocalStreamEvent("sonar_data", "distance($Distance)" ) 
+						}
+						delay(5000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

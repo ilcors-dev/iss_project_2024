@@ -193,6 +193,13 @@ task runMonitoringDevice(type: JavaExec) {
     main = 'it.unibo.ctxmonitoringdevice.MainCtxmonitoringdeviceKt'
 }
 
+task runMonitoringDeviceTestsStandalone(type: JavaExec) {
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'it.unibo.ctxmonitoringdevice_tests.MainCtxmonitoringdevice_testsKt'
+}
+
 task runWeighingDevice(type: JavaExec) {
     group = "Execution"
     description = "Run the main class with JavaExecTask"
