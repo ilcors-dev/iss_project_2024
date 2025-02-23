@@ -1,3 +1,398 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-Project description ... con link al codice: <a href=../src//log4j.properties>/log4j.properties</a>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com?plugins=typography,aspect-ratio,line-clamp,container-queries"></script>
+
+<style>
+  h1 {
+    background-color: #b2c0ff;
+    border: 1.5px solid black;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  h2 {
+    background-color: #9ed8ff;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h3 {
+    background-color: #e6ccff;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h4 {
+    background-color: #ccffcc;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h5 {
+    background-color: #d5ffb0;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h6 {
+    background-color: #ccb6f0;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .blue {
+    color: blue;
+    font-weight: 500;
+  }
+
+  .red {
+    color: red;
+    font-weight: 500;
+  }
+
+  div.remark {
+    background-color: #e3f2fd;
+    border: 1.5px solid black;
+    padding: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  div.remark-light {
+    background-color: #f0ffff;
+    border: 1.5px solid black;
+    padding: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+</style>
+
+<head>
+  <title>Sprint2 Corsetti, de Respinis, Sindaco</title>
+</head>
+
+<body class="mx-2">
+  <main class="prose" style="max-width: 100%">
+    <div id="top">
+      <h1>TEMA FINALE 2024 SPRINT2</h1>
+    </div>
+
+    <div class="body">
+      <h2>Introduzione</h2>
+      <div class="remark">
+        Questo documento contiene lo Sprint2 del progetto per il tema finale
+        del corso. <br />
+        <br />
+
+        <b>Goal:</b> L'obiettivo dello Sprint2 è quello di implementare l'estrazione e il deposito di Roll Packets, rispettivamente dal WasteStorage Container e nell'Incinerator, e Ash, rispettivamente dall'Incinerator e nell'AshStorage Container. <br />
+        Verrà gestito inoltre il MonitoringDevice, comprendente il Sonar e il Led, oltre alla bilancia del WasteStorage Container. <br />
+      </div>
+
+      <h2>Requisiti</h2>
+
+      <div class="remark">
+        I requisiti del sistema possono essere trovati in
+        <a href="../../html/TemaFinale24.html">TemaFinale24</a>.
+      </div>
+
+      <h2>Analisi dei requisiti</h2>
+      <div class="remark">
+        Per l'analisi dei requisiti si faccia riferimento allo
+        <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a>
+        realizzato precedentemente.
+
+        <a class="reference internal image-reference flex justify-center"
+          href="../../sprint0/userDocs/immagini/sprint1_wis24arch.png"><img
+            alt="../../sprint0/userDocs/immagini/sprint1_wis24arch.png" class="align-right"
+            src="../../sprint0/userDocs/immagini/sprint1_wis24arch.png" style="width: 70%" /></a>
+
+      QUESTA PARTE DOVREBBE ESSERE AGGIORNATA FORSE
+      </div>
+
+      <div class="remark">
+        <ul>
+          <li>
+            <div class="remark-light">
+              "3. a MonitoringDevice, composed by a a Sonar and a Led working on a RaspberryPi."
+            </div>
+            Dal seguente requisito si evince la presenza di un dispositivo fisico denominato MonitoringDevice contenente un Led e un Sonar. <br>
+          </li>
+          <li>
+            <div class="remark-light">
+              "The WasteStorage owns a weighing device (Scale) that reports the current weigth of all the RP currently stored into the container. The container can be considered empty when the value of the Scale is (approximately) 0."
+            </div>
+            VALENTINA
+          </li>
+          <li>
+            <div class="remark-light">
+              "The Sonar of the MonitoringDevice is used to measures the level of the ash in the AshStorage container, by measuring the distance between the top of the ash and the Sonar itself. When the distance is less than a prefixed value DLIMT, the
+              AshStorage container is considered full."
+            </div>
+            Questo requisito ci indica che è presente nel sistema un Sonar posto su un MonitoringDevice utilizzato per misurare il livello della cenere nell'AshContainer. Quando la distanza tra la cenere e il Sonar è minore di un valore prefissato DLIMT, l'AshContainer è considerato pieno. <br>
+            Sarà necessario quindi leggere il valore del Sonar e inviare un messaggio al WIS contenente il valore letto, che verrà utilizzato per determinare lo stato dell'AshStorage Container.
+          </li>
+          <li>
+            <div class="remark-light">
+              "2. a AshStorage container, devoted to store the ashes produced by the incineration process. This container can store (approximately) the ashes of 3-4 RP."
+            </div>
+            Questo requisito ci indica che l'AshContainer ha capienza sufficiente per la cenere di 3-4 RP. Sarà necessario scegliere un DLIMT corrispondente a questa quantità di cenere, in modo da poter determinare lo stato dell'AshStorage Container, legando quindi il valore misurato dal Sonar in cm nel numero corrispondente di RP. <br>
+          </li>
+          <li>
+            <div class="remark-light">
+              "The Led is used as a warning device, according to the following rules:
+              <ul>
+                <li>the Led is on when the Incinerator is burning a RP.</li>
+                <li>the Led is off when the Incinerator is not burning.</li>
+                <li>the Led blinks while the AshStorage is full or the AshStorage is empty"</li>
+              </ul>
+            </div>
+            Questo requisito ci indica che sarà presente un Led utilizzato per segnalare lo stato dell'Incinerator e dell'AshStorage Container. In particolare, il Led dovrà essere acceso quando l'Incinerator sta bruciando un RP, spento quando l'Incinerator non sta bruciando e lampeggiare quando l'AshStorage Container è pieno o vuoto. <br>
+            Il WIS quindi dovrà conoscere lo stato dell'Incinerator e il livello misurato dal Sonar per determinare lo stato d'accensione del Led, inviandogli un messaggio per il comportamento. <br>
+            Si dovrà determinare insieme al committente il livello di priorità da assegnare ai comportamenti elencati, in quanto sono presenti dei casi limite, come ad esempio lo stato del sistema quando l'AshStorage Container è vuoto (portando il Led a lampeggiare) e l'Incinerator sta bruciando un RP (portando il Led a rimanere acceso).
+          </li>
+        </ul>
+      </div>
+      <h2>Analisi del problema</h2>
+      <div class="remark">
+        Problematiche evidenziate durante l'analisi dei requisiti:
+      </div>
+      <h6><b>MonitoringDevice</b></h6>
+      <div class="remark">
+        Dall'analisi dei requisiti viene evidenziato l'utilizzo di un dispositivo fisico composto da un Sonar e un Led posti su un RaspberryPi. Gestendo il sistema attraverso le opportunità offerte da linguaggio Qak, si consiglia l'utilizzo di un contesto esterno per la gestione del MonitoringDevice, contenente gli attori adibiti alla gestione del Sonar e del Led. <br>
+      </div>
+      <h6><b>WeighingDevice</b></h6>
+      <div class="remark">
+        Nell'analisi dei requisiti è riportato l'utilizzo di un sensore nel WasteStorage Container in grado di misurare la quantità di Roll Packets presenti. Il committente non ha fornito nessun dispositivo fisico, quindi si potrebbe inserire l'attore dello Scale nello stesso contesto del WIS, altrimenti si potrebbe creare un nuovo contesto qualora il dispositivo venga fornito in seguito. <br>
+      </div>
+      <h6><b>Sonar</b></h6>
+      <div class="remark">
+        <ul>
+          <li>
+            Il Sonar dovrà misurare la distanza tra la cenere e il suo sensore. Il valore letto dovrà essere inviato al WIS per determinare lo stato dell'AshStorage Container.
+          </li>
+          <li>
+            Sarà necessario l'utilizzo di un attore in grado di gestire il dispositivo fisico del Sonar.
+          </li>
+          <li>
+            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del dispositivo fisico, qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
+            L'attore di alto livello che gestisce la logica si occuperà di filtrare i messaggi ricevuti dall'attore di basso livello che gestisce il dispositivo fisico, inoltrando il valore al WIS solamente quando si avrà un cambiamento significativo nella distanza misurata, in modo da gestire la sensibilità del Sonar fisico dipendente dalla tecnologia adottata.
+          </li>
+        </ul>
+      </div>
+      <h6><b>Led</b></h6>
+      <div class="remark">
+        <ul>
+          <li>
+            Il Led dovrà segnalare lo stato del sistema. Riceverà quindi dal WIS un messaggio contenente il comportamento da adottare.
+          </li>
+          <li>
+            Sarà necessario l'utilizzo di un attore in grado di gestire il dispositivo fisico del Led.
+          </li>
+          <li>
+            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del dispositivo fisico, qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un led), si consiglia di inserire un ulteriore attore. <br>
+            L'attore di alto livello riceverà dal WIS il comportamento da adottare che verrà successivamente inoltrato all'attore che gestirà il dispositivo fisico di pertinenza.
+          </li>
+        </ul>
+      </div>
+      <h6><b>Scale</b></h6>
+      <div class="remark">
+        VALENTINA
+      </div>
+
+      <h2>Modello del sistema</h2>
+      <div class="remark">
+        Il modello del sistema per lo Sprint2 è raffigurato nell'immagine sottostante. <br />
+
+        <a class="reference internal image-reference flex justify-center"
+            href="./immagini/sprint2_wis24arch.png"><img alt="./immagini/sprint2_wis24arch.png"
+              class="align-right" src="./immagini/sprint2_wis24arch.png" style="width: 90%" /></a>
+
+        <a class="reference internal image-reference flex justify-center"
+          href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
+            class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 50%" /></a>
+
+        <a class="reference internal image-reference flex justify-center"
+            href="./immagini/sprint2_scalearch.png"><img alt="./immagini/sprint2_scalearch.png"
+              class="align-right" src="./immagini/sprint2_scalearch.png" style="width: 50%" /></a>
+      </div>
+
+      <h4>WIS</h4>
+      <div class="remark">
+        Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/wis.qak">system.qak</a>). Il suo
+        compito in questa fase è quello di comunicare con il MonitoringDevice per misurare il livello di cenere presente nell'AshStorage Container e per gestire il comportamento del Led legato allo stato del sistema. Comunicherà inoltre con il WeighingDevice per misurare la quantità di RP presenti nel WasteStorage Container. <br />
+        Come detto nello Sprint0, abbiamo scelto di dare più responsabilità
+        al WIS perchè in quanto rappresentazione del sistema ha senso che
+        gestisca le azioni dell'OpRobot e dell'Incenerator. <br />
+
+        <ul>
+          <li>
+            <b>invierà</b> il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> all'attore scale_device per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla misurazione del peso nel WasteStorage Container. <br />
+          </li>
+          <li>
+            <b>riceverà</b> il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
+            dall'attore Scale contenente il numero di RP presenti nel WasteStorage Container. <br />
+          </li>
+
+          <li>
+            <b>invierà</b> il messaggio <b><code>Dispatch update_led_mode : update_led_mode(mode)</code></b> all'attore Led
+            contenente il comportamento che il Led dovrà adottare.
+          </li>
+          <li>
+            <b>riceverà</b> il messaggio
+            <b><code>Dispatch ash_measurement : ash_measurement(l)</code></b> dall'attore Sonar contenente la distanza
+            tra la cenere e il Sonar. <br />
+          </li>
+      </div>
+
+      <h4>Sonar & Sonar_device</h4>
+      <div class="remark">
+        Per la gestione del Sonar, verranno usati 2 attori: <span class="blue">Sonar</span> e <span class="blue">Sonar_device</span>. <br />
+        <br>
+        Il <span class="blue">Sonar_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico del Sonar. <br>
+        Invierà per prima cosa un messaggio <b><code>Dispatch sonar_sensitivity : sonar_sensitivity(s)</code></b> all'attore Sonar contenente la sensibilità del Sonar, valore che dipende dalla tecnologia utilizzata. <br>
+        Successivamente, attraverso una EmitLocalStream, invierà al <span class="blue">Sonar</span> il valore letto dal dispositivo fisico <b><code>Event sonar_data : distance(d)</code></b>.<br>
+        <br />
+        <br />
+        Il <span class="blue">Sonar</span> sarà modellato come attore e si occuperà di inviare al <span class="blue">WIS</span> la distanza tra la cenere e il Sonar. <br />
+        Il <span class="blue">Sonar</span> ha una variabile Sensitivity inizializzata a 1 contenente la sensibilità del Sonar. <br>
+        Dovrà innanzitutto iscriversi all'evento che il Sonar_device lancerà. Successivamente, potrà riceverà il valore della sensibilità dipendente dalla tecnologia adottata. <br>
+        Utilizzerà questa variabile per filtrare i messaggi ricevuti dal Sonar_device, inoltrando al <span class="blue">WIS</span> solamente i valori significativi. <br>
+        <b>Invierà</b> quindi il messaggio <b><code>Dispatch ash_measurement : ash_measurement(l)</code></b>  al <span class="blue">WIS</span> contenente la distanza tra la cenere e il Sonar. <br />
+
+      </div>
+
+      <h4>Led & Led_device</h4>
+      <div class="remark">
+        Per la gestione del Led, verranno usati 2 attori: <span class="blue">Led</span> e <span class="blue">Led_device</span>. <br />
+        <br>
+        Il <span class="blue">Led</span> sarà modellato come attore e riceverà dal <span class="blue">WIS</span> il comportamento che dovrà adottare, attraverso il messaggio <b><code>Dispatch update_led_mode : update_led_mode(mode)</code></b>. 
+        <br />
+        <br>
+        Il <span class="blue">Led_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico del Led. <br>
+        Riceverà dal <span class="blue">Led</span> il messaggio <b><code>Dispatch update_physical_led_mode : update_physical_led_mode(mode)</code></b> contenente il comportamento da adottare e lo attuerà sul dispositivo fisico. <br>
+      </div>
+
+      <h4>Scale</h4>
+      <div class="remark">
+        VALENTINA
+      </div>
+
+      <h3>Piani di testing</h3>
+      DA FARE
+      <div class="remark">
+        Essendo lo Sprint1 concentrato nel modellare il movimento dell'<span class="blue">OpRobot</span>
+        e la sua interazione con il <span class="blue">WIS</span>, i test
+        saranno focalizzati su queste due parti del sistema. <br />
+        Per la strategia di testing si possono prendere strade differenti:
+        <ul>
+          <li>
+            <b>uso di `updateResource` e un logger</b>: con questa strategia si
+            possono sfruttare un observer e un POJO per immagazzinare i log
+            rilevanti durante l'esecuzione in un file testuale per poi
+            analizzarli durante i test.<br />
+            Il problema principale di questo approccio è che costringe gli
+            attori QAK a vivere nello stesso contesto, rendendo difficile in
+            futuro poter sfruttare il naturale disaccoppiamento offerto dal
+            modello QAK.
+          </li>
+          <li>
+            <b>uso del protocollo MQTT</b>: usando il protocollo MQTT (publish /
+            subscribe), si può mantenere il disaccoppiamento offerto dai QAK,
+            permettendo alle classi di testing di iscriversi ai topic di
+            interesse e ricevere i messaggi necessari, senza essere dipendenti
+            da un file di log centralizzato. Uno svantaggio di questa
+            metodologia è la dipendenza da un broker MQTT esterno che, qualora
+            fosse non disponibili, renderebbe i test non funzionanti.
+          </li>
+          <li>
+            <b>uso di eventi QAK</b>: con questa metodologia si sfrutta
+            l'architettura dei QAK per osservare lo stato di uno o più attori ma
+            presenta lo svantaggio che gli eventi vengono percepiti da tutti e
+            non è detto sia un comportamento voluto.
+          </li>
+        </ul>
+        Si consiglia l'uso della metodologia tramite il protocollo MQTT. Le
+        classi di test, avviano l'intero sistema "wis_tests.qak",
+        pre-configurato per eseguire un ciclo completo
+        "avvio-getrp-depositrp-incerimento-estrazione_cenere-scarico_cenere" e
+        verificano il contenuto del file di log generato. <br />
+        <ul>
+          <li>
+            <b>Test4RP</b> verifica il corretto funzionamento del sistema visto
+            ai morsetti. Ovvero il sistema viene inizializzato con
+            <b>RPCOUNT=4 all'interno della WasteIn</b> e verifica
+            <b>dopo un certo tempo</b>, che tutti gli RP siano stati prelevati
+            <b>(RPCOUNT=0)</b> e inceneriti.<br />
+            <a href="./../src/main/kotlin/test/Test4RPMqtt.kt">Test4RPMqtt.kt (LINK)</a>
+          </li>
+          <li>
+            <b>TestGetRp</b> verifica il corretto recupero del rp dopo aver
+            verificato i requisiti menzionati nello user stories e lo
+            spostamento verso la <span class="red">burnin port</span> in cui
+            verrà depositato il <span class="red">rp</span>.<br />
+            il test verifica <b>l'ordine cronologico</b> delle operazioni per
+            garantire la corretta esecuzione in ordine del movimento
+            previsto.<br />
+            <a href="./../src/main/kotlin/test/TestGetRpMqtt.kt">TestGetRPMqtt.kt (LINK)</a>
+          </li>
+          <li>
+            <b>TestGetAsh</b> verifica il corretto recupero dalla
+            <span class="red">BURNOUT</span>
+            port dell'Ash prodotta dall'<span class="blue">Incinerator</span>
+            alla fine della sua fase di burning. L'<span class="blue">OpRobot</span>
+            dovrà successivamente dirigersi verso la
+            <span class="red">ASHOUT</span> port dell'AshStorage dove depositerà
+            la cenere.<br />
+            Il test verifica <b>l'ordine cronologico</b> delle operazioni per
+            garantire la corretta esecuzione in ordine del movimento
+            previsto.<br />
+            <a href="./../src/main/kotlin/test/TestGetAshMqtt.kt">TestGetAshMqtt.kt (LINK)</a>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Prossimi sviluppi</h3>
+      <div class="remark">
+        DA FARE
+        Nel prossimo sprint (<b>Sprint 2</b>) verranno implementati l'estrazione
+        e il deposito di <b>RP</b> e <b>Ash</b>. Inoltre si gestirà il
+        <span class="blue">MonitoringDevice</span>. <br />
+      </div>
+
+      <h3>Footer</h3>
+      <div class="remark">
+        Membri del gruppo
+        <ul>
+          <li>
+            Corsetti Luca -
+            <a href="mailto:luca.corsetti3@studio.unibo.it">luca.corsetti3@studio.unibo.it</a>
+          </li>
+          <li>
+            de Respinis Valentina
+            <a href="mailto:valentina.derespinis@studio.unibo.it">valentina.derespinis@studio.unibo.it</a>
+          </li>
+          <li>
+            Sindaco Daniele
+            <a href="mailto:daniele.sindaco@studio.unibo.it">daniele.sindaco@studio.unibo.it</a>
+          </li>
+        </ul>
+      </div>
+      <div class="remark">
+        github:
+        <a
+          href="https://github.com/ilcors-dev/iss_project_2024/tree/main">https://github.com/ilcors-dev/iss_project_2024/tree/main</a>
+      </div>
+  </main>
+</body>
+
 </html>
