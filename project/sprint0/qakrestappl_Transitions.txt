@@ -1,3 +1,6 @@
+{"actor":"wis", "msgType":"dispatch", "curstate":"setupSystem", "nextstate":"updateIncStatus", "msgId":"burning"}
+{"actor":"wis", "msgType":"dispatch", "curstate":"updateIncStatus", "nextstate":"updateIncStatus", "msgId":"burning"}
+{"actor":"wis", "msgType":"dispatch", "curstate":"updateIncStatus", "nextstate":"updateIncStatus", "msgId":"finishedBurning"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"s0", "nextstate":"startup", "msgId":"startIncinerator"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"startup", "nextstate":"startBurning", "msgId":"startBurning"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"startBurning", "nextstate":"startBurning", "msgId":"startBurning"}

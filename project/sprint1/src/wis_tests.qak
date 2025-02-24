@@ -5,8 +5,8 @@ Dispatch startIncinerator   : startIncinerator(0) 		      // turns on the incine
 Dispatch startBurning       : startBurning(BTIME)			  // tell the incinerator to start burning a RP
 
 // - incinerator
-Event burning 				: burning(0)             // incinerator starts burning
-Event finishedBurning 	    : finishedBurning(0)   // end of burning phase
+Dispatch burning 				: burning(0)             // incinerator starts burning
+Dispatch finishedBurning 	    : finishedBurning(0)   // end of burning phase
 
 // - monitoring device
 // Dispatch ashMeasurement     : ashMeasurement(L)
@@ -119,8 +119,8 @@ QActor wis context ctxwis24 {
 	}
 
 	Transition t0 
-		whenEvent burning			-> updateIncStatus
-		whenEvent finishedBurning   -> updateIncStatus
+		whenMsg burning			-> updateIncStatus
+		whenMsg finishedBurning   -> updateIncStatus
 		whenReply getrp_status      -> moveToBurnIn
 		whenReply extractash_status -> moveToAshOut		
 		// whenMsg ashMeasurement		-> updateAshLevel
@@ -149,7 +149,7 @@ QActor wis context ctxwis24 {
     }
 
     Transition t0
-    	whenEvent burning -> updateIncStatus
+    	whenMsg burning -> updateIncStatus
 
 	State moveToAshOut {
 	    printCurrentMessage
@@ -430,12 +430,13 @@ QActor incinerator context ctxwis24 {
   			println("$name - Start burning phase") color magenta
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : burning_phase_started
 
-			emit burning : burning(0)
+			forward wis -m burning  : burning(0)
 			
 			delayVar BurnTime 
 			
 			println("$name - Finished burning RP") color magenta
-			emit finishedBurning : finishedBurning(0)
+
+			forward wis -m finishedBurning : finishedBurning(0)
 		}
  	}
  	Transition t0

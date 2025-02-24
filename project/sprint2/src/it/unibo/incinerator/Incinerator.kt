@@ -26,13 +26,14 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
+						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						CommUtils.outmagenta("$name STARTS")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t026",targetState="startup",cond=whenDispatch("startIncinerator"))
+					 transition(edgeName="t028",targetState="startup",cond=whenDispatch("startIncinerator"))
 				}	 
 				state("startup") { //this:State
 					action { //it:State
@@ -46,7 +47,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t027",targetState="startBurning",cond=whenDispatch("startBurning"))
+					 transition(edgeName="t029",targetState="startBurning",cond=whenDispatch("startBurning"))
 				}	 
 				state("startBurning") { //this:State
 					action { //it:State
@@ -56,8 +57,8 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 var BurnTime = payloadArg(0).toLong()  
 								CommUtils.outmagenta("$name - Start burning phase")
-								updateResourceRep( "info($name, burning_phase_started)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "burning_phase_started" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","burning_phase_started").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								forward("burning", "burning(0)" ,"wis" ) 
 								delay(BurnTime)
 								CommUtils.outmagenta("$name - Finished burning RP")
@@ -68,7 +69,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t028",targetState="startBurning",cond=whenDispatch("startBurning"))
+					 transition(edgeName="t030",targetState="startBurning",cond=whenDispatch("startBurning"))
 				}	 
 			}
 		}

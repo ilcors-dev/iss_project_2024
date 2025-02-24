@@ -3,8 +3,8 @@
 %====================================================================================
 dispatch( startIncinerator, startIncinerator(0) ).
 dispatch( startBurning, startBurning(BTIME) ).
-event( burning, burning(0) ).
-event( finishedBurning, finishedBurning(0) ).
+dispatch( burning, burning(0) ).
+dispatch( finishedBurning, finishedBurning(0) ).
 request( engage, engage(OWNER,STEPTIME) ).
 request( moverobot, moverobot(TARGETX,TARGETY) ).
 reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot

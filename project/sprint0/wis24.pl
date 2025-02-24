@@ -3,8 +3,8 @@
 %====================================================================================
 dispatch( startIncinerator, startIncinerator(0) ).
 dispatch( startBurning, startBurning(BTIME) ).
-event( burning, burning(0) ).
-event( finishedBurning, finishedBurning(0) ).
+dispatch( burning, burning(0) ).
+dispatch( finishedBurning, finishedBurning(0) ).
 %====================================================================================
 context(ctxwis24, "localhost",  "TCP", "8121").
 context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").

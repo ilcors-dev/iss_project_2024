@@ -26,6 +26,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
+						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						CommUtils.outgreen("$name STARTS")
 						//genTimer( actor, state )
 					}
@@ -38,15 +39,15 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					action { //it:State
 						CommUtils.outgreen("$name request engage")
 						request("engage", "engage($OWNER,350)" ,"basicrobot" )  
-						updateResourceRep( "info($name, start)"  
-						)
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "start" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","start").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t08",targetState="inHome",cond=whenReply("engagedone"))
-					transition(edgeName="t09",targetState="handleEngageRefused",cond=whenReply("engagerefused"))
+					 transition(edgeName="t010",targetState="inHome",cond=whenReply("engagedone"))
+					transition(edgeName="t011",targetState="handleEngageRefused",cond=whenReply("engagerefused"))
 				}	 
 				state("handleEngageRefused") { //this:State
 					action { //it:State
@@ -77,8 +78,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t010",targetState="inHome",cond=whenReply("moverobotdone"))
-					transition(edgeName="t011",targetState="execGoHome",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t012",targetState="inHome",cond=whenReply("moverobotdone"))
+					transition(edgeName="t013",targetState="execGoHome",cond=whenReply("moverobotfailed"))
 				}	 
 				state("inHome") { //this:State
 					action { //it:State
@@ -89,8 +90,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t012",targetState="execGetRp",cond=whenRequest("getrp"))
-					transition(edgeName="t013",targetState="execExtractAsh",cond=whenRequest("extractash"))
+					 transition(edgeName="t014",targetState="execGetRp",cond=whenRequest("getrp"))
+					transition(edgeName="t015",targetState="execExtractAsh",cond=whenRequest("extractash"))
 				}	 
 				state("execGetRp") { //this:State
 					action { //it:State
@@ -103,8 +104,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
 								delay(500) 
-								updateResourceRep( "info($name, moving_to_WasteIn_port)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "moving_to_WasteIn_port" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","moving_to_WasteIn_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -112,20 +113,21 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t014",targetState="getRpOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t015",targetState="execGetRp",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t016",targetState="getRpOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t017",targetState="execGetRp",cond=whenReply("moverobotfailed"))
 				}	 
 				state("getRpOk") { //this:State
 					action { //it:State
-						updateResourceRep( "info($name, collected_RP_from_WasteIn_port)"  
-						)
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "collected_RP_from_WasteIn_port" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","collected_RP_from_WasteIn_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
+						forward("unload_weight", "unload_weight(50)" ,"scale_device" ) 
 						answer("getrp", "getrp_status", "getrp_status(0)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t116",targetState="execDepositRp",cond=whenRequest("depositrp"))
+					 transition(edgeName="t118",targetState="execDepositRp",cond=whenRequest("depositrp"))
 				}	 
 				state("execDepositRp") { //this:State
 					action { //it:State
@@ -138,8 +140,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing RP in ($X, $Y)")
 								delay(500) 
-								updateResourceRep( "info($name, moving_to_BurnIn_port)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "moving_to_BurnIn_port" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","moving_to_BurnIn_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -147,20 +149,20 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t217",targetState="depositRpOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t218",targetState="execDepositRp",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t219",targetState="depositRpOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t220",targetState="execDepositRp",cond=whenReply("moverobotfailed"))
 				}	 
 				state("depositRpOk") { //this:State
 					action { //it:State
-						updateResourceRep( "info($name, deposited_RP_in_BurnIn_port)"  
-						)
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "deposited_RP_in_BurnIn_port" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","deposited_RP_in_BurnIn_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						answer("depositrp", "depositrp_status", "depositrp_status(0)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t319",targetState="execGoHome",cond=whenRequest("gohome"))
+					 transition(edgeName="t321",targetState="execGoHome",cond=whenRequest("gohome"))
 				}	 
 				state("execExtractAsh") { //this:State
 					action { //it:State
@@ -173,8 +175,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								                var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
 								delay(500) 
-								updateResourceRep( "info($name, moving_to_BurnOut_port)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "moving_to_BurnOut_port" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","moving_to_BurnOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -182,20 +184,20 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t020",targetState="extractAshOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t021",targetState="execExtractAsh",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t022",targetState="extractAshOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t023",targetState="execExtractAsh",cond=whenReply("moverobotfailed"))
 				}	 
 				state("extractAshOk") { //this:State
 					action { //it:State
-						updateResourceRep( "info($name, collected_ash_from_BurnOut_port)"  
-						)
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "collected_ash_from_BurnOut_port" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","collected_ash_from_BurnOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						answer("extractash", "extractash_status", "extractash_status(0)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t022",targetState="execDepositAsh",cond=whenRequest("depositash"))
+					 transition(edgeName="t024",targetState="execDepositAsh",cond=whenRequest("depositash"))
 				}	 
 				state("execDepositAsh") { //this:State
 					action { //it:State
@@ -208,8 +210,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 												var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing Ash in ($X, $Y)")
 								delay(500) 
-								updateResourceRep( "info($name, moving_to_AshOut_port)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "moving_to_AshOut_port" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","moving_to_AshOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -217,20 +219,20 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t023",targetState="depositAshOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t024",targetState="execDepositAsh",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t025",targetState="depositAshOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t026",targetState="execDepositAsh",cond=whenReply("moverobotfailed"))
 				}	 
 				state("depositAshOk") { //this:State
 					action { //it:State
-						updateResourceRep( "info($name, deposited_ash_in_AshOut_port)"  
-						)
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "deposited_ash_in_AshOut_port" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","deposited_ash_in_AshOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						answer("depositash", "depositash_status", "depositash_status(0)"   )  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t025",targetState="execGoHome",cond=whenRequest("gohome"))
+					 transition(edgeName="t027",targetState="execGoHome",cond=whenRequest("gohome"))
 				}	 
 			}
 		}

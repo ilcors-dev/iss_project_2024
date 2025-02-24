@@ -24,12 +24,16 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		 
 				// constants
-				val MAX_ASH_CAPACITY = 4; // max 4 rp in ash storage (capacity)
+				val DLIMIT = 100; // max 4 rp in ash storage (capacity - DLIMIT)
+				val ASH_STORAGE_THRESHOLD = 25;
+				val LED_OFF = "off";
+				val LED_ON = "on";
+				val LED_BLINK = "blink";
 				
 				// variables
-				var ASHLEVEL  = 0;
+				var ASHLEVEL  = 100;
 				var RPCONT    = 4;
-				var INCSTATUS = 0;    // 0 free, 1 busy
+				var INCSTATUS = 1;    // 0 free, 1 busy
 				var INHOME    = 0;    // 0 in home, 1 not in home
 			
 				val LOCATIONS = mapOf(
@@ -38,7 +42,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					"burn_in"		to Position(3,2),
 					"burn_out"		to Position(5,3),
 					"ashout"		to Position(6,4)
-				); 
+				);
 		
 				val WASTEIN_POS_X = LOCATIONS["wastein"]?.x;
 				val WASTEIN_POS_Y = LOCATIONS["wastein"]?.y;
@@ -57,10 +61,11 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
+						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						delay(500) 
 						CommUtils.outgreen("$name start")
-						updateResourceRep( "info($name, start)"  
-						)
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "start" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","start").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -72,7 +77,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						CommUtils.outgreen("$name setupping system..")
 						forward("startIncinerator", "startIncinerator(0)" ,"incinerator" ) 
-						if(  (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0)  
+						if(  (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) < DLIMIT && INCSTATUS == 0)  
 						 ){request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
 						}
 						//genTimer( actor, state )
@@ -87,12 +92,13 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
 						
-									val status = "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}"
-									println(status)	
-						updateResourceRep( "info($name, RPCONT_$RPCONT)"  
-						)
-						updateResourceRep( "info($name, ASHLEVEL_$ASHLEVEL)"  
-						)
+									val status = "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}";
+									val RP_STATUS = "RPCONT_${RPCONT}";
+									val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$RP_STATUS" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","$RP_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$ASHLEVEL_STATUS" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","$ASHLEVEL_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -102,6 +108,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					transition(edgeName="t01",targetState="updateIncStatus",cond=whenDispatch("finishedBurning"))
 					transition(edgeName="t02",targetState="moveToBurnIn",cond=whenReply("getrp_status"))
 					transition(edgeName="t03",targetState="moveToAshOut",cond=whenReply("extractash_status"))
+					transition(edgeName="t04",targetState="handleScaleRPStatus",cond=whenDispatch("update_scale_count"))
+					transition(edgeName="t05",targetState="handleAshMeasurement",cond=whenDispatch("ash_measurement"))
 				}	 
 				state("moveToBurnIn") { //this:State
 					action { //it:State
@@ -111,9 +119,10 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INHOME = 0  
 								 RPCONT -= 1  
+								 val STATUS = "update_rp_count_to__${RPCONT}"  
 								CommUtils.outgreen("$name - Moving to burn in")
-								updateResourceRep( "info($name, update_rp_count_to__$RPCONT)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("depositrp", "depositrp($BURN_IN_POS_X,$BURN_IN_POS_Y)" ,"oprobot" )  
 						}
 						//genTimer( actor, state )
@@ -121,7 +130,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t14",targetState="startBurningPhase",cond=whenReply("depositrp_status"))
+					 transition(edgeName="t16",targetState="startBurningPhase",cond=whenReply("depositrp_status"))
 				}	 
 				state("startBurningPhase") { //this:State
 					action { //it:State
@@ -134,7 +143,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t05",targetState="updateIncStatus",cond=whenDispatch("burning"))
+					 transition(edgeName="t07",targetState="updateIncStatus",cond=whenDispatch("burning"))
 				}	 
 				state("moveToAshOut") { //this:State
 					action { //it:State
@@ -151,7 +160,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t56",targetState="goHome",cond=whenReply("depositash_status"))
+					 transition(edgeName="t58",targetState="goHome",cond=whenReply("depositash_status"))
 				}	 
 				state("goHome") { //this:State
 					action { //it:State
@@ -164,7 +173,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t27",targetState="inHome",cond=whenReply("gohome_status"))
+					 transition(edgeName="t29",targetState="inHome",cond=whenReply("gohome_status"))
 				}	 
 				state("inHome") { //this:State
 					action { //it:State
@@ -174,7 +183,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INHOME = 1  
 								CommUtils.outgreen("$name - arrived in home")
-								if(  (RPCONT > 0 && ASHLEVEL < MAX_ASH_CAPACITY && INCSTATUS == 0)  
+								if(  (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) < DLIMIT && INCSTATUS == 0)  
 								 ){request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
 								}
 						}
@@ -193,15 +202,15 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 1  
 								CommUtils.outmagenta("$name - start incinerator, update status")
-								updateResourceRep( "info($name, incinerator_status_BURNING)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_BURNING" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
 						if( checkMsgContent( Term.createTerm("finishedBurning(0)"), Term.createTerm("finishedBurning(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 0  
 								CommUtils.outmagenta("$name - finish incinerator, update status")
-								updateResourceRep( "info($name, incinerator_status_FINISHED_BURNING)"  
-								)
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_FINISHED_BURNING" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_FINISHED_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("extractash", "extractash($BURN_OUT_POS_X,$BURN_OUT_POS_Y)" ,"oprobot" )  
 						}
 						//genTimer( actor, state )
@@ -213,6 +222,50 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					}) )
 					transition( edgeName="goto",targetState="printStatus", cond=doswitchGuarded({! ( INHOME == 0  
 					) }) )
+				}	 
+				state("handleScaleRPStatus") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("update_scale_count(COUNT)"), Term.createTerm("update_scale_count(COUNT)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+												RPCONT = payloadArg(0).toInt()
+								CommUtils.outmagenta("$name - scale status changed, rp in storage = $RPCONT")
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "updated_scale_rp_status" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","updated_scale_rp_status").toString(), "it.unib0.iss.waste-incinerator-service" )   
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="printStatus", cond=doswitch() )
+				}	 
+				state("handleAshMeasurement") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("ash_measurement(l)"), Term.createTerm("ash_measurement(L)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+												var level = payloadArg(0).toInt()
+												ASHLEVEL = level
+												val STATUS = "ash_level_to__${ASHLEVEL}"
+								if( ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT) 
+								 ){CommUtils.outmagenta("$name - ash level changed, update")
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
+								}
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="printStatus", cond=doswitch() )
 				}	 
 			}
 		}

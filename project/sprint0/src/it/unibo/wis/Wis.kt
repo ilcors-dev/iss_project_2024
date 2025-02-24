@@ -44,7 +44,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="updateIncStatus",cond=whenEvent("burning"))
+					 transition(edgeName="t00",targetState="updateIncStatus",cond=whenDispatch("burning"))
 				}	 
 				state("updateIncStatus") { //this:State
 					action { //it:State
@@ -65,8 +65,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t01",targetState="updateIncStatus",cond=whenEvent("burning"))
-					transition(edgeName="t02",targetState="updateIncStatus",cond=whenEvent("finishedBurning"))
+					 transition(edgeName="t01",targetState="updateIncStatus",cond=whenDispatch("burning"))
+					transition(edgeName="t02",targetState="updateIncStatus",cond=whenDispatch("finishedBurning"))
 				}	 
 			}
 		}
