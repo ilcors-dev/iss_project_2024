@@ -94,13 +94,16 @@
         del corso. <br />
         <br />
 
-        <b>Goal:</b> L'obiettivo dello Sprint2 è quello di implementare l'estrazione e il deposito sia di Roll Packets (RP) e sia di Ash. <br />
-        Inoltre, verranno modellati il MonitoringDevice - composto dal Sonar e dal Led - e la Scale del WasteStorage Container. <br />
+        <b>Goal:</b> L'obiettivo dello Sprint2 è quello di implementare l'estrazione e il deposito sia di Roll Packets
+        (RP) e sia di Ash. <br />
+        Inoltre, verranno modellati il MonitoringDevice - composto dal Sonar e dal Led - e la Scale del WasteStorage
+        Container. <br />
       </div>
 
       <div class="remark">
         Link allo
-        <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a> e allo <a href="../../sprint1/userDocs/sprint1.html">Sprint1</a>
+        <a href="../../sprint0/userDocs/sprint0_v1.html">Sprint0</a> e allo <a
+          href="../../sprint1/userDocs/sprint1.html">Sprint1</a>
         realizzati precedentemente.
       </div>
 
@@ -118,30 +121,45 @@
             <div class="remark-light">
               "3. a MonitoringDevice, composed by a a Sonar and a Led working on a RaspberryPi."
             </div>
-            Dal seguente requisito si evince la presenza di un dispositivo fisico denominato MonitoringDevice composto da un Led e un Sonar. <br>
+            Dal seguente requisito si evince la presenza di un dispositivo fisico denominato MonitoringDevice composto
+            da un Led e un Sonar. <br>
           </li>
           <li>
             <div class="remark-light">
-              "The WasteStorage owns a weighing device (Scale) that reports the current weigth of all the RP currently stored into the container. The container can be considered empty when the value of the Scale is (approximately) 0." <br>
+              "The WasteStorage owns a weighing device (Scale) that reports the current weigth of all the RP currently
+              stored into the container. The container can be considered empty when the value of the Scale is
+              (approximately) 0." <br>
               <br>"The WIS can acquire information from the input devices Scale and Sonar through
- software supports that must be properly designed and implemented"
+              software supports that must be properly designed and implemented"
             </div>
-            Da ciò si evince che è presente una bilancia (Scale) nel WasteStorage, che misura il peso di tutti gli RP presenti nel WasteStorage Container. Il container è considerato vuoto quando il valore della Scale è (approssimativamente) 0.
-            Inoltre, da requisito il WIS acquisirà informazioni sugli RP presenti nel WasteStorage direttamente dalla Scale <br>
+            Da ciò si evince che è presente una bilancia (Scale) nel WasteStorage, che misura il peso di tutti gli RP
+            presenti nel WasteStorage Container. Il container è considerato vuoto quando il valore della Scale è
+            (approssimativamente) 0.
+            Inoltre, da requisito il WIS acquisirà informazioni sugli RP presenti nel WasteStorage direttamente dalla
+            Scale <br>
           </li>
           <li>
             <div class="remark-light">
-              "The Sonar of the MonitoringDevice is used to measures the level of the ash in the AshStorage container, by measuring the distance between the top of the ash and the Sonar itself. When the distance is less than a prefixed value DLIMT, the
+              "The Sonar of the MonitoringDevice is used to measures the level of the ash in the AshStorage container,
+              by measuring the distance between the top of the ash and the Sonar itself. When the distance is less than
+              a prefixed value DLIMT, the
               AshStorage container is considered full."
             </div>
-            Questo requisito ci indica che è presente nel sistema un Sonar nel MonitoringDevice, utilizzato per misurare il livello della cenere nell'AshContainer. Quando la distanza tra la cenere e il Sonar è minore di un valore prefissato DLIMT, l'AshContainer è considerato pieno. <br>
-            Sarà necessario quindi leggere il valore del Sonar e inviare un messaggio al WIS contenente il valore letto, che verrà utilizzato per determinare lo stato dell'AshStorage Container.
+            Questo requisito ci indica che è presente nel sistema un Sonar nel MonitoringDevice, utilizzato per misurare
+            il livello della cenere nell'AshContainer. Quando la distanza tra la cenere e il Sonar è minore di un valore
+            prefissato DLIMT, l'AshContainer è considerato pieno. <br>
+            Sarà necessario quindi leggere il valore del Sonar e inviare un messaggio al WIS contenente il valore letto,
+            che verrà utilizzato per determinare lo stato dell'AshStorage Container.
           </li>
           <li>
             <div class="remark-light">
-              "2. a AshStorage container, devoted to store the ashes produced by the incineration process. This container can store (approximately) the ashes of 3-4 RP."
+              "2. a AshStorage container, devoted to store the ashes produced by the incineration process. This
+              container can store (approximately) the ashes of 3-4 RP."
             </div>
-            Questo requisito ci indica che l'AshContainer ha capienza sufficiente per la cenere di 3-4 RP. Sarà necessario scegliere un DLIMT corrispondente a questa quantità di cenere, in modo da poter determinare lo stato dell'AshStorage Container, legando quindi il valore misurato dal Sonar in cm nel numero corrispondente di RP. <br>
+            Questo requisito ci indica che l'AshContainer ha capienza sufficiente per la cenere di 3-4 RP. Sarà
+            necessario scegliere un DLIMT corrispondente a questa quantità di cenere, in modo da poter determinare lo
+            stato dell'AshStorage Container, legando quindi il valore misurato dal Sonar in cm nel numero corrispondente
+            di RP. <br>
           </li>
           <li>
             <div class="remark-light">
@@ -152,9 +170,16 @@
                 <li>the Led blinks while the AshStorage is full or the AshStorage is empty"</li>
               </ul>
             </div>
-            Questo requisito ci indica che sarà presente un Led utilizzato per segnalare lo stato dell'Incinerator e dell'AshStorage Container. In particolare, il Led dovrà essere acceso quando l'Incinerator sta bruciando un RP, spento quando l'Incinerator non sta bruciando e lampeggiare quando l'AshStorage Container è pieno o vuoto. <br>
-            Il WIS quindi dovrà conoscere lo stato dell'Incinerator e il livello misurato dal Sonar per determinare lo stato d'accensione del Led, inviandogli un messaggio per il comportamento. <br>
-            Si dovrà determinare insieme al committente il livello di priorità da assegnare ai comportamenti elencati, in quanto sono presenti dei casi limite, come ad esempio lo stato del sistema quando l'AshStorage Container è vuoto (portando il Led a lampeggiare) e l'Incinerator sta bruciando un RP (portando il Led a rimanere acceso).
+            Questo requisito ci indica che sarà presente un Led utilizzato per segnalare lo stato dell'Incinerator e
+            dell'AshStorage Container. In particolare, il Led dovrà essere acceso quando l'Incinerator sta bruciando un
+            RP, spento quando l'Incinerator non sta bruciando e lampeggiare quando l'AshStorage Container è pieno o
+            vuoto. <br>
+            Il WIS quindi dovrà conoscere lo stato dell'Incinerator e il livello misurato dal Sonar per determinare lo
+            stato d'accensione del Led, inviandogli un messaggio per il comportamento. <br>
+            Si dovrà determinare insieme al committente il livello di priorità da assegnare ai comportamenti elencati,
+            in quanto sono presenti dei casi limite, come ad esempio lo stato del sistema quando l'AshStorage Container
+            è vuoto (portando il Led a lampeggiare) e l'Incinerator sta bruciando un RP (portando il Led a rimanere
+            acceso).
           </li>
         </ul>
       </div>
@@ -164,24 +189,35 @@
       </div>
       <h6><b>MonitoringDevice</b></h6>
       <div class="remark">
-        Dall'analisi dei requisiti viene evidenziato l'utilizzo di un dispositivo fisico composto da un Sonar e un Led posti su un RaspberryPi. Gestendo il sistema attraverso le opportunità offerte da linguaggio Qak, si consiglia l'utilizzo di un contesto esterno per la gestione del MonitoringDevice, contenente gli attori adibiti alla gestione del Sonar e del Led. <br>
+        Dall'analisi dei requisiti viene evidenziato l'utilizzo di un dispositivo fisico composto da un Sonar e un Led
+        posti su un RaspberryPi. Gestendo il sistema attraverso le opportunità offerte da linguaggio Qak, si consiglia
+        l'utilizzo di un contesto esterno per la gestione del MonitoringDevice, contenente gli attori adibiti alla
+        gestione del Sonar e del Led. <br>
       </div>
       <h6><b>WeighingDevice</b></h6>
       <div class="remark">
-        Nell'analisi dei requisiti è riportato l'utilizzo di un sensore nel WasteStorage Container in grado di misurare la quantità di Roll Packets presenti. Il committente non ha fornito nessun dispositivo fisico, quindi si potrebbe inserire l'attore dello Scale nello stesso contesto del WIS, altrimenti si potrebbe creare un nuovo contesto qualora il dispositivo venga fornito in seguito. <br>
+        Nell'analisi dei requisiti è riportato l'utilizzo di un sensore nel WasteStorage Container in grado di misurare
+        la quantità di Roll Packets presenti. Il committente non ha fornito nessun dispositivo fisico, quindi si
+        potrebbe inserire l'attore dello Scale nello stesso contesto del WIS, altrimenti si potrebbe creare un nuovo
+        contesto qualora il dispositivo venga fornito in seguito. <br>
       </div>
       <h6><b>Sonar</b></h6>
       <div class="remark">
         <ul>
           <li>
-            Il Sonar dovrà misurare la distanza tra la cenere e il suo sensore. Il valore letto dovrà essere inviato al WIS per determinare lo stato dell'AshStorage Container.
+            Il Sonar dovrà misurare la distanza tra la cenere e il suo sensore. Il valore letto dovrà essere inviato al
+            WIS per determinare lo stato dell'AshStorage Container.
           </li>
           <li>
             Si suggerisce l'utilizzo di un attore in grado di gestire il dispositivo fisico del Sonar.
           </li>
           <li>
-            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del dispositivo fisico, qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
-            L'attore di alto livello che gestisce la logica si occuperà di filtrare i messaggi ricevuti dall'attore di basso livello che gestisce il dispositivo fisico, inoltrando il valore al WIS solamente quando si avrà un cambiamento significativo nella distanza misurata, in modo da gestire la sensibilità del Sonar fisico dipendente dalla tecnologia adottata.
+            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
+            dispositivo fisico, qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
+            L'attore di alto livello che gestisce la logica si occuperà di filtrare i messaggi ricevuti dall'attore di
+            basso livello che gestisce il dispositivo fisico, inoltrando il valore al WIS solamente quando si avrà un
+            cambiamento significativo nella distanza misurata, in modo da gestire la sensibilità del Sonar fisico
+            dipendente dalla tecnologia adottata.
           </li>
         </ul>
       </div>
@@ -189,14 +225,18 @@
       <div class="remark">
         <ul>
           <li>
-            Il Led dovrà segnalare lo stato del sistema. Riceverà quindi dal WIS un messaggio contenente il comportamento da adottare.
+            Il Led dovrà segnalare lo stato del sistema. Riceverà quindi dal WIS un messaggio contenente il
+            comportamento da adottare.
           </li>
           <li>
             Si suggerisce l'utilizzo di un attore in grado di gestire il dispositivo fisico del Led.
           </li>
           <li>
-            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del dispositivo fisico, qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un led), si consiglia di inserire un ulteriore attore. <br>
-            L'attore di alto livello riceverà dal WIS il comportamento da adottare che verrà successivamente inoltrato all'attore che gestirà il dispositivo fisico di pertinenza.
+            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
+            dispositivo fisico, qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un
+            led), si consiglia di inserire un ulteriore attore. <br>
+            L'attore di alto livello riceverà dal WIS il comportamento da adottare che verrà successivamente inoltrato
+            all'attore che gestirà il dispositivo fisico di pertinenza.
           </li>
         </ul>
       </div>
@@ -204,18 +244,30 @@
       <div class="remark">
         <ul>
           <li>
-            Si suggerisce di modellare la Scale come un attore, poichè essendo un dispositivo fisico potrebbe aver bisogno di essere operato da altri contesti.
+            Si suggerisce di modellare la Scale come un attore, poichè essendo un dispositivo fisico potrebbe aver
+            bisogno di essere operato da altri contesti.
           </li>
           <li>
-            La scale riporta un peso, però questa informazione va processata perchè al WIS serve sapere il numero di RP presenti. Questa elaborazione può essere fatta dal WIS, inviandogli il dato grezzo (il peso) oppure far elaborare questo dato alla bilancia stessa e inviare direttamente la conversione in RP al WIS. Si consiglia questa seconda opzione per tenere separate le varie responsabilità.
+            La scale riporta un peso, però questa informazione va processata perchè al WIS serve sapere il numero di RP
+            presenti. Questa elaborazione può essere fatta dal WIS, inviandogli il dato grezzo (il peso) oppure far
+            elaborare questo dato alla bilancia stessa e inviare direttamente la conversione in RP al WIS. Si consiglia
+            questa seconda opzione per tenere separate le varie responsabilità.
           </li>
           <li>
-            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del dispositivo fisico, si consiglia l'uso di un ulteriore attore. <br>
-            L'attore di alto livello che gestisce la logica si occuperà di convertire il peso ricevuto dall'attore di basso livello che gestisce il dispositivo fisico in RP, inoltrando il valore al WIS solamente quando si avrà un cambiamento di peso.
+            Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
+            dispositivo fisico, si consiglia l'uso di un ulteriore attore. <br>
+            L'attore di alto livello che gestisce la logica si occuperà di convertire il peso ricevuto dall'attore di
+            basso livello che gestisce il dispositivo fisico in RP, inoltrando il valore al WIS solamente quando si avrà
+            un cambiamento di peso.
           </li>
           <li>
-            Il WIS può venire a conoscenza del cambiamento di peso nel WasteStorage (quando per esempio viene depositato un RP) attraverso un meccanismo di polling oppure sarà la bilancia a mandare un messaggio al WIS. Considerando che il peso varia in momenti variabili, non è consigliabile un meccanismo di polling da parte del WIS, perciò è preferibile il secondo metodo perchè si ritiene più appropriato che sia la Scale ad aggiornare il WIS non appena percepisce un cambiamento di peso. Inoltre, si suggerisce di modellare questo messaggio come una Dispatch, non essendo necessaria una risposta e che il destinatario è un solo attore
-           </li>
+            Il WIS può venire a conoscenza del cambiamento di peso nel WasteStorage (quando per esempio viene depositato
+            un RP) attraverso un meccanismo di polling oppure sarà la bilancia a mandare un messaggio al WIS.
+            Considerando che il peso varia in momenti variabili, non è consigliabile un meccanismo di polling da parte
+            del WIS, perciò è preferibile il secondo metodo perchè si ritiene più appropriato che sia la Scale ad
+            aggiornare il WIS non appena percepisce un cambiamento di peso. Inoltre, si suggerisce di modellare questo
+            messaggio come una Dispatch, non essendo necessaria una risposta e che il destinatario è un solo attore
+          </li>
         </ul>
       </div>
 
@@ -223,30 +275,34 @@
       <div class="remark">
         Il modello del sistema per lo Sprint2 è raffigurato nell'immagine sottostante. <br />
 
-        <a class="reference internal image-reference flex justify-center"
-            href="./immagini/sprint2_wis24arch.png"><img alt="./immagini/sprint2_wis24arch.png"
-              class="align-right" src="./immagini/sprint2_wis24arch.png" style="width: 90%" /></a>
+        <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_wis24arch.png"><img
+            alt="./immagini/sprint2_wis24arch.png" class="align-right" src="./immagini/sprint2_wis24arch.png"
+            style="width: 90%" /></a>
 
         <a class="reference internal image-reference flex justify-center"
           href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
             class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 50%" /></a>
 
-        <a class="reference internal image-reference flex justify-center"
-            href="./immagini/sprint2_scalearch.png"><img alt="./immagini/sprint2_scalearch.png"
-              class="align-right" src="./immagini/sprint2_scalearch.png" style="width: 50%" /></a>
+        <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_scalearch.png"><img
+            alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
+            style="width: 50%" /></a>
       </div>
 
       <h4>WIS</h4>
       <div class="remark">
         Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/wis.qak">system.qak</a>). Il suo
-        compito in questa fase è quello di comunicare con il MonitoringDevice per monitorare il livello di cenere presente nell'AshStorage e per gestire il comportamento del Led legato allo stato del sistema. Comunicherà inoltre con la Scale per controllare la quantità di RP presenti nel WasteStorage. <br />
+        compito in questa fase è quello di comunicare con il MonitoringDevice per monitorare il livello di cenere
+        presente nell'AshStorage e per gestire il comportamento del Led legato allo stato del sistema. Comunicherà
+        inoltre con la Scale per controllare la quantità di RP presenti nel WasteStorage. <br />
         Come detto nello Sprint0, abbiamo scelto di dare più responsabilità
         al WIS perchè in quanto rappresentazione del sistema ha senso che
         gestisca le azioni dell'OpRobot e dell'Incenerator. <br />
 
         <ul>
           <li>
-            <b>invierà</b> il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> all'attore scale_device per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla misurazione del peso nel WasteStorage Container. <br />
+            <b>invierà</b> il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> all'attore
+            scale_device per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla
+            misurazione del peso nel WasteStorage Container. <br />
           </li>
           <li>
             <b>riceverà</b> il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
@@ -254,137 +310,140 @@
           </li>
 
           <li>
-            <b>invierà</b> il messaggio <b><code>Dispatch update_led_mode : update_led_mode(mode)</code></b> all'attore Led
+            <b>invierà</b> il messaggio <b><code>Dispatch update_led_mode : update_led_mode(MODE)</code></b> all'attore
+            Led
             contenente il comportamento che il Led dovrà adottare.
           </li>
           <li>
             <b>riceverà</b> il messaggio
-            <b><code>Dispatch ash_measurement : ash_measurement(l)</code></b> dall'attore Sonar contenente la distanza
+            <b><code>Dispatch ash_measurement : ash_measurement(L)</code></b> dall'attore Sonar contenente la distanza
             tra la cenere e il Sonar. <br />
           </li>
       </div>
 
       <h4>Sonar & Sonar_device</h4>
       <div class="remark">
-        Per la gestione del Sonar, verranno usati 2 attori: <span class="blue">Sonar</span> e <span class="blue">Sonar_device</span>. <br />
+        Per la gestione del Sonar, verranno usati 2 attori: <span class="blue">Sonar</span> e <span
+          class="blue">Sonar_device</span>. <br />
         <br>
-        Il <span class="blue">Sonar_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico del Sonar. <br>
-        Invierà per prima cosa un messaggio <b><code>Dispatch sonar_sensitivity : sonar_sensitivity(s)</code></b> all'attore Sonar contenente la sensibilità del Sonar, valore che dipende dalla tecnologia utilizzata. <br>
-        Successivamente, attraverso una EmitLocalStream, invierà al <span class="blue">Sonar</span> il valore letto dal dispositivo fisico <b><code>Event sonar_data : distance(d)</code></b>.<br>
+        Il <span class="blue">Sonar_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo
+        fisico del Sonar. <br>
+        Invierà per prima cosa un messaggio <b><code>Dispatch sonar_sensitivity : sonar_sensitivity(S)</code></b>
+        all'attore Sonar contenente la sensibilità del Sonar, valore che dipende dalla tecnologia utilizzata. <br>
+        Successivamente, attraverso una EmitLocalStream, invierà al <span class="blue">Sonar</span> il valore letto dal
+        dispositivo fisico <b><code>Event sonar_data : distance(D)</code></b>.<br>
         <br />
         <br />
-        Il <span class="blue">Sonar</span> sarà modellato come attore e si occuperà di inviare al <span class="blue">WIS</span> la distanza tra la cenere e il Sonar. <br />
-        Il <span class="blue">Sonar</span> ha una variabile Sensitivity inizializzata a 1 contenente la sensibilità del Sonar. <br>
-        Dovrà innanzitutto iscriversi all'evento che il Sonar_device lancerà. Successivamente, potrà riceverà il valore della sensibilità dipendente dalla tecnologia adottata. <br>
-        Utilizzerà questa variabile per filtrare i messaggi ricevuti dal Sonar_device, inoltrando al <span class="blue">WIS</span> solamente i valori significativi. <br>
-        <b>Invierà</b> quindi il messaggio <b><code>Dispatch ash_measurement : ash_measurement(l)</code></b>  al <span class="blue">WIS</span> contenente la distanza tra la cenere e il Sonar. <br />
+        Il <span class="blue">Sonar</span> sarà modellato come attore e si occuperà di inviare al <span
+          class="blue">WIS</span> la distanza tra la cenere e il Sonar. <br />
+        Il <span class="blue">Sonar</span> ha una variabile Sensitivity inizializzata a 1 contenente la sensibilità del
+        Sonar. <br>
+        Dovrà innanzitutto iscriversi all'evento che il <span class="blue">Sonar_device</span> lancerà. Successivamente,
+        potrà riceverà il valore
+        della sensibilità dipendente dalla tecnologia adottata. <br>
+        Utilizzerà questa variabile per filtrare i messaggi ricevuti dal <span class="blue">Sonar_device</span>,
+        inoltrando al <span class="blue">WIS</span> solamente i valori significativi. <br>
+        <b>Invierà</b> quindi il messaggio <b><code>Dispatch ash_measurement : ash_measurement(L)</code></b> al <span
+          class="blue">WIS</span> contenente la distanza tra la cenere e il <span class="blue">Sonar</span>. <br />
 
       </div>
 
       <h4>Led & Led_device</h4>
       <div class="remark">
-        Per la gestione del Led, verranno usati 2 attori: <span class="blue">Led</span> e <span class="blue">Led_device</span>. <br />
+        Per la gestione del Led, verranno usati 2 attori: <span class="blue">Led</span> e <span
+          class="blue">Led_device</span>. <br />
         <br>
-        Il <span class="blue">Led</span> sarà modellato come attore e riceverà dal <span class="blue">WIS</span> il comportamento che dovrà adottare, attraverso il messaggio <b><code>Dispatch update_led_mode : update_led_mode(mode)</code></b>. 
+        Il <span class="blue">Led</span> sarà modellato come attore e riceverà dal <span class="blue">WIS</span> il
+        comportamento che dovrà adottare, attraverso il messaggio
+        <b><code>Dispatch update_led_mode : update_led_mode(MODE)</code></b>.
         <br />
         <br>
-        Il <span class="blue">Led_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico del Led. <br>
-        Riceverà dal <span class="blue">Led</span> il messaggio <b><code>Dispatch update_physical_led_mode : update_physical_led_mode(mode)</code></b> contenente il comportamento da adottare e lo attuerà sul dispositivo fisico. <br>
+        Il <span class="blue">Led_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo
+        fisico del Led. <br>
+        Riceverà dal <span class="blue">Led</span> il messaggio
+        <b><code>Dispatch update_physical_led_mode : update_physical_led_mode(MODE)</code></b> contenente il
+        comportamento da adottare e lo attuerà sul dispositivo fisico. <br>
       </div>
 
       <h4>Scale</h4>
       <div class="remark">
-        Per la gestione della bilancia, verranno usati 2 attori: <span class="blue">Scale</span> e <span class="blue">Scale_device</span>. <br />
+        Per la gestione della bilancia, verranno usati 2 attori: <span class="blue">Scale</span> e <span
+          class="blue">Scale_device</span>. <br />
         <br>
-        <span class="blue">Scale_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico della bilancia. <br>
-        Riceverà da un attore mock che simula l'agente esterno il messaggio <b><code>Dispatch load_weight   		: load_weight(WEIGHT)</code></b> per simulare il deposito di un nuovo RP. WEIGHT corrisponde a 50, una quantità intera e positiva, come specificato da requisiti <br>
+        <span class="blue">Scale_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico
+        della bilancia. <br>
+        Riceverà da un attore mock che simula l'agente esterno il messaggio
+        <b><code>Dispatch load_weight   		: load_weight(WEIGHT)</code></b> per simulare il deposito di un nuovo RP.
+        WEIGHT corrisponde a 50, una quantità intera e positiva, come specificato da requisiti <br>
 
-        Successivamente, attraverso una EmitLocalStream, invierà a <span class="blue">Scale</span> il valore pesato dal dispositivo fisico <b><code>Event scale_data 			: scale_data(WEIGHT)</code></b>.<br>
-        Inoltre, riceverà dal WIS il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per simulare la rimozione di un RP. <br>
+        Successivamente, attraverso una EmitLocalStream, invierà a <span class="blue">Scale</span> il valore pesato dal
+        dispositivo fisico <b><code>Event scale_data 			: scale_data(WEIGHT)</code></b>.<br>
+        Inoltre, riceverà dal WIS il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per
+        simulare la rimozione di un RP. <br>
         <br />
         <br />
-        <span class="blue">Scale</span> sarà modellato come attore e si occuperà convertire in RP il peso della bilancia in quel momento.  <br />
-        <b>Invierà</b> quindi il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>  al <span class="blue">WIS</span> contenente il numero di RP presenti nel WasteStorage. <br />
+        <span class="blue">Scale</span> sarà modellato come attore e si occuperà convertire in RP il peso della bilancia
+        in quel momento. <br />
+        <b>Invierà</b> quindi il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
+        al <span class="blue">WIS</span> contenente il numero di RP presenti nel WasteStorage. <br />
 
       </div>
 
       <h3>Piani di testing</h3>
-      DA FARE
       <div class="remark">
-        Essendo lo Sprint1 concentrato nel modellare il movimento dell'<span class="blue">OpRobot</span>
-        e la sua interazione con il <span class="blue">WIS</span>, i test
-        saranno focalizzati su queste due parti del sistema. <br />
-        Per la strategia di testing si possono prendere strade differenti:
-        <ul>
-          <li>
-            <b>uso di `updateResource` e un logger</b>: con questa strategia si
-            possono sfruttare un observer e un POJO per immagazzinare i log
-            rilevanti durante l'esecuzione in un file testuale per poi
-            analizzarli durante i test.<br />
-            Il problema principale di questo approccio è che costringe gli
-            attori QAK a vivere nello stesso contesto, rendendo difficile in
-            futuro poter sfruttare il naturale disaccoppiamento offerto dal
-            modello QAK.
-          </li>
-          <li>
-            <b>uso del protocollo MQTT</b>: usando il protocollo MQTT (publish /
-            subscribe), si può mantenere il disaccoppiamento offerto dai QAK,
-            permettendo alle classi di testing di iscriversi ai topic di
-            interesse e ricevere i messaggi necessari, senza essere dipendenti
-            da un file di log centralizzato. Uno svantaggio di questa
-            metodologia è la dipendenza da un broker MQTT esterno che, qualora
-            fosse non disponibili, renderebbe i test non funzionanti.
-          </li>
-          <li>
-            <b>uso di eventi QAK</b>: con questa metodologia si sfrutta
-            l'architettura dei QAK per osservare lo stato di uno o più attori ma
-            presenta lo svantaggio che gli eventi vengono percepiti da tutti e
-            non è detto sia un comportamento voluto.
-          </li>
-        </ul>
-        Si consiglia l'uso della metodologia tramite il protocollo MQTT. Le
-        classi di test, avviano l'intero sistema "wis_tests.qak",
-        pre-configurato per eseguire un ciclo completo
-        "avvio-getrp-depositrp-incerimento-estrazione_cenere-scarico_cenere" e
-        verificano il contenuto del file di log generato. <br />
-        <ul>
-          <li>
-            <b>Test4RP</b> verifica il corretto funzionamento del sistema visto
-            ai morsetti. Ovvero il sistema viene inizializzato con
-            <b>RPCOUNT=4 all'interno della WasteIn</b> e verifica
-            <b>dopo un certo tempo</b>, che tutti gli RP siano stati prelevati
-            <b>(RPCOUNT=0)</b> e inceneriti.<br />
-            <a href="./../src/main/kotlin/test/Test4RPMqtt.kt">Test4RPMqtt.kt (LINK)</a>
-          </li>
-          <li>
-            <b>TestGetRp</b> verifica il corretto recupero del rp dopo aver
-            verificato i requisiti menzionati nello user stories e lo
-            spostamento verso la <span class="red">burnin port</span> in cui
-            verrà depositato il <span class="red">rp</span>.<br />
-            il test verifica <b>l'ordine cronologico</b> delle operazioni per
-            garantire la corretta esecuzione in ordine del movimento
-            previsto.<br />
-            <a href="./../src/main/kotlin/test/TestGetRpMqtt.kt">TestGetRPMqtt.kt (LINK)</a>
-          </li>
-          <li>
-            <b>TestGetAsh</b> verifica il corretto recupero dalla
-            <span class="red">BURNOUT</span>
-            port dell'Ash prodotta dall'<span class="blue">Incinerator</span>
-            alla fine della sua fase di burning. L'<span class="blue">OpRobot</span>
-            dovrà successivamente dirigersi verso la
-            <span class="red">ASHOUT</span> port dell'AshStorage dove depositerà
-            la cenere.<br />
-            Il test verifica <b>l'ordine cronologico</b> delle operazioni per
-            garantire la corretta esecuzione in ordine del movimento
-            previsto.<br />
-            <a href="./../src/main/kotlin/test/TestGetAshMqtt.kt">TestGetAshMqtt.kt (LINK)</a>
-          </li>
-        </ul>
+        In questo sprint vengono analizzati e modellati i comportamenti del <span class="blue">MonitoringDevice</span> e
+        del <span class="blue">WasteStorage</span>, pertanto i test saranno focalizzati su queste due parti del sistema.
+
+        <table>
+          <thead>
+            <td class="font-bold">Nome test</td>
+            <td class="font-bold">Condizione iniziale</td>
+            <td class="font-bold">Comportamento atteso</td>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-bold"><a href="./../src/main/kotlin/test/TestWis5RP.kt">TestWis5RP.kt (funzionale)</a>
+              </td>
+              <td>Il WasteStorage contiene 5 RP, l'inceneritore non è fase di burning, l'AshStorage è pieno a metà, il
+                led è spento</td>
+              <td>Dopo un po' di tempo, il WasteStorage contiene 3 RP, l'inceneritore è spento, l'AshStorage è pieno, il
+                led è acceso</td>
+            </tr>
+            <tr>
+              <td class="font-bold"><a
+                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedBlink.kt">TestMonitoringDeviceLedBlink.kt</a>
+              </td>
+              <td>L'inceneritore non è in fase di burning, l'AshStorage non è pieno nè vuoto, il led è spento</td>
+              <td>L'inceneritore non è in fase di burning, l'AshStorage è pieno, il led lampeggia </td>
+            </tr>
+            <tr>
+              <td class="font-bold"><a
+                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedOn.kt">TestMonitoringDeviceLedOn.kt</a></td>
+              <td>L'inceneritore non è in fase di burning, il led è spento</td>
+              <td>L'inceneritore è in fase di burning, il led è acceso</td>
+            </tr>
+            <tr>
+              <td class="font-bold"><a
+                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedOff.kt">TestMonitoringDeviceLedOff.kt</a></td>
+              <td>L'inceneritore è in fase di burning, il led è acceso</td>
+              <td>L'inceneritore non è in fase di burning, il led è spento</td>
+            </tr>
+            <tr>
+              <td class="font-bold">
+                <a
+                  href="./../src/main/kotlin/test/TestMonitoringDeviceScaleChange.kt">TestMonitoringDeviceScaleChange.kt</a>
+              </td>
+              <td>Il WasteStorage è vuoto, viene aggiunto un RP</td>
+              <td>Il peso misurato dal WasteStorage è aumentato</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <h3>Prossimi sviluppi</h3>
       <div class="remark">
-        Nel prossimo sprint (<b>Sprint 3</b>) verrà modellata e implementata la <span class="blue">ServiceStatusGUI</span>. <br />
+        Nel prossimo sprint (<b>Sprint 3</b>) verrà modellata e implementata la <span
+          class="blue">ServiceStatusGUI</span>. <br />
       </div>
 
       <h3>Footer</h3>

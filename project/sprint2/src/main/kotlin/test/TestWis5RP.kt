@@ -16,7 +16,7 @@ import unibo.basicomm23.utils.ConnectionFactory
 import java.util.ArrayList
 import kotlin.collections.ArrayDeque
 
-class TestMonitoringDeviceLedOnOff {
+class TestWis5RP {
     companion object {
         @BeforeClass
         @JvmStatic
@@ -42,8 +42,7 @@ class TestMonitoringDeviceLedOnOff {
         val messagesStack =
             ArrayDeque(
                 listOf(
-                	"led_status_change_to_on",
-					"led_status_change_to_off",
+                	"led_status_change_to_blink",
                 ),
             )
 
@@ -80,31 +79,6 @@ class TestMonitoringDeviceLedOnOff {
 
         client.subscribe("it.unib0.iss.waste-incinerator-service")
 
-		val conn: Interaction =
-            ConnectionFactory.createClientSupport(ProtocolType.tcp, "localhost", "8122")
-		
-		delay(100)
-
-        val incineratorOn: IApplMessage =
-             CommUtils.buildDispatch(
-                 "testApplication",
-                 "update_led_mode",
-                 "update_led_mode(on)",
-                 "led",
-             )
-        conn.forward(incineratorOn)
-		
-		delay(2000)
-		
-        val incineratorOff: IApplMessage =
-             CommUtils.buildDispatch(
-                 "testApplication",
-                 "update_led_mode",
-                 "update_led_mode(off)",
-                 "led",
-             )
-        conn.forward(incineratorOff)
-		
 		delay(5000)
 
         assertEquals(true, testSuccess)
