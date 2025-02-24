@@ -1,7 +1,6 @@
-{"actor":"led", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleUpdateLedStatus", "msgId":"update_led_mode"}
-{"actor":"led", "msgType":"dispatch", "curstate":"handleUpdateLedStatus", "nextstate":"handleUpdateLedStatus", "msgId":"update_led_mode"}
-{"actor":"led_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleUpdateMode", "msgId":"update_physical_led_mode"}
-{"actor":"led_device", "msgType":"dispatch", "curstate":"handleUpdateMode", "nextstate":"handleUpdateMode", "msgId":"update_physical_led_mode"}
-{"actor":"sonar", "msgType":"dispatch", "curstate":"s0", "nextstate":"updateSensitivity", "msgId":"sonar_sensitivity"}
-{"actor":"sonar", "msgType":"dispatch", "curstate":"updateSensitivity", "nextstate":"updateSensitivity", "msgId":"sonar_sensitivity"}
-{"actor":"sonar", "msgType":"dispatch", "curstate":"handleSonarData", "nextstate":"updateSensitivity", "msgId":"sonar_sensitivity"}
+{"actor":"scale_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"addWeight", "msgId":"load_weight"}
+{"actor":"scale_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"removeWeight", "msgId":"unload_weight"}
+{"actor":"scale_device", "msgType":"dispatch", "curstate":"addWeight", "nextstate":"addWeight", "msgId":"load_weight"}
+{"actor":"scale_device", "msgType":"dispatch", "curstate":"addWeight", "nextstate":"removeWeight", "msgId":"unload_weight"}
+{"actor":"scale_device", "msgType":"dispatch", "curstate":"removeWeight", "nextstate":"addWeight", "msgId":"load_weight"}
+{"actor":"scale_device", "msgType":"dispatch", "curstate":"removeWeight", "nextstate":"removeWeight", "msgId":"unload_weight"}
