@@ -21,7 +21,7 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		 var CURRENT_WEIGHT = 0  
+		 var CURRENT_WEIGHT = 250  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -32,8 +32,8 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="addWeight",cond=whenDispatch("load_weight"))
-					transition(edgeName="t03",targetState="removeWeight",cond=whenDispatch("unload_weight"))
+					 transition(edgeName="t033",targetState="addWeight",cond=whenDispatch("load_weight"))
+					transition(edgeName="t034",targetState="removeWeight",cond=whenDispatch("unload_weight"))
 				}	 
 				state("addWeight") { //this:State
 					action { //it:State
@@ -48,8 +48,8 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t04",targetState="addWeight",cond=whenDispatch("load_weight"))
-					transition(edgeName="t05",targetState="removeWeight",cond=whenDispatch("unload_weight"))
+					 transition(edgeName="t035",targetState="addWeight",cond=whenDispatch("load_weight"))
+					transition(edgeName="t036",targetState="removeWeight",cond=whenDispatch("unload_weight"))
 				}	 
 				state("removeWeight") { //this:State
 					action { //it:State
@@ -58,6 +58,7 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						if( checkMsgContent( Term.createTerm("unload_weight(WEIGHT)"), Term.createTerm("unload_weight(WEIGHT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 CURRENT_WEIGHT -= 50  
+								CommUtils.outyellow("$name weight changed, current = $CURRENT_WEIGHT")
 								emitLocalStreamEvent("scale_data", "scale_data($CURRENT_WEIGHT)" ) 
 						}
 						//genTimer( actor, state )
@@ -65,8 +66,8 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t06",targetState="addWeight",cond=whenDispatch("load_weight"))
-					transition(edgeName="t07",targetState="removeWeight",cond=whenDispatch("unload_weight"))
+					 transition(edgeName="t037",targetState="addWeight",cond=whenDispatch("load_weight"))
+					transition(edgeName="t038",targetState="removeWeight",cond=whenDispatch("unload_weight"))
 				}	 
 			}
 		}

@@ -25,7 +25,6 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						CommUtils.outyellow("$name starts")
 						delay(1000) 
 						subscribeToLocalActor("scale_device") 
@@ -34,7 +33,7 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="handleScaleData",cond=whenEvent("scale_data"))
+					 transition(edgeName="t031",targetState="handleScaleData",cond=whenEvent("scale_data"))
 				}	 
 				state("handleScaleData") { //this:State
 					action { //it:State
@@ -43,19 +42,16 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 						if( checkMsgContent( Term.createTerm("scale_data(WEIGHT)"), Term.createTerm("scale_data(WEIGHT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("$name weight=${payloadArg(0)}")
-								 
-												RPCONT = (payloadArg(0).toInt() / 50)
-												val RPCONT_LOG = "rp_in_waste_storage_$RPCONT"
+								 RPCONT = (payloadArg(0).toInt() / 50)  
 								CommUtils.outyellow("$name the RP number now is $RPCONT")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$RPCONT_LOG" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","$RPCONT_LOG").toString(), "it.unib0.iss.waste-incinerator-service" )   
+								forward("update_scale_count", "update_scale_count($RPCONT)" ,"wis" ) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t01",targetState="handleScaleData",cond=whenEvent("scale_data"))
+					 transition(edgeName="t032",targetState="handleScaleData",cond=whenEvent("scale_data"))
 				}	 
 			}
 		}

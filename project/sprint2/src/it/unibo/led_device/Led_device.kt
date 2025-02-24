@@ -27,19 +27,18 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				state("s0") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name starts")
-						delay(200) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t02",targetState="handleUpdateMode",cond=whenDispatch("update_physical_led_mode"))
+					 transition(edgeName="t041",targetState="handleUpdateMode",cond=whenDispatch("update_physical_led_mode"))
 				}	 
 				state("handleUpdateMode") { //this:State
 					action { //it:State
 						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
-						if( checkMsgContent( Term.createTerm("update_physical_led_mode(MODE)"), Term.createTerm("update_physical_led_mode(M)"), 
+						if( checkMsgContent( Term.createTerm("update_physical_led_mode(MODE)"), Term.createTerm("update_physical_led_mode(MODE)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
 												val S = payloadArg(0)
@@ -61,7 +60,7 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t03",targetState="handleUpdateMode",cond=whenDispatch("update_physical_led_mode"))
+					 transition(edgeName="t042",targetState="handleUpdateMode",cond=whenDispatch("update_physical_led_mode"))
 				}	 
 			}
 		}

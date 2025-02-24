@@ -33,31 +33,38 @@ Reply   depositash_status	:  depositash_status(0)				   for depositash
 Request gohome              :  gohome(TARGETX, TARGETY)        
 Reply   gohome_status		:  gohome_status(0)                    for gohome
 
-Dispatch load_weight   		: load_weight(WEIGHT)
-Dispatch unload_weight 		: unload_weight(WEIGHT)
-Dispatch update_scale_count : update_scale_count(COUNT) // the scale sends how many rp are currently present
+// ---------------------------------------------------------------------------------------------------------------
+// SCALE DEVICE TEST
+// ---------------------------------------------------------------------------------------------------------------
 
-Event mqtt_info       		: mqtt_info(MSG) 
+Dispatch load_weight   				 : load_weight(WEIGHT)
+Dispatch unload_weight 				 : unload_weight(WEIGHT)
+Dispatch update_scale_count 		 : update_scale_count(COUNT) // the scale sends how many rp are currently present
+Event scale_data 					 : scale_data(WEIGHT) // sent from the physical scale device
 
-// external contexts messages
-Dispatch update_led_mode 		     : update_led_mode(mode)
-Dispatch ash_measurement		   	 : ash_measurement(l)  // sent from the monitoring device
+// ---------------------------------------------------------------------------------------------------------------
+// MONITORING DEVICE TEST
+// ---------------------------------------------------------------------------------------------------------------
 
-// Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
+Dispatch update_led_mode 			  : update_led_mode(MODE)
+Dispatch update_physical_led_mode     : update_physical_led_mode(MODE)
+
+Event sonar_data 					  : distance(D)
+Dispatch sonar_sensitivity            : sonar_sensitivity(S)
+Dispatch ash_measurement		 	  : ash_measurement(L)
+Dispatch load_ash					  : load_ash(D)
+
+// MQTT EVENT TO LOG IN TESTING
+Event mqtt_info       				  : mqtt_info(MSG)
 
 // CONTEXTS
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
-Context ctxwis24 ip [host="localhost" port=8121]
-Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
-Context ctxscale ip [host="127.0.0.1" port=8123]
+Context ctxwis24_functional_test ip [host="localhost" port=8121]
 
 ExternalQActor basicrobot context ctxbasicrobot
-ExternalQActor scale_device context ctxscale
-// ExternalQActor led context ctxmonitoringdevice
-// ExternalQActor sonar context ctxmonitoringdevice
 
 // ACTORS
-QActor wis context ctxwis24 {
+QActor wis context ctxwis24_functional_test {
 	import "main.resources.Position"
 	[# 
 		// constants
@@ -68,9 +75,9 @@ QActor wis context ctxwis24 {
 		val LED_BLINK = "blink";
 		
 		// variables
-		var ASHLEVEL  = 100;
-		var RPCONT    = 4;
-		var INCSTATUS = 1;    // 0 free, 1 busy
+		var ASHLEVEL  = 60;
+		var RPCONT    = 5;
+		var INCSTATUS = 0;    // 0 free, 1 busy
 		var INHOME    = 0;    // 0 in home, 1 not in home
 	
 		val LOCATIONS = mapOf(
@@ -109,6 +116,8 @@ QActor wis context ctxwis24 {
 	State setupSystem {
 		println("$name setupping system..") color green
 		forward incinerator -m startIncinerator : startIncinerator(0)
+		[# var ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
+		println("current ash level=$ASH_LEVEL_LOG") color green
 		
 		if [# (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT && INCSTATUS == 0) #] {
 			request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
@@ -143,7 +152,7 @@ QActor wis context ctxwis24 {
 	    onMsg(getrp_status : getrp_status(0)) {
 			[# INHOME = 0 #]
 			[# RPCONT -= 1 #]
-			[# val STATUS = "update_rp_count_to__${RPCONT}" #]
+			[# var STATUS = "update_rp_count_to__${RPCONT}" #]
             
             println("$name - Moving to burn in") color green
             
@@ -190,6 +199,8 @@ QActor wis context ctxwis24 {
 		onMsg(gohome_status : gohome_status(0)) {
 			[# INHOME = 1 #] // 🥵
 			println("$name - arrived in home") color green
+			[# var ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
+			println("current ash level=$ASH_LEVEL_LOG") color green
 			
 			if [# (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT && INCSTATUS == 0) #] {
 				request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
@@ -207,7 +218,7 @@ QActor wis context ctxwis24 {
   			println("$name - start incinerator, update status") color magenta
   			
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_BURNING
-  			// forward led -m update_led_mode : update_led_mode($LED_ON)
+  			forward led -m update_led_mode : update_led_mode($LED_ON)
   		}
   		
   		onMsg(finishedBurning : finishedBurning(0)) {
@@ -217,7 +228,7 @@ QActor wis context ctxwis24 {
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_FINISHED_BURNING
   			
   			request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
-  			// forward led -m update_led_mode : update_led_mode($LED_OFF)
+  			forward led -m update_led_mode : update_led_mode($LED_OFF)
   		}
   	}
   	
@@ -249,7 +260,7 @@ QActor wis context ctxwis24 {
 		  	#]
 				
 			if [#((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)#] {
-	  			// forward led -m update_led_mode : update_led_mode($LED_BLINK)
+	  			forward led -m update_led_mode : update_led_mode($LED_BLINK)
   				println("$name - ash level changed, update") color magenta
 	  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
 			}
@@ -261,7 +272,7 @@ QActor wis context ctxwis24 {
 	Goto printStatus
 }
 
-QActor oprobot context ctxwis24 {
+QActor oprobot context ctxwis24_functional_test {
 	[#
 		var OWNER = "$name";
 	#]
@@ -428,6 +439,7 @@ QActor oprobot context ctxwis24 {
     State depositAshOk {
 		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_ash_in_AshOut_port
     	
+    	forward sonar_device -m load_ash : load_ash(25)
         replyTo depositash with depositash_status : depositash_status(0)
     }
 
@@ -435,7 +447,7 @@ QActor oprobot context ctxwis24 {
         whenRequest gohome -> execGoHome
 }
 
-QActor incinerator context ctxwis24 {
+QActor incinerator context ctxwis24_functional_test {
 	[#
 		var ACTIVE = false;
 	#]
@@ -477,3 +489,283 @@ QActor incinerator context ctxwis24 {
  	Transition t0
 	 	whenMsg startBurning -> startBurning
 }
+
+// 		 -----------------------------------------------------------------------------------------------------
+// SCALE -----------------------------------------------------------------------------------------------------
+// 		 -----------------------------------------------------------------------------------------------------
+QActor scale context ctxwis24_functional_test {
+	[# var RPCONT = 0 #]
+	
+	State s0 initial {
+		println("$name starts") color yellow
+		delay 1000
+		subscribeTo scale_device for scale_data
+	}
+	
+	Transition t0
+		whenEvent scale_data -> handleScaleData
+
+	State handleScaleData {
+		printCurrentMessage
+		onMsg(scale_data : scale_data(WEIGHT)){
+			println("$name weight=${payloadArg(0)}") color yellow
+			
+			[# RPCONT = (payloadArg(0).toInt() / 50) #]
+			println("$name the RP number now is $RPCONT") color yellow
+			
+			forward wis -m update_scale_count : update_scale_count($RPCONT)
+		}
+	}
+	
+	Transition t0
+		whenEvent scale_data -> handleScaleData
+}
+
+QActor scale_device context ctxwis24_functional_test {
+	[# var CURRENT_WEIGHT = 250 #]
+	
+	State s0 initial {
+		println("$name starts") color yellow
+		delay 500
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+	
+	State addWeight {
+ 		// rp incoming from external source
+		onMsg(load_weight : load_weight(WEIGHT)) {
+	 		[# CURRENT_WEIGHT += payloadArg(0).toInt() #]
+	 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+			println("$name weight added, current = $CURRENT_WEIGHT") 
+		}
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+	
+	State removeWeight {
+		printCurrentMessage
+		onMsg(unload_weight : unload_weight(WEIGHT)) {
+			// weight is removed (extracted), likely from the oprobot
+	 		[# CURRENT_WEIGHT -= 50 #]
+	 		
+	 		println("$name weight changed, current = $CURRENT_WEIGHT") color yellow
+	 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+ 		}
+	}
+	
+	Transition t0
+		whenMsg load_weight -> addWeight
+		whenMsg unload_weight -> removeWeight
+}
+
+// 		 -----------------------------------------------------------------------------------------------------
+// MONITORING DEVICE -----------------------------------------------------------------------------------------
+// 		 -----------------------------------------------------------------------------------------------------
+
+QActor led context ctxwis24_functional_test {
+	State s0 initial {
+ 		connectToMqttBroker "tcp://broker.hivemq.com"
+		println("$name starts") color green
+	}
+
+	Transition t0
+		whenMsg update_led_mode -> handleUpdateLedStatus
+		
+	State handleUpdateLedStatus {
+		printCurrentMessage
+		
+		onMsg (update_led_mode : update_led_mode(MODE)) {
+			[#
+				val NEW_MODE = payloadArg(0).toString()
+				val NEW_MODE_LOG = "led_status_change_to_$NEW_MODE"
+			#]
+			
+			forward led_device -m update_physical_led_mode : update_physical_led_mode($NEW_MODE)
+
+			println("$NEW_MODE_LOG") color green
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $NEW_MODE_LOG
+		}
+	}
+	
+	Transition t0
+		whenMsg update_led_mode -> handleUpdateLedStatus
+}
+
+QActor led_device context ctxwis24_functional_test {
+	[#
+		var P = Runtime.getRuntime().exec("echo ledOff.py");
+	#]
+	
+	State s0 initial{
+		println("$name starts") color green
+	}
+	
+	Transition t0 whenMsg update_physical_led_mode -> handleUpdateMode
+				 
+	State handleUpdateMode {
+		printCurrentMessage color green
+		onMsg(update_physical_led_mode : update_physical_led_mode(MODE)) {
+			[#
+				val S = payloadArg(0)
+				
+				P.destroy();
+				
+				P = when (S) {
+					"blink" 	-> Runtime.getRuntime().exec("echo ledBlink.py")
+					"on"		-> Runtime.getRuntime().exec("echo ledOn.py")
+					"off" 		-> Runtime.getRuntime().exec("echo ledOff.py")
+				    else -> {
+				        println("Invalid command: $S") // Or log it, or throw an exception
+				        null // Or some other default value for P, depending on its type
+				    }
+				}
+			#]
+		}
+	}
+
+	Transition t0 whenMsg update_physical_led_mode -> handleUpdateMode
+}
+
+QActor sonar context ctxwis24_functional_test {
+	[# 
+		var CURRENT = 60
+		var PREVIOUS = 0
+		val MIN_DISTANCE = 0
+		val MAX_DISTANCE = 100
+		
+		var SONAR_SENSITIVITY = 1
+	#]
+	
+	State s0 initial {
+		println("$name starts") color green
+		
+		delay 1000
+		
+		subscribeTo sonar_device for sonar_data
+	}
+	
+	Transition t0
+		whenEvent sonar_data -> handleSonarData
+		whenMsg sonar_sensitivity -> updateSensitivity
+		
+	State updateSensitivity {
+		printCurrentMessage
+		
+		onMsg(sonar_sensitivity : sonar_sensitivity(S)) {
+			[# SONAR_SENSITIVITY = payloadArg(0).toInt() #]
+		}
+	}
+	
+	Transition t0
+		whenEvent sonar_data -> handleSonarData
+		whenMsg sonar_sensitivity -> updateSensitivity
+		
+	State handleSonarData {
+		printCurrentMessage
+		onMsg(sonar_data : distance(D)){
+	      	[#  
+	      		CURRENT = payloadArg(0).toInt()
+		
+	      		if(CURRENT <= MIN_DISTANCE) CURRENT = MIN_DISTANCE
+	      		if(CURRENT >= MAX_DISTANCE) CURRENT = MAX_DISTANCE
+	      	#]
+	      	
+	      	println("current ash level $CURRENT") color green
+	      	
+	      	if [# CURRENT >= (PREVIOUS + SONAR_SENSITIVITY) || CURRENT <= (PREVIOUS - SONAR_SENSITIVITY) #] {
+	      		println("current ash level $CURRENT") color green
+	      		
+	     		forward wis -m ash_measurement : ash_measurement($CURRENT)
+	     		
+	     		[# PREVIOUS = CURRENT #]
+	     	}
+		}
+	}
+	
+	Transition t0
+		whenEvent sonar_data -> handleSonarData
+		whenMsg sonar_sensitivity -> updateSensitivity
+}
+
+QActor sonar_device context ctxwis24_functional_test {
+	[# 
+		lateinit var reader  : java.io.BufferedReader
+	    lateinit var process : Process	
+	    var Distance = 60
+	    
+	    val SENSITIVITY = 1
+	#]
+	
+	State s0 initial {
+ 		connectToMqttBroker "tcp://broker.hivemq.com"
+		println("$name starts") color blue
+		
+		delay 1000
+	}
+	
+	Transition t0
+		whenMsg load_ash -> handleLoadAsh
+		
+	State handleLoadAsh {
+		printCurrentMessage
+		onMsg(load_ash : load_ash(D)) {
+			[# Distance -= payloadArg(0).toInt() #]
+			
+			println("loaded ash, sonar measuring = $Distance")
+			emitlocalstream sonar_data : distance($Distance)
+			
+			[# val NEW_ASH_LOG = "ash_level_updated=$Distance" #]
+			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $NEW_ASH_LOG
+		}
+	}
+		
+	Transition t0
+		whenMsg load_ash -> handleLoadAsh
+/*
+	Goto readData
+		
+	State readData {
+		[# 
+			var data = reader.readLine()
+			
+			CommUtils.outyellow("$name with python: data = $data"   ) 
+			
+			if (data != null) {
+				try { 
+					Distance = (data.toFloat()).toInt();
+				} catch(e: Exception){
+					CommUtils.outred("$name sonar error: $e "   )
+				}
+			}
+		#]
+				
+		if [# data != null #] {
+			emitlocalstream sonar_data : distance($Distance)
+		}
+		
+		delay 5000
+	}
+	
+	Goto readData
+*/
+}
+
+/*
+QActor mock_ash_unloader_external context ctxmonitoringdevice_tests {
+	State s0 initial {
+		println("$name starts")
+	}
+	
+	Goto work
+	
+	State work {
+		delay 60000
+	}
+	
+	Goto work
+}
+*/

@@ -226,6 +226,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					action { //it:State
 						//val m = MsgUtil.buildEvent(name, "mqtt_info", "deposited_ash_in_AshOut_port" ) 
 						publish(MsgUtil.buildEvent(name,"mqtt_info","deposited_ash_in_AshOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
+						forward("load_ash", "load_ash(25)" ,"sonar_device" ) 
 						answer("depositash", "depositash_status", "depositash_status(0)"   )  
 						//genTimer( actor, state )
 					}

@@ -26,13 +26,12 @@ class Led ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						CommUtils.outgreen("$name starts")
-						delay(200) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="handleUpdateLedStatus",cond=whenDispatch("update_led_mode"))
+					 transition(edgeName="t039",targetState="handleUpdateLedStatus",cond=whenDispatch("update_led_mode"))
 				}	 
 				state("handleUpdateLedStatus") { //this:State
 					action { //it:State
@@ -53,7 +52,7 @@ class Led ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t01",targetState="handleUpdateLedStatus",cond=whenDispatch("update_led_mode"))
+					 transition(edgeName="t040",targetState="handleUpdateLedStatus",cond=whenDispatch("update_led_mode"))
 				}	 
 			}
 		}

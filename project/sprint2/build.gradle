@@ -207,6 +207,13 @@ task runWeighingDevice(type: JavaExec) {
     main = 'it.unibo.ctxscale.MainCtxscaleKt'
 }
 
+task runFunctionalTest(type: JavaExec) {
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'it.unibo.ctxwis24_functional_test.MainCtxwis24_functional_testKt'
+}
+
 
 /*
 //TODO

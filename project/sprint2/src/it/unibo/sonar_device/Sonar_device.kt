@@ -24,49 +24,41 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		 
 				lateinit var reader  : java.io.BufferedReader
 			    lateinit var process : Process	
-			    var Distance = 0
+			    var Distance = 60
 			    
 			    val SENSITIVITY = 1
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
+						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						CommUtils.outblue("$name starts")
 						delay(1000) 
-						forward("sonar_sensitivity", "sonar_sensitivity($SENSITIVITY)" ,"sonar" ) 
-							
-									process = Runtime.getRuntime().exec("echo sonar.py")
-									reader  = java.io.BufferedReader(java.io.InputStreamReader(process.getInputStream()))
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="readData", cond=doswitch() )
+					 transition(edgeName="t049",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
 				}	 
-				state("readData") { //this:State
+				state("handleLoadAsh") { //this:State
 					action { //it:State
-						 
-									var data = reader.readLine()
-									
-									CommUtils.outyellow("$name with python: data = $data"   ) 
-									
-									if (data != null) {
-										try { 
-											Distance = (data.toFloat()).toInt();
-										} catch(e: Exception){
-											CommUtils.outred("$name sonar error: $e "   )
-										}
-									}
-						if(  data != null  
-						 ){emitLocalStreamEvent("sonar_data", "distance($Distance)" ) 
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("load_ash(D)"), Term.createTerm("load_ash(D)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 Distance -= payloadArg(0).toInt()  
+								CommUtils.outblack("loaded ash, sonar measuring = $Distance")
+								emitLocalStreamEvent("sonar_data", "distance($Distance)" ) 
+								 val NEW_ASH_LOG = "ash_level_updated=$Distance"  
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$NEW_ASH_LOG" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","$NEW_ASH_LOG").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
-						delay(5000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="readData", cond=doswitch() )
+					 transition(edgeName="t050",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
 				}	 
 			}
 		}

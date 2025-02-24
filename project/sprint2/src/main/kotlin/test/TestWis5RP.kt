@@ -21,7 +21,7 @@ class TestWis5RP {
         @BeforeClass
         @JvmStatic
         fun setup() {
-            it.unibo.ctxmonitoringdevice_tests.main()
+            it.unibo.ctxwis24_functional_test.main()
 			
 			delay(2000)
         }
@@ -36,13 +36,29 @@ class TestWis5RP {
         val client = MqttClient(brokerUrl, clientId, persistence)
         val connOpts = MqttConnectOptions().apply { isCleanSession = true }
         client.connect(connOpts)
+		
+	    fun attemptReconnect() {
+	      try {
+	        println("Attempting to reconnect...")
+	        client.connect(connOpts)
+	        client.subscribe("it.unib0.iss.waste-incinerator-service")
+	        println("Reconnected successfully.")
+	      } catch (e: Exception) {
+	        println("Reconnect failed: ${e.message}")
+	        delay(5000) // Wait before retrying
+	        attemptReconnect() // Recursive call to retry
+	      }
+	    }
 
         var testSuccess = false
         val receivedMessages = ArrayList<String>()
         val messagesStack =
             ArrayDeque(
                 listOf(
-                	"led_status_change_to_blink",
+					"ASHLEVEL_35",
+					"ASHLEVEL_10", // aka ash storage almost full
+					"led_status_change_to_blink",
+                	"ASHLEVEL_0",  // aka ash storage full
                 ),
             )
 
@@ -50,6 +66,8 @@ class TestWis5RP {
             object : MqttCallback {
                 override fun connectionLost(cause: Throwable?) {
                     println("Connection lost: ${cause?.message}")
+					attemptReconnect()
+					
                 }
 
                 override fun messageArrived(
@@ -79,7 +97,7 @@ class TestWis5RP {
 
         client.subscribe("it.unib0.iss.waste-incinerator-service")
 
-		delay(5000)
+		delay(160000)
 
         assertEquals(true, testSuccess)
     }
