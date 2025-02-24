@@ -219,6 +219,9 @@
             cambiamento significativo nella distanza misurata, in modo da gestire la sensibilità del Sonar fisico
             dipendente dalla tecnologia adottata.
           </li>
+          <li>
+            Il WIS può venire a conoscenza del cambiamento del livello di cenere nell'AshStorage (quando ad esempio viene depositata la cenere prodotta dall'Incinerator) attraverso un meccanismo di polling oppure sarà il Sonar a mandare un messaggio al WIS. Considerando che il livello può cambiare in momenti casuali, non è consigliabile un meccanismo di polling da parte del WIS, perciò è preferibile il secondo metodo perchè si ritiene più appropriato che sia il Sonar ad aggiornare il WIS non appena percepisce un cambiamento nel livello. Inoltre, si suggerisce di modellare questo messaggio come una Dispatch, non essendo necessaria una risposta ed essendo il messaggio destinato a un singolo attore.
+          </li>
         </ul>
       </div>
       <h6><b>Led</b></h6>
