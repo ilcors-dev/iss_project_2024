@@ -4,5 +4,3 @@
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"s0", "nextstate":"startup", "msgId":"startIncinerator"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"startup", "nextstate":"startBurning", "msgId":"startBurning"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"startBurning", "nextstate":"startBurning", "msgId":"startBurning"}
-{"actor":"wisloggerobserver", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleInfo", "msgId":"info"}
-{"actor":"wisloggerobserver", "msgType":"dispatch", "curstate":"handleInfo", "nextstate":"handleInfo", "msgId":"info"}

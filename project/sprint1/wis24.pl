@@ -19,7 +19,7 @@ request( depositash, depositash(TARGETX,TARGETY) ).
 reply( depositash_status, depositash_status(0) ).  %%for depositash
 request( gohome, gohome(TARGETX,TARGETY) ).
 reply( gohome_status, gohome_status(0) ).  %%for gohome
-dispatch( info, info(SEARCH,TERM) ).
+event( mqtt_info, mqtt_info(MSG) ).
 %====================================================================================
 context(ctxwis24, "localhost",  "TCP", "8121").
 context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
@@ -30,5 +30,3 @@ context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
  static(oprobot).
   qactor( incinerator, ctxwis24, "it.unibo.incinerator.Incinerator").
  static(incinerator).
-  qactor( wisloggerobserver, ctxwis24, "it.unibo.wisloggerobserver.Wisloggerobserver").
- static(wisloggerobserver).
