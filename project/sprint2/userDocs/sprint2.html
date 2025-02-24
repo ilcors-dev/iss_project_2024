@@ -211,7 +211,7 @@
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
-            dispositivo fisico (Principio di inversione delle dipendenze), qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
+            dispositivo fisico (Principio di inversione delle dipendenze, si veda <a href="../../html/Principi.html">Principi</a> per ulteriori informazioni), qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
             L'attore di alto livello che gestisce la logica si occuperà di filtrare i messaggi ricevuti dall'attore di
             basso livello che gestisce il dispositivo fisico, inoltrando il valore al <span class="blue">WIS</span> solamente quando si avrà un cambiamento significativo nella distanza misurata, in modo da gestire la sensibilità del <span class="blue">Sonar</span> fisico dipendente dalla tecnologia adottata.
           </li>
@@ -236,7 +236,7 @@
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
-            dispositivo fisico (Principio di inversione delle dipendenze), qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un
+            dispositivo fisico (Principio di inversione delle dipendenze, si veda <a href="../../html/Principi.html">Principi</a> per ulteriori informazioni), qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un
             led), si consiglia di inserire un ulteriore attore. <br>
             L'attore di alto livello riceverà dal <span class="blue">WIS</span> il comportamento da adottare che verrà successivamente inoltrato all'attore che gestirà il dispositivo fisico di pertinenza.
           </li>
@@ -254,7 +254,7 @@
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
-            dispositivo fisico (Principio di inversione delle dipendenze), si consiglia l'uso di un ulteriore attore. <br>
+            dispositivo fisico (Principio di inversione delle dipendenze, si veda <a href="../../html/Principi.html">Principi</a> per ulteriori informazioni), si consiglia l'uso di un ulteriore attore. <br>
             L'attore di alto livello che gestisce la logica si occuperà di convertire il peso ricevuto dall'attore di
             basso livello che gestisce il dispositivo fisico in RP, inoltrando il valore al <span class="blue">WIS</span> solamente quando si avrà
             un cambiamento di peso.
@@ -325,7 +325,7 @@
         Invierà per prima cosa un messaggio <b><code>Dispatch sonar_sensitivity : sonar_sensitivity(S)</code></b>
         all'attore Sonar contenente la sensibilità del Sonar, valore che dipende dalla tecnologia utilizzata. <br>
         Successivamente, attraverso una EmitLocalStream, invierà al <span class="blue">Sonar</span> il valore letto dal
-        dispositivo fisico <b><code>Event sonar_data : distance(D)</code></b>.<br>
+        dispositivo fisico <b><code>Event sonar_data : distance(D)</code></b>. Si è scelto di utilizzare un EmitLocalStream per motivi di efficienza e per evitare un'inutile trasmissione eventi via rete (si veda <a href="../../html/QakActors24.html#azioni-di-un-attore">QakActors24</a> e <a href="../../html/RaspApplCode24.html#progetto-sonarqak24">Sonarqak24</a> per ulteriori dettagli)<br>
         <br />
         Il <span class="blue">Sonar</span> sarà modellato come attore e si occuperà di inviare al <span
           class="blue">WIS</span> la distanza tra la cenere e il Sonar. <br />
@@ -367,13 +367,13 @@
         della bilancia. <br>
 
         Attraverso una EmitLocalStream, invierà a <span class="blue">Scale</span> il valore pesato dal
-        dispositivo fisico <b><code>Event scale_data 			: scale_data(WEIGHT)</code></b>.<br>
-        Inoltre, riceverà dall'OpRobot il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla misurazione del peso nel WasteStorage Container. <br>
+        dispositivo fisico <b><code>Event scale_data 			: scale_data(WEIGHT)</code></b>.  Si è scelto di utilizzare un EmitLocalStream per motivi di efficienza e per evitare un'inutile trasmissione eventi via rete (si veda <a href="../../html/QakActors24.html#azioni-di-un-attore">QakActors24</a> e <a href="../../html/RaspApplCode24.html#progetto-sonarqak24">Sonarqak24</a> per ulteriori dettagli)<br>
+        Inoltre, <b>riceverà</b> dall'<span class="blue">OpRobot</span> il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla misurazione del peso nel <span class="blue">WasteStorage</span>. <br>
         <br />
         <span class="blue">Scale</span> sarà modellato come attore e si occuperà di convertire in RP il peso della bilancia
         in quel momento. <br />
         <b>Invierà</b> quindi il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
-        al <span class="blue">WIS</span> contenente il numero di RP presenti nel WasteStorage. <br />
+        al <span class="blue">WIS</span> contenente il numero di RP presenti nel <span class="blue">WasteStorage</span>. <br />
 
       </div>
 
