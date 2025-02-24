@@ -21,7 +21,7 @@ class TestMonitoringDeviceScaleChange {
         @BeforeClass
         @JvmStatic
         fun setup() {
-            it.unibo.ctxmonitoringdevice_tests.main()
+            it.unibo.ctxscale_tests.main()
 			
 			delay(2000)
         }
@@ -42,7 +42,8 @@ class TestMonitoringDeviceScaleChange {
         val messagesStack =
             ArrayDeque(
                 listOf(
-                	"led_status_change_to_blink",
+                	"rp_in_waste_storage_1",
+					"rp_in_waste_storage_2",
                 ),
             )
 
@@ -78,6 +79,24 @@ class TestMonitoringDeviceScaleChange {
         )
 
         client.subscribe("it.unib0.iss.waste-incinerator-service")
+		
+		val conn: Interaction =
+            ConnectionFactory.createClientSupport(ProtocolType.tcp, "localhost", "8123")
+		
+		delay(100)
+
+        val loadRp: IApplMessage =
+             CommUtils.buildDispatch(
+                 "testApplication",
+                 "load_weight",
+                 "load_weight(50)",
+                 "scale_device",
+             )
+        conn.forward(loadRp)
+		
+		delay(2000)
+		
+        conn.forward(loadRp)
 	
 		delay(5000)
 
