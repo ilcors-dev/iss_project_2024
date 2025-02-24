@@ -394,7 +394,7 @@ class ServiceArea {
             Il requisito sopra indicato ci dice che alla fine della fase di
             incenerimento, dovrà essere emesso un segnale che verrà percepito
             dall'OpRobot e dal WIS. <br />
-            Il verbo "emits" suggerisce l'utilizzo di un Event inviato
+            Il verbo "emits" suggerirebbe l'utilizzo di un Event inviato
             dall'Incinerator. <br />
           </li>
         </ul>
@@ -438,8 +438,10 @@ class ServiceArea {
           <li>
             Per l'ultimo messaggio riguardante l'emissione del segnale alla
             fine della fase di incenerimento, come evidenziato dall'analista
-            dei requisiti, si suggerisce l'uso di un Event che verrà percepito
-            dal WIS e dall'OpRobot. <br />
+            dei requisiti, sarebbe coerente l'uso di un Event che verrebbe percepito
+            dal WIS e dall'OpRobot. Se si volesse, invece, dare una maggior responsabilità al WIS,
+			potrebbe risultare più adeguata una Dispatch inviata al WIS e inoltrata 
+			successivamente dal WIS all'OpRobot.<br />
           </li>
         </ul>
       </div>
@@ -505,17 +507,17 @@ Context ctxbasicrobot ip [host="127.0.0.1" port=8020]</pre>
             </li>
             <li>
               <b>riceverà</b> il messaggio
-              <b><code>Event burning : burning()</code></b>
+              <b><code>Dispatch burning : burning(0)</code></b>
               dall'<span class="blue">Incinerator</span> per mantenere
-              aggiornato il proprio stato interno. Si è scelto l'utilizzo di
-              un Event per rimanere coerenti con l'Event che segnala la fine
-              dell'incenerimento.
+              aggiornato il proprio stato interno.
             </li>
             <li>
               <b>riceverà</b> il messaggio
-              <b><code>Event finishedBurning : finishedBurning()</code></b>
+              <b><code>Dispatch finishedBurning : finishedBurning(0)</code></b>
               dall'<span class="blue">Incinerator</span>
-              per mantenere aggiornato il proprio stato interno.
+              per mantenere aggiornato il proprio stato interno. Si è scelto
+			  l'utilizzo di una Dispatch a seguito della maggior responsabilità
+			  affidata al WIS.
             </li>
           </ul>
         </div>
@@ -525,16 +527,15 @@ Context ctxbasicrobot ip [host="127.0.0.1" port=8020]</pre>
         L'<span class="blue">incinerator</span> sarà modellato come attore.
         Interagirà con il <span class="blue">WIS</span> per ricevere il
         comando <b><code>startIncinerator</code></b> di inizio incenerimento
-        ed emetterà gli eventi
+        ed invierà i messaggi
         <ul>
           <li>
             <b><code>burning</code></b> per segnalare l'<b>inizio</b>
-            dell'incenerimento a tutti gli attori del sistema
+            dell'incenerimento al WIS
           </li>
           <li>
             <b><code>finishedBurning</code></b> per segnalare la
-            <b>fine</b> dell'incenerimento del RP a tutti gli attori del
-            sistema
+            <b>fine</b> dell'incenerimento del RP al WIS
           </li>
         </ul>
       </div>
