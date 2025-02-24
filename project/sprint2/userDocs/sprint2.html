@@ -126,7 +126,7 @@
             <div class="remark-light">
               "3. a MonitoringDevice, composed by a a Sonar and a Led working on a RaspberryPi."
             </div>
-            Dal seguente requisito si evince la presenza di un dispositivo fisico denominato MonitoringDevice composto
+            Dal seguente requisito si evince la presenza di un dispositivo fisico denominato <span class="blue">MonitoringDevice</span> composto
             da un Led e un Sonar. <br>
           </li>
           <li>
@@ -151,8 +151,8 @@
               AshStorage container is considered full."
             </div>
             Questo requisito ci indica che è presente nel sistema un Sonar nel MonitoringDevice, utilizzato per misurare
-            il livello della cenere nell'AshContainer. Quando la distanza tra la cenere e il Sonar è minore di un valore
-            prefissato DLIMT, l'AshContainer è considerato pieno. <br>
+            il livello della cenere nell'AshStorage Container. Quando la distanza tra la cenere e il Sonar è minore di un valore
+            prefissato DLIMT (variabile intera positiva), l'AshStorage Container è considerato pieno. <br>
             Sarà necessario quindi leggere il valore del Sonar e inviare un messaggio al WIS contenente il valore letto,
             che verrà utilizzato per determinare lo stato dell'AshStorage Container.
           </li>
@@ -161,7 +161,7 @@
               "2. a AshStorage container, devoted to store the ashes produced by the incineration process. This
               container can store (approximately) the ashes of 3-4 RP."
             </div>
-            Questo requisito ci indica che l'AshContainer ha capienza sufficiente per la cenere di 3-4 RP. Sarà
+            Questo requisito ci indica che l'AshStorage Container ha capienza sufficiente per la cenere di 3-4 RP. Sarà
             necessario scegliere un DLIMT corrispondente a questa quantità di cenere, in modo da poter determinare lo
             stato dell'AshStorage Container, legando quindi il valore misurato dal Sonar in cm nel numero corrispondente
             di RP. <br>
@@ -218,7 +218,7 @@
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
-            dispositivo fisico, qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
+            dispositivo fisico (Principio di inversione delle dipendenze), qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
             L'attore di alto livello che gestisce la logica si occuperà di filtrare i messaggi ricevuti dall'attore di
             basso livello che gestisce il dispositivo fisico, inoltrando il valore al WIS solamente quando si avrà un
             cambiamento significativo nella distanza misurata, in modo da gestire la sensibilità del Sonar fisico
@@ -247,7 +247,7 @@
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
-            dispositivo fisico, qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un
+            dispositivo fisico (Principio di inversione delle dipendenze), qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un
             led), si consiglia di inserire un ulteriore attore. <br>
             L'attore di alto livello riceverà dal WIS il comportamento da adottare che verrà successivamente inoltrato
             all'attore che gestirà il dispositivo fisico di pertinenza.
@@ -269,7 +269,7 @@
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
-            dispositivo fisico, si consiglia l'uso di un ulteriore attore. <br>
+            dispositivo fisico (Principio di inversione delle dipendenze), si consiglia l'uso di un ulteriore attore. <br>
             L'attore di alto livello che gestisce la logica si occuperà di convertire il peso ricevuto dall'attore di
             basso livello che gestisce il dispositivo fisico in RP, inoltrando il valore al WIS solamente quando si avrà
             un cambiamento di peso.
@@ -277,10 +277,10 @@
           <li>
             Il WIS può venire a conoscenza del cambiamento di peso nel WasteStorage (quando per esempio viene depositato
             un RP) attraverso un meccanismo di polling oppure sarà la bilancia a mandare un messaggio al WIS.
-            Considerando che il peso varia in momenti variabili, non è consigliabile un meccanismo di polling da parte
+            Considerando che il peso può cambiare in momenti variabili, non è consigliabile un meccanismo di polling da parte
             del WIS, perciò è preferibile il secondo metodo perchè si ritiene più appropriato che sia la Scale ad
-            aggiornare il WIS non appena percepisce un cambiamento di peso. Inoltre, si suggerisce di modellare questo
-            messaggio come una Dispatch, non essendo necessaria una risposta e che il destinatario è un solo attore
+            aggiornare il WIS non appena percepisce un cambiamento di peso. Inoltre, si suggerisce di modellare questo messaggio come una Dispatch, non essendo necessaria una
+            risposta ed essendo il messaggio destinato a un singolo attore.
           </li>
         </ul>
       </div>
@@ -311,16 +311,8 @@
         compito in questa fase è quello di comunicare con il MonitoringDevice per monitorare il livello di cenere
         presente nell'AshStorage e per gestire il comportamento del Led legato allo stato del sistema. Comunicherà
         inoltre con la Scale per controllare la quantità di RP presenti nel WasteStorage. <br />
-        Come detto nello Sprint0, abbiamo scelto di dare più responsabilità
-        al WIS perchè in quanto rappresentazione del sistema ha senso che
-        gestisca le azioni dell'OpRobot e dell'Incenerator. <br />
 
         <ul>
-          <li>
-            <b>invierà</b> il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> all'attore
-            scale_device per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla
-            misurazione del peso nel WasteStorage Container. <br />
-          </li>
           <li>
             <b>riceverà</b> il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
             dall'attore Scale contenente il numero di RP presenti nel WasteStorage Container. <br />
@@ -349,7 +341,6 @@
         all'attore Sonar contenente la sensibilità del Sonar, valore che dipende dalla tecnologia utilizzata. <br>
         Successivamente, attraverso una EmitLocalStream, invierà al <span class="blue">Sonar</span> il valore letto dal
         dispositivo fisico <b><code>Event sonar_data : distance(D)</code></b>.<br>
-        <br />
         <br />
         Il <span class="blue">Sonar</span> sarà modellato come attore e si occuperà di inviare al <span
           class="blue">WIS</span> la distanza tra la cenere e il Sonar. <br />
@@ -389,17 +380,12 @@
         <br>
         <span class="blue">Scale_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico
         della bilancia. <br>
-        Riceverà da un attore mock che simula l'agente esterno il messaggio
-        <b><code>Dispatch load_weight   		: load_weight(WEIGHT)</code></b> per simulare il deposito di un nuovo RP.
-        WEIGHT corrisponde a 50, una quantità intera e positiva, come specificato da requisiti <br>
 
-        Successivamente, attraverso una EmitLocalStream, invierà a <span class="blue">Scale</span> il valore pesato dal
+        Attraverso una EmitLocalStream, invierà a <span class="blue">Scale</span> il valore pesato dal
         dispositivo fisico <b><code>Event scale_data 			: scale_data(WEIGHT)</code></b>.<br>
-        Inoltre, riceverà dal WIS il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per
-        simulare la rimozione di un RP. <br>
+        Inoltre, riceverà dall'OpRobot il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla misurazione del peso nel WasteStorage Container. <br>
         <br />
-        <br />
-        <span class="blue">Scale</span> sarà modellato come attore e si occuperà convertire in RP il peso della bilancia
+        <span class="blue">Scale</span> sarà modellato come attore e si occuperà di convertire in RP il peso della bilancia
         in quel momento. <br />
         <b>Invierà</b> quindi il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
         al <span class="blue">WIS</span> contenente il numero di RP presenti nel WasteStorage. <br />
@@ -455,6 +441,9 @@
             </tr>
           </tbody>
         </table>
+
+        Aggiunto il messaggio <b><code>Dispatch load_weight : load_weight(WEIGHT)</code></b> inviato da un attore mock che simula il deposito di un nuovo RP da parte di un agente esterno.
+        WEIGHT corrisponde a 50, una quantità intera e positiva, come specificato da requisiti. <br>
       </div>
 
       <h3>Prossimi sviluppi</h3>
