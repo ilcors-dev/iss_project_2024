@@ -127,7 +127,7 @@
               "3. a MonitoringDevice, composed by a a Sonar and a Led working on a RaspberryPi."
             </div>
             Dal seguente requisito si evince la presenza di un dispositivo fisico denominato <span class="blue">MonitoringDevice</span> composto
-            da un Led e un Sonar. <br>
+            da un <span class="blue">Led</span> e un <span class="blue">Sonar</span>. <br>
           </li>
           <li>
             <div class="remark-light">
@@ -137,11 +137,11 @@
               <br>"The WIS can acquire information from the input devices Scale and Sonar through
               software supports that must be properly designed and implemented"
             </div>
-            Da ciò si evince che è presente una bilancia (Scale) nel WasteStorage, che misura il peso di tutti gli RP
-            presenti nel WasteStorage Container. Il container è considerato vuoto quando il valore della Scale è
+            Da ciò si evince che è presente una bilancia (<span class="blue">Scale</span>) nel <span class="blue">WasteStorage</span>, che misura il peso di tutti gli RP
+            presenti nel <span class="blue">WasteStorage</span> Container. Il container è considerato vuoto quando il valore della Scale è
             (approssimativamente) 0.
-            Inoltre, da requisito il WIS acquisirà informazioni sugli RP presenti nel WasteStorage direttamente dalla
-            Scale <br>
+            Inoltre, da requisito il <span class="blue">WIS</span> acquisirà informazioni sugli RP presenti nel <span class="blue">WasteStorage</span> direttamente dalla
+            <span class="blue">Scale</span> <br>
           </li>
           <li>
             <div class="remark-light">
@@ -150,20 +150,20 @@
               a prefixed value DLIMT, the
               AshStorage container is considered full."
             </div>
-            Questo requisito ci indica che è presente nel sistema un Sonar nel MonitoringDevice, utilizzato per misurare
-            il livello della cenere nell'AshStorage Container. Quando la distanza tra la cenere e il Sonar è minore di un valore
-            prefissato DLIMT (variabile intera positiva), l'AshStorage Container è considerato pieno. <br>
-            Sarà necessario quindi leggere il valore del Sonar e inviare un messaggio al WIS contenente il valore letto,
-            che verrà utilizzato per determinare lo stato dell'AshStorage Container.
+            Questo requisito ci indica che è presente nel sistema un <span class="blue">Sonar</span> nel <span class="blue">MonitoringDevice</span>, utilizzato per misurare
+            il livello della cenere nell'<span class="blue">AshStorage</span> Container. Quando la distanza tra la cenere e il Sonar è minore di un valore
+            prefissato DLIMT (variabile intera positiva), l'<span class="blue">AshStorage</span> Container è considerato pieno. <br>
+            Sarà necessario quindi leggere il valore del <span class="blue">Sonar</span> e inviare un messaggio al <span class="blue">WIS</span> contenente il valore letto,
+            che verrà utilizzato per determinare lo stato dell'<span class="blue">AshStorage</span> Container.
           </li>
           <li>
             <div class="remark-light">
               "2. a AshStorage container, devoted to store the ashes produced by the incineration process. This
               container can store (approximately) the ashes of 3-4 RP."
             </div>
-            Questo requisito ci indica che l'AshStorage Container ha capienza sufficiente per la cenere di 3-4 RP. Sarà
-            necessario scegliere un DLIMT corrispondente a questa quantità di cenere, in modo da poter determinare lo
-            stato dell'AshStorage Container, legando quindi il valore misurato dal Sonar in cm nel numero corrispondente
+            Questo requisito ci indica che l'<span class="blue">AshStorage</span> Container ha capienza sufficiente per la cenere di 3-4 RP. Sarà
+            necessario scegliere un <span class="blue">DLIMIT</span> corrispondente a questa quantità di cenere, in modo da poter determinare lo
+            stato dell'<span class="blue">AshStorage</span> Container, legando quindi il valore misurato dal <span class="blue">Sonar</span> in cm nel numero corrispondente
             di RP. <br>
           </li>
           <li>
@@ -175,15 +175,13 @@
                 <li>the Led blinks while the AshStorage is full or the AshStorage is empty"</li>
               </ul>
             </div>
-            Questo requisito ci indica che sarà presente un Led utilizzato per segnalare lo stato dell'Incinerator e
-            dell'AshStorage Container. In particolare, il Led dovrà essere acceso quando l'Incinerator sta bruciando un
-            RP, spento quando l'Incinerator non sta bruciando e lampeggiare quando l'AshStorage Container è pieno o
-            vuoto. <br>
-            Il WIS quindi dovrà conoscere lo stato dell'Incinerator e il livello misurato dal Sonar per determinare lo
-            stato d'accensione del Led, inviandogli un messaggio per il comportamento. <br>
+            Questo requisito ci indica che sarà presente un <span class="blue">Led</span> utilizzato per segnalare lo stato dell'<span class="blue">Incinerator</span> e
+            dell'<span class="blue">AshStorage</span> Container. In particolare, il <span class="blue">Led</span> dovrà essere acceso quando l'<span class="blue">Incinerator</span> sta bruciando un RP, spento quando l'<span class="blue">Incinerator</span> non sta bruciando e lampeggiare quando l'<span class="blue">AshStorage</span> Container è pieno o vuoto. <br>
+            Il <span class="blue">WIS</span> quindi dovrà conoscere lo stato dell'<span class="blue">Incinerator</span> e il livello misurato dal <span class="blue">Sonar</span> per determinare lo
+            stato d'accensione del <span class="blue">Led</span>, inviandogli un messaggio per il comportamento. <br>
             Si dovrà determinare insieme al committente il livello di priorità da assegnare ai comportamenti elencati,
-            in quanto sono presenti dei casi limite, come ad esempio lo stato del sistema quando l'AshStorage Container
-            è vuoto (portando il Led a lampeggiare) e l'Incinerator sta bruciando un RP (portando il Led a rimanere
+            in quanto sono presenti dei casi limite, come ad esempio lo stato del sistema quando l'<span class="blue">AshStorage</span> Container
+            è vuoto (portando il Led a lampeggiare) e l'<span class="blue">Incinerator</span> sta bruciando un RP (portando il Led a rimanere
             acceso).
           </li>
         </ul>
@@ -194,43 +192,35 @@
       </div>
       <h6><b>MonitoringDevice</b></h6>
       <div class="remark">
-        Dall'analisi dei requisiti viene evidenziato l'utilizzo di un dispositivo fisico composto da un Sonar e un Led
-        posti su un RaspberryPi. Gestendo il sistema attraverso le opportunità offerte da linguaggio Qak, si consiglia
-        l'utilizzo di un contesto esterno per la gestione del MonitoringDevice, contenente gli attori adibiti alla
-        gestione del Sonar e del Led. <br>
+        Dall'analisi dei requisiti viene evidenziato l'utilizzo di un dispositivo fisico composto da un <span class="blue">Sonar</span> e un <span class="blue">Led</span> posti su un RaspberryPi. Gestendo il sistema attraverso le opportunità offerte da linguaggio Qak, si consiglia l'utilizzo di un contesto esterno per la gestione del <span class="blue">MonitoringDevice</span>, contenente gli attori adibiti alla gestione del <span class="blue">Sonar</span> e del <span class="blue">Led</span>. <br>
       </div>
       <h6><b>WeighingDevice</b></h6>
       <div class="remark">
-        Nell'analisi dei requisiti è riportato l'utilizzo di un sensore nel WasteStorage Container in grado di misurare
-        la quantità di Roll Packets presenti. Il committente non ha fornito nessun dispositivo fisico, quindi si
-        potrebbe inserire l'attore dello Scale nello stesso contesto del WIS, altrimenti si potrebbe creare un nuovo
-        contesto qualora il dispositivo venga fornito in seguito. <br>
+        Nell'analisi dei requisiti è riportato l'utilizzo di un sensore nel <span class="blue">WasteStorage</span> Container in grado di misurare la quantità di Roll Packets presenti. Il committente non ha fornito nessun dispositivo fisico, quindi si
+        potrebbe inserire l'attore dello <span class="blue">Scale</span> nello stesso contesto del <span class="blue">WIS</span>, altrimenti si potrebbe creare un nuovo contesto qualora il dispositivo venga fornito in seguito. <br>
       </div>
       <h6><b>Sonar</b></h6>
       <div class="remark">
         <ul>
           <li>
-            Il Sonar dovrà misurare la distanza tra la cenere e il suo sensore. Il valore letto dovrà essere inviato al
-            WIS per determinare lo stato dell'AshStorage Container.
+            Il <span class="blue">Sonar</span> dovrà misurare la distanza tra la cenere e il suo sensore. Il valore letto dovrà essere inviato al
+            <span class="blue">WIS</span> per determinare lo stato dell'<span class="blue">AshStorage</span> Container.
           </li>
           <li>
-            Si suggerisce l'utilizzo di un attore in grado di gestire il dispositivo fisico del Sonar.
+            Si suggerisce l'utilizzo di un attore in grado di gestire il dispositivo fisico del <span class="blue">Sonar</span>.
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
             dispositivo fisico (Principio di inversione delle dipendenze), qualora dovessero cambiare nel tempo, si consiglia di inserire un ulteriore attore. <br>
             L'attore di alto livello che gestisce la logica si occuperà di filtrare i messaggi ricevuti dall'attore di
-            basso livello che gestisce il dispositivo fisico, inoltrando il valore al WIS solamente quando si avrà un
-            cambiamento significativo nella distanza misurata, in modo da gestire la sensibilità del Sonar fisico
-            dipendente dalla tecnologia adottata.
+            basso livello che gestisce il dispositivo fisico, inoltrando il valore al <span class="blue">WIS</span> solamente quando si avrà un cambiamento significativo nella distanza misurata, in modo da gestire la sensibilità del <span class="blue">Sonar</span> fisico dipendente dalla tecnologia adottata.
           </li>
           <li>
-            Il WIS può venire a conoscenza del cambiamento del livello di cenere nell'AshStorage (quando ad esempio
-            viene depositata la cenere prodotta dall'Incinerator) attraverso un meccanismo di polling oppure sarà il
-            Sonar a mandare un messaggio al WIS. Considerando che il livello può cambiare in momenti casuali, non è
-            consigliabile un meccanismo di polling da parte del WIS, perciò è preferibile il secondo metodo perchè si
-            ritiene più appropriato che sia il Sonar ad aggiornare il WIS non appena percepisce un cambiamento nel
-            livello. Inoltre, si suggerisce di modellare questo messaggio come una Dispatch, non essendo necessaria una
+            Il <span class="blue">WIS</span> può venire a conoscenza del cambiamento del livello di cenere nell'<span class="blue">AshStorage</span> (quando ad esempio
+            viene depositata la cenere prodotta dall'<span class="blue">Incinerator</span>) attraverso un meccanismo di polling oppure sarà il
+            <span class="blue">Sonar</span> a mandare un messaggio al <span class="blue">WIS</span>. Considerando che il livello può cambiare in momenti casuali, non è
+            consigliabile un meccanismo di polling da parte del <span class="blue">WIS</span>, perciò è preferibile il secondo metodo perchè si ritiene più appropriato che sia il <span class="blue">Sonar</span> ad aggiornare il <span class="blue">WIS</span> non appena percepisce un cambiamento nel
+            livello. Inoltre, si suggerisce di modellare questo messaggio come una <b>Dispatch</b>, non essendo necessaria una
             risposta ed essendo il messaggio destinato a un singolo attore.
           </li>
         </ul>
@@ -239,18 +229,16 @@
       <div class="remark">
         <ul>
           <li>
-            Il Led dovrà segnalare lo stato del sistema. Riceverà quindi dal WIS un messaggio contenente il
-            comportamento da adottare.
+            Il <span class="blue">Led</span> dovrà segnalare lo stato del sistema. Riceverà quindi dal <span class="blue">WIS</span> un messaggio contenente il comportamento da adottare.
           </li>
           <li>
-            Si suggerisce l'utilizzo di un attore in grado di gestire il dispositivo fisico del Led.
+            Si suggerisce l'utilizzo di un attore in grado di gestire il dispositivo fisico del <span class="blue">Led</span>.
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
             dispositivo fisico (Principio di inversione delle dipendenze), qualora dovessero cambiare nel tempo (ad esempio utilizzando un buzzer al posto di un
             led), si consiglia di inserire un ulteriore attore. <br>
-            L'attore di alto livello riceverà dal WIS il comportamento da adottare che verrà successivamente inoltrato
-            all'attore che gestirà il dispositivo fisico di pertinenza.
+            L'attore di alto livello riceverà dal <span class="blue">WIS</span> il comportamento da adottare che verrà successivamente inoltrato all'attore che gestirà il dispositivo fisico di pertinenza.
           </li>
         </ul>
       </div>
@@ -258,28 +246,25 @@
       <div class="remark">
         <ul>
           <li>
-            Si suggerisce di modellare la Scale come un attore, poichè essendo un dispositivo fisico potrebbe aver
-            bisogno di essere operato da altri contesti.
+            Si suggerisce di modellare la <span class="blue">Scale</span> come un attore, poichè essendo un dispositivo fisico potrebbe aver bisogno di essere operato da altri contesti.
           </li>
           <li>
-            La scale riporta un peso, però questa informazione va processata perchè al WIS serve sapere il numero di RP
-            presenti. Questa elaborazione può essere fatta dal WIS, inviandogli il dato grezzo (il peso) oppure far
-            elaborare questo dato alla bilancia stessa e inviare direttamente la conversione in RP al WIS. Si consiglia
-            questa seconda opzione per tenere separate le varie responsabilità.
+            La <span class="blue">Scale</span> riporta un peso, però questa informazione va processata perchè al <span class="blue">WIS</span> serve sapere il numero di RP
+            presenti. Questa elaborazione può essere fatta dal <span class="blue">WIS</span>, inviandogli il dato grezzo (il peso) oppure far elaborare questo dato alla bilancia stessa e inviare direttamente la conversione in RP al <span class="blue">WIS</span>. Si consiglia questa seconda opzione per tenere separate le varie responsabilità.
           </li>
           <li>
             Per garantire il principio di singola responsabilità e disaccoppiare la logica dalla gestione del
             dispositivo fisico (Principio di inversione delle dipendenze), si consiglia l'uso di un ulteriore attore. <br>
             L'attore di alto livello che gestisce la logica si occuperà di convertire il peso ricevuto dall'attore di
-            basso livello che gestisce il dispositivo fisico in RP, inoltrando il valore al WIS solamente quando si avrà
+            basso livello che gestisce il dispositivo fisico in RP, inoltrando il valore al <span class="blue">WIS</span> solamente quando si avrà
             un cambiamento di peso.
           </li>
           <li>
-            Il WIS può venire a conoscenza del cambiamento di peso nel WasteStorage (quando per esempio viene depositato
-            un RP) attraverso un meccanismo di polling oppure sarà la bilancia a mandare un messaggio al WIS.
+            Il <span class="blue">WIS</span> può venire a conoscenza del cambiamento di peso nel <span class="blue">WasteStorage</span> (quando per esempio viene depositato
+            un RP) attraverso un meccanismo di polling oppure sarà la bilancia a mandare un messaggio al <span class="blue">WIS</span>.
             Considerando che il peso può cambiare in momenti variabili, non è consigliabile un meccanismo di polling da parte
-            del WIS, perciò è preferibile il secondo metodo perchè si ritiene più appropriato che sia la Scale ad
-            aggiornare il WIS non appena percepisce un cambiamento di peso. Inoltre, si suggerisce di modellare questo messaggio come una Dispatch, non essendo necessaria una
+            del <span class="blue">WIS</span>, perciò è preferibile il secondo metodo perchè si ritiene più appropriato che sia la <span class="blue">Scale</span> ad
+            aggiornare il <span class="blue">WIS</span> non appena percepisce un cambiamento di peso. Inoltre, si suggerisce di modellare questo messaggio come una <b>Dispatch</b>, non essendo necessaria una
             risposta ed essendo il messaggio destinato a un singolo attore.
           </li>
         </ul>
@@ -308,9 +293,9 @@
       <h4>WIS</h4>
       <div class="remark">
         Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/system.qak">system.qak</a>). Il suo
-        compito in questa fase è quello di comunicare con il MonitoringDevice per monitorare il livello di cenere
-        presente nell'AshStorage e per gestire il comportamento del Led legato allo stato del sistema. Comunicherà
-        inoltre con la Scale per controllare la quantità di RP presenti nel WasteStorage. <br />
+        compito in questa fase è quello di comunicare con il <span class="blue">MonitoringDevice</span> per monitorare il livello di cenere
+        presente nell'<span class="blue">AshStorage</span> e per gestire il comportamento del <span class="blue">Led</span> legato allo stato del sistema. Comunicherà
+        inoltre con la <span class="blue">Scale</span> per controllare la quantità di RP presenti nel <span class="blue">WasteStorage</span>. <br />
 
         <ul>
           <li>
