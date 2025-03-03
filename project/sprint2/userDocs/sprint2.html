@@ -126,8 +126,8 @@
             <div class="remark-light">
               "3. a MonitoringDevice, composed by a a Sonar and a Led working on a RaspberryPi."
             </div>
-            Dal seguente requisito si evince la presenza di un dispositivo fisico denominato <span class="blue">MonitoringDevice</span> composto
-            da un <span class="blue">Led</span> e un <span class="blue">Sonar</span>. <br>
+            Dal seguente requisito si evince la presenza di un dispositivo denominato <span class="blue">MonitoringDevice</span> composto
+            da un <span class="blue">Led</span> fisico e un <span class="blue">Sonar</span> fisico. <br>
           </li>
           <li>
             <div class="remark-light">
@@ -153,8 +153,7 @@
             Questo requisito ci indica che è presente nel sistema un <span class="blue">Sonar</span> nel <span class="blue">MonitoringDevice</span>, utilizzato per misurare
             il livello della cenere nell'<span class="blue">AshStorage</span> Container. Quando la distanza tra la cenere e il Sonar è minore di un valore
             prefissato DLIMT (variabile intera positiva), l'<span class="blue">AshStorage</span> Container è considerato pieno. <br>
-            Sarà necessario quindi leggere il valore del <span class="blue">Sonar</span> e inviare un messaggio al <span class="blue">WIS</span> contenente il valore letto,
-            che verrà utilizzato per determinare lo stato dell'<span class="blue">AshStorage</span> Container.
+            Sarà necessario quindi leggere il valore del <span class="blue">Sonar</span> che verrà utilizzato per determinare lo stato dell'<span class="blue">AshStorage</span> Container.
           </li>
           <li>
             <div class="remark-light">
@@ -182,7 +181,8 @@
             Si dovrà determinare insieme al committente il livello di priorità da assegnare ai comportamenti elencati,
             in quanto sono presenti dei casi limite, come ad esempio lo stato del sistema quando l'<span class="blue">AshStorage</span> Container
             è vuoto (portando il Led a lampeggiare) e l'<span class="blue">Incinerator</span> sta bruciando un RP (portando il Led a rimanere
-            acceso).
+            acceso). <br> <br>
+            UPDATE: il committente ha specificato che il Led dovrà lampeggiare solamente quando l'<span class="blue">AshStorage</span> è pieno e non più quando è vuoto.
           </li>
         </ul>
       </div>
@@ -192,7 +192,7 @@
       </div>
       <h6><b>MonitoringDevice</b></h6>
       <div class="remark">
-        Dall'analisi dei requisiti viene evidenziato l'utilizzo di un dispositivo fisico composto da un <span class="blue">Sonar</span> e un <span class="blue">Led</span> posti su un RaspberryPi. Gestendo il sistema attraverso le opportunità offerte da linguaggio Qak, si consiglia l'utilizzo di un contesto esterno per la gestione del <span class="blue">MonitoringDevice</span>, contenente gli attori adibiti alla gestione del <span class="blue">Sonar</span> e del <span class="blue">Led</span>. <br>
+        Dall'analisi dei requisiti viene evidenziato l'utilizzo di un dispositivo composto da un <span class="blue">Sonar</span> fisico e un <span class="blue">Led</span> fisico posti su un RaspberryPi. Sarà necessaria una connessione per la comunicazione tra RaspberryPi e il pc su cui girerà il WIS.
       </div>
       <h6><b>WeighingDevice</b></h6>
       <div class="remark">
