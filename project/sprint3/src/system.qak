@@ -1,0 +1,9 @@
+System wis24
+
+Context ctxwis24 ip [host="localhost" port=8121]
+
+QActor wis context ctxwis24 {
+	State s0 initial {
+		println("$name starts")
+	}
+}
