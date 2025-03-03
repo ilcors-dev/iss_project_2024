@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com?plugins=typography,aspect-ratio,line-clamp,container-queries"></script>
+
+<style>
+  h1 {
+    background-color: #b2c0ff;
+    border: 1.5px solid black;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  h2 {
+    background-color: #9ed8ff;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h3 {
+    background-color: #e6ccff;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h4 {
+    background-color: #ccffcc;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h5 {
+    background-color: #d5ffb0;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  h6 {
+    background-color: #ccb6f0;
+    border: 1.5px solid black;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .blue {
+    color: blue;
+    font-weight: 500;
+  }
+
+  .red {
+    color: red;
+    font-weight: 500;
+  }
+
+  div.remark {
+    background-color: #e3f2fd;
+    border: 1.5px solid black;
+    padding: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  div.remark-light {
+    background-color: #f0ffff;
+    border: 1.5px solid black;
+    padding: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+</style>
+
+<head>
+  <title>Sprint3 Corsetti, de Respinis, Sindaco</title>
+</head>
+
+<body class="mx-2">
+  <main class="prose" style="max-width: 100%">
+    <div id="top">
+      <h1>TEMA FINALE 2024 SPRINT3</h1>
+    </div>
+
+    <div class="body">
+      <h2>Introduzione</h2>
+      <div class="remark">
+        Questo documento contiene lo Sprint3 del progetto per il tema finale
+        del corso. <br />
+        <br />
+        <b>Goal:</b> L'obiettivo dello Sprint3 è quello di implementare la ServiceStatusGUI. <br />
+      </div>
+
+      <div class="remark">
+        Link a
+        <a href="../../sprint0/userDocs/sprint0_v2.html">Sprint0</a>, a <a
+          href="../../sprint1/userDocs/sprint1.html">Sprint1</a> e a <a
+          href="../../sprint2/userDocs/sprint2.html">Sprint2</a> per consultare i documenti
+        realizzati precedentemente.
+      </div>
+
+      <h2>Requisiti</h2>
+
+      <div class="remark">
+        I requisiti del sistema possono essere trovati in
+        <a href="../../html/TemaFinale24.html">TemaFinale24</a>.
+      </div>
+
+      <h2>Modello del sistema dello Sprint2</h2>
+      <div class="remark">
+        <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_wis24arch.png"><img
+          alt="./immagini/sprint2_wis24arch.png" class="align-right" src="./immagini/sprint2_wis24arch.png"
+          style="width: 100%" /></a>
+
+      <div class="flex">
+        <a class="reference internal image-reference flex justify-center"
+        href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
+          class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 100%" /></a>
+
+        <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_scalearch.png"><img
+          alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
+          style="width: 100%" /></a>
+      </div>
+      </div>
+      <h2>Analisi del problema</h2>
+      <div class="remark">
+        Problematiche relative alla richiesta del committente:
+      </div>
+      <h6><b>ServiceStatusGUI</b></h6>
+      <div class="remark">
+        Viene richiesto di implementare una <b>GUI</b> che permetta di ricevere informazioni dal sistema e far visualizzare lo stato <u>attuale</u> a un'osservatore esterno. <br>
+        Non sono richieste interazioni con agenti esterni. <br>
+        Non sono stati esplicitati metodi di interazione specifici con il sistema. <br><br>
+        Non essendo specificato il modo in cui la <b>GUI</b> riceve le informarzioni dal sistema, sono presenti varie possibilità:
+        <ul>
+          <li>
+            La <b>GUI</b> sfrutta un sistema di Polling ad ogni attore per acquisire le informazioni.
+          </li>
+          <li>
+            La <b>GUI</b> riceve informazioni ad ogni cambiamento di stato degli attori grazie ad un attore specifico.
+          </li>
+          <li>
+            La <b>GUI</b> riceve informazioni riguardo lo stato degli attori direttamente dal <span class="blue">WIS</span>.
+          </li>
+        </ul>
+        Considerando il meccanismo di <b>Request- Reply</b> utilizzato dal <span class="blue">WIS</span>, che permette di tenere aggiornato lo stato del sistema, si consiglia la scelta della terza opzione. <br><br>
+        La nostra software house ha in passato implementato in un progetto <a href="../../html/Facade24Start.html">Facade24Start</a>. Non essendo specificate le modalità per l'implementazione della <b>GUI</b> e considerando le similitudini al progetto sopra menzionato, si consiglia di utilizzare la stessa implementazione. <br>
+      </div>
+
+      <h2>Modello del sistema</h2>
+      <div class="remark">
+        Il modello del sistema per lo Sprint2 è raffigurato nell'immagine sottostante. <br />
+
+        <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_wis24arch.png"><img
+            alt="./immagini/sprint2_wis24arch.png" class="align-right" src="./immagini/sprint2_wis24arch.png"
+            style="width: 100%" /></a>
+
+        <div class="flex">
+          <a class="reference internal image-reference flex justify-center"
+          href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
+            class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 100%" /></a>
+
+          <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_scalearch.png"><img
+            alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
+            style="width: 100%" /></a>
+        </div>
+        
+      </div>
+
+      <h4>WIS</h4>
+      <div class="remark">
+        Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/system.qak">system.qak</a>). Il suo
+        compito in questa fase è quello di comunicare con il <span class="blue">MonitoringDevice</span> per monitorare il livello di cenere
+        presente nell'<span class="blue">AshStorage</span> e per gestire il comportamento del <span class="blue">Led</span> legato allo stato del sistema. Comunicherà
+        inoltre con la <span class="blue">Scale</span> per controllare la quantità di RP presenti nel <span class="blue">WasteStorage</span>. <br />
+
+        <ul>
+          <li>
+            <b>riceverà</b> il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
+            dall'attore Scale contenente il numero di RP presenti nel WasteStorage Container. <br />
+          </li>
+
+          <li>
+            <b>invierà</b> il messaggio <b><code>Dispatch update_led_mode : update_led_mode(MODE)</code></b> all'attore
+            Led
+            contenente il comportamento che il Led dovrà adottare.
+          </li>
+          <li>
+            <b>riceverà</b> il messaggio
+            <b><code>Dispatch ash_measurement : ash_measurement(L)</code></b> dall'attore Sonar contenente la distanza
+            tra la cenere e il Sonar. <br />
+          </li>
+      </div>
+
+      <h4>Sonar & Sonar_device</h4>
+      <div class="remark">
+        Per la gestione del Sonar, verranno usati 2 attori: <span class="blue">Sonar</span> e <span
+          class="blue">Sonar_device</span>. <br />
+        <br>
+        Il <span class="blue">Sonar_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo
+        fisico del Sonar. <br>
+        Invierà per prima cosa un messaggio <b><code>Dispatch sonar_sensitivity : sonar_sensitivity(S)</code></b>
+        all'attore Sonar contenente la sensibilità del Sonar, valore che dipende dalla tecnologia utilizzata. <br>
+        Successivamente, attraverso una EmitLocalStream, invierà al <span class="blue">Sonar</span> il valore letto dal
+        dispositivo fisico <b><code>Event sonar_data : distance(D)</code></b>. Si è scelto di utilizzare un EmitLocalStream per motivi di efficienza e per evitare un'inutile trasmissione eventi via rete (si veda <a href="../../html/QakActors24.html#azioni-di-un-attore">QakActors24</a> e <a href="../../html/RaspApplCode24.html#progetto-sonarqak24">Sonarqak24</a> per ulteriori dettagli)<br>
+        <br />
+        Il <span class="blue">Sonar</span> sarà modellato come attore e si occuperà di inviare al <span
+          class="blue">WIS</span> la distanza tra la cenere e il Sonar. <br />
+        Il <span class="blue">Sonar</span> ha una variabile Sensitivity inizializzata a 1 contenente la sensibilità del
+        Sonar. <br>
+        Dovrà innanzitutto iscriversi all'evento che il <span class="blue">Sonar_device</span> lancerà. Successivamente,
+        potrà riceverà il valore
+        della sensibilità dipendente dalla tecnologia adottata. <br>
+        Utilizzerà questa variabile per filtrare i messaggi ricevuti dal <span class="blue">Sonar_device</span>,
+        inoltrando al <span class="blue">WIS</span> solamente i valori significativi. <br>
+        <b>Invierà</b> quindi il messaggio <b><code>Dispatch ash_measurement : ash_measurement(L)</code></b> al <span
+          class="blue">WIS</span> contenente la distanza tra la cenere e il <span class="blue">Sonar</span>. <br />
+
+      </div>
+
+      <h4>Led & Led_device</h4>
+      <div class="remark">
+        Per la gestione del Led, verranno usati 2 attori: <span class="blue">Led</span> e <span
+          class="blue">Led_device</span>. <br />
+        <br>
+        Il <span class="blue">Led</span> sarà modellato come attore e riceverà dal <span class="blue">WIS</span> il
+        comportamento che dovrà adottare, attraverso il messaggio
+        <b><code>Dispatch update_led_mode : update_led_mode(MODE)</code></b>.
+        <br />
+        <br>
+        Il <span class="blue">Led_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo
+        fisico del Led. <br>
+        Riceverà dal <span class="blue">Led</span> il messaggio
+        <b><code>Dispatch update_physical_led_mode : update_physical_led_mode(MODE)</code></b> contenente il
+        comportamento da adottare e lo attuerà sul dispositivo fisico. <br>
+      </div>
+
+      <h4>Scale</h4>
+      <div class="remark">
+        Per la gestione della bilancia, verranno usati 2 attori: <span class="blue">Scale</span> e <span
+          class="blue">Scale_device</span>. <br />
+        <br>
+        <span class="blue">Scale_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico
+        della bilancia. <br>
+
+        Attraverso una EmitLocalStream, invierà a <span class="blue">Scale</span> il valore pesato dal
+        dispositivo fisico <b><code>Event scale_data 			: scale_data(WEIGHT)</code></b>.  Si è scelto di utilizzare un EmitLocalStream per motivi di efficienza e per evitare un'inutile trasmissione eventi via rete (si veda <a href="../../html/QakActors24.html#azioni-di-un-attore">QakActors24</a> e <a href="../../html/RaspApplCode24.html#progetto-sonarqak24">Sonarqak24</a> per ulteriori dettagli)<br>
+        Inoltre, <b>riceverà</b> dall'<span class="blue">OpRobot</span> il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla misurazione del peso nel <span class="blue">WasteStorage</span>. <br>
+        <br />
+        <span class="blue">Scale</span> sarà modellato come attore e si occuperà di convertire in RP il peso della bilancia
+        in quel momento. <br />
+        <b>Invierà</b> quindi il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
+        al <span class="blue">WIS</span> contenente il numero di RP presenti nel <span class="blue">WasteStorage</span>. <br />
+
+      </div>
+
+      <h3>Piani di testing</h3>
+      <div class="remark">
+        In questo sprint vengono analizzati e modellati i comportamenti del <span class="blue">MonitoringDevice</span> e
+        del <span class="blue">WasteStorage</span>, pertanto i test saranno focalizzati su queste due parti del sistema.
+
+        <table>
+          <thead>
+            <td class="font-bold">Nome test</td>
+            <td class="font-bold">Condizione iniziale</td>
+            <td class="font-bold">Comportamento atteso</td>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-bold"><a href="./../src/main/kotlin/test/TestWis5RP.kt">TestWis5RP.kt (funzionale)</a>
+              </td>
+              <td>Il WasteStorage contiene 5 RP, l'inceneritore non è fase di burning, l'AshStorage è pieno a metà, il
+                led è spento</td>
+              <td>Dopo un po' di tempo, il WasteStorage contiene 3 RP, l'inceneritore è spento, l'AshStorage è pieno, il
+                led è acceso</td>
+            </tr>
+            <tr>
+              <td class="font-bold"><a
+                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedBlink.kt">TestMonitoringDeviceLedBlink.kt</a>
+              </td>
+              <td>L'inceneritore non è in fase di burning, l'AshStorage non è pieno nè vuoto, il led è spento</td>
+              <td>L'inceneritore non è in fase di burning, l'AshStorage è pieno, il led lampeggia </td>
+            </tr>
+            <tr>
+              <td class="font-bold"><a
+                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedOn.kt">TestMonitoringDeviceLedOn.kt</a></td>
+              <td>L'inceneritore non è in fase di burning, il led è spento</td>
+              <td>L'inceneritore è in fase di burning, il led è acceso</td>
+            </tr>
+            <tr>
+              <td class="font-bold"><a
+                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedOff.kt">TestMonitoringDeviceLedOff.kt</a></td>
+              <td>L'inceneritore è in fase di burning, il led è acceso</td>
+              <td>L'inceneritore non è in fase di burning, il led è spento</td>
+            </tr>
+            <tr>
+              <td class="font-bold">
+                <a
+                  href="./../src/main/kotlin/test/TestMonitoringDeviceScaleChange.kt">TestMonitoringDeviceScaleChange.kt</a>
+              </td>
+              <td>Il WasteStorage è vuoto, viene aggiunto un RP</td>
+              <td>Il peso misurato dal WasteStorage è aumentato</td>
+            </tr>
+          </tbody>
+        </table>
+
+        Aggiunto il messaggio <b><code>Dispatch load_weight : load_weight(WEIGHT)</code></b> inviato da un attore mock che simula il deposito di un nuovo RP da parte di un agente esterno.
+        WEIGHT corrisponde a 50, una quantità intera e positiva, come specificato da requisiti. <br>
+      </div>
+
+      <h3>Footer</h3>
+      <div class="remark">
+        Membri del gruppo
+        <ul>
+          <li>
+            Corsetti Luca -
+            <a href="mailto:luca.corsetti3@studio.unibo.it">luca.corsetti3@studio.unibo.it</a>
+          </li>
+          <li>
+            de Respinis Valentina
+            <a href="mailto:valentina.derespinis@studio.unibo.it">valentina.derespinis@studio.unibo.it</a>
+          </li>
+          <li>
+            Sindaco Daniele
+            <a href="mailto:daniele.sindaco@studio.unibo.it">daniele.sindaco@studio.unibo.it</a>
+          </li>
+        </ul>
+      </div>
+      <div class="remark">
+        github:
+        <a
+          href="https://github.com/ilcors-dev/iss_project_2024/tree/main">https://github.com/ilcors-dev/iss_project_2024/tree/main</a>
+      </div>
+  </main>
+</body>
+
+</html>
