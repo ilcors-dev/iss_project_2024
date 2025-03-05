@@ -32,7 +32,7 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t041",targetState="handleUpdateMode",cond=whenDispatch("update_physical_led_mode"))
+					 transition(edgeName="t02",targetState="handleUpdateMode",cond=whenDispatch("update_physical_led_mode"))
 				}	 
 				state("handleUpdateMode") { //this:State
 					action { //it:State
@@ -60,7 +60,7 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t042",targetState="handleUpdateMode",cond=whenDispatch("update_physical_led_mode"))
+					 transition(edgeName="t03",targetState="handleUpdateMode",cond=whenDispatch("update_physical_led_mode"))
 				}	 
 			}
 		}

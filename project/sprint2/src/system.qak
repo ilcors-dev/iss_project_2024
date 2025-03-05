@@ -33,17 +33,28 @@ Reply   depositash_status	:  depositash_status(0)				   for depositash
 Request gohome              :  gohome(TARGETX, TARGETY)        
 Reply   gohome_status		:  gohome_status(0)                    for gohome
 
-Dispatch load_weight   		: load_weight(WEIGHT)
-Dispatch unload_weight 		: unload_weight(WEIGHT)
-Dispatch update_scale_count : update_scale_count(COUNT) // the scale sends how many rp are currently present
+// ---------------------------------------------------------------------------------------------------------------
+// SCALE DEVICE TEST
+// ---------------------------------------------------------------------------------------------------------------
 
-Event mqtt_info       		: mqtt_info(MSG) 
+Dispatch load_weight   				 : load_weight(WEIGHT)
+Dispatch unload_weight 				 : unload_weight(WEIGHT)
+Dispatch update_scale_count 		 : update_scale_count(COUNT) // the scale sends how many rp are currently present
+Event scale_data 					 : scale_data(WEIGHT) // sent from the physical scale device
 
-// external contexts messages
-Dispatch update_led_mode 		     : update_led_mode(mode)
-Dispatch ash_measurement		   	 : ash_measurement(l)  // sent from the monitoring device
+// ---------------------------------------------------------------------------------------------------------------
+// MONITORING DEVICE TEST
+// ---------------------------------------------------------------------------------------------------------------
 
-// Dispatch robotpositioninfo  :  robotpositioninfo(X, Y)        // the robot says where is at
+Dispatch update_led_mode 			  : update_led_mode(MODE)
+Dispatch update_physical_led_mode     : update_physical_led_mode(MODE)
+
+Event sonar_data 					  : distance(D)
+Dispatch sonar_sensitivity            : sonar_sensitivity(S)
+Dispatch ash_measurement		 	  : ash_measurement(L)
+Dispatch load_ash					  : load_ash(D)
+// MQTT EVENT TO LOG IN TESTING
+Event mqtt_info       				  : mqtt_info(MSG)
 
 // CONTEXTS
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
@@ -53,8 +64,11 @@ Context ctxscale ip [host="127.0.0.1" port=8123]
 
 ExternalQActor basicrobot context ctxbasicrobot
 ExternalQActor scale_device context ctxscale
-// ExternalQActor led context ctxmonitoringdevice
-// ExternalQActor sonar context ctxmonitoringdevice
+ExternalQActor led context ctxmonitoringdevice
+ExternalQActor sonar context ctxmonitoringdevice
+
+// mock since we do not have a physical sonar with raspberry pi attached!
+ExternalQActor sonar_device context ctxmonitoringdevice
 
 // ACTORS
 QActor wis context ctxwis24 {
@@ -68,9 +82,9 @@ QActor wis context ctxwis24 {
 		val LED_BLINK = "blink";
 		
 		// variables
-		var ASHLEVEL  = 100;
-		var RPCONT    = 4;
-		var INCSTATUS = 1;    // 0 free, 1 busy
+		var ASHLEVEL  = 60;
+		var RPCONT    = 5;
+		var INCSTATUS = 0;    // 0 free, 1 busy
 		var INHOME    = 0;    // 0 in home, 1 not in home
 	
 		val LOCATIONS = mapOf(
@@ -109,8 +123,11 @@ QActor wis context ctxwis24 {
 	State setupSystem {
 		println("$name setupping system..") color green
 		forward incinerator -m startIncinerator : startIncinerator(0)
+		[# var ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
+		println("current ash level=$ASH_LEVEL_LOG") color green
 		
 		if [# (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT && INCSTATUS == 0) #] {
+			println("oprobot start phase")
 			request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
 		}
 	}
@@ -143,7 +160,7 @@ QActor wis context ctxwis24 {
 	    onMsg(getrp_status : getrp_status(0)) {
 			[# INHOME = 0 #]
 			[# RPCONT -= 1 #]
-			[# val STATUS = "update_rp_count_to__${RPCONT}" #]
+			[# var STATUS = "update_rp_count_to__${RPCONT}" #]
             
             println("$name - Moving to burn in") color green
             
@@ -190,6 +207,8 @@ QActor wis context ctxwis24 {
 		onMsg(gohome_status : gohome_status(0)) {
 			[# INHOME = 1 #] // 🥵
 			println("$name - arrived in home") color green
+			[# var ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
+			println("current ash level=$ASH_LEVEL_LOG") color green
 			
 			if [# (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT && INCSTATUS == 0) #] {
 				request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
@@ -207,7 +226,7 @@ QActor wis context ctxwis24 {
   			println("$name - start incinerator, update status") color magenta
   			
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_BURNING
-  			// forward led -m update_led_mode : update_led_mode($LED_ON)
+  			forward led -m update_led_mode : update_led_mode($LED_ON)
   		}
   		
   		onMsg(finishedBurning : finishedBurning(0)) {
@@ -217,7 +236,7 @@ QActor wis context ctxwis24 {
   			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_FINISHED_BURNING
   			
   			request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
-  			// forward led -m update_led_mode : update_led_mode($LED_OFF)
+  			forward led -m update_led_mode : update_led_mode($LED_OFF)
   		}
   	}
   	
@@ -249,7 +268,7 @@ QActor wis context ctxwis24 {
 		  	#]
 				
 			if [#((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)#] {
-	  			// forward led -m update_led_mode : update_led_mode($LED_BLINK)
+	  			forward led -m update_led_mode : update_led_mode($LED_BLINK)
   				println("$name - ash level changed, update") color magenta
 	  			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
 			}
@@ -428,6 +447,7 @@ QActor oprobot context ctxwis24 {
     State depositAshOk {
 		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_ash_in_AshOut_port
     	
+		forward sonar_device -m load_ash : load_ash(25)
         replyTo depositash with depositash_status : depositash_status(0)
     }
 

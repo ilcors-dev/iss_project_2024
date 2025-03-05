@@ -21,11 +21,11 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		 var RPCONT = 0  
+		 var RPCONT = 5  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						CommUtils.outyellow("$name starts")
+						CommUtils.outgreen("$name starts")
 						delay(1000) 
 						subscribeToLocalActor("scale_device") 
 						//genTimer( actor, state )
@@ -33,7 +33,7 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t031",targetState="handleScaleData",cond=whenEvent("scale_data"))
+					 transition(edgeName="t00",targetState="handleScaleData",cond=whenEvent("scale_data"))
 				}	 
 				state("handleScaleData") { //this:State
 					action { //it:State
@@ -51,7 +51,7 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t032",targetState="handleScaleData",cond=whenEvent("scale_data"))
+					 transition(edgeName="t01",targetState="handleScaleData",cond=whenEvent("scale_data"))
 				}	 
 			}
 		}

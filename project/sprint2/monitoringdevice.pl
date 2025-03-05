@@ -6,6 +6,7 @@ dispatch( update_physical_led_mode, update_physical_led_mode(MODE) ).
 event( sonar_data, distance(D) ).
 dispatch( sonar_sensitivity, sonar_sensitivity(S) ).
 dispatch( ash_measurement, ash_measurement(L) ).
+dispatch( load_ash, load_ash(D) ).
 event( mqtt_info, mqtt_info(MSG) ).
 %====================================================================================
 context(ctxwis24, "127.0.0.1",  "TCP", "8121").

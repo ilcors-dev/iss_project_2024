@@ -1,17 +1,3 @@
-{"actor":"wis", "msgType":"dispatch", "curstate":"printStatus", "nextstate":"updateIncStatus", "msgId":"burning"}
-{"actor":"wis", "msgType":"dispatch", "curstate":"printStatus", "nextstate":"updateIncStatus", "msgId":"finishedBurning"}
-{"actor":"wis", "msgType":"dispatch", "curstate":"printStatus", "nextstate":"handleScaleRPStatus", "msgId":"update_scale_count"}
-{"actor":"wis", "msgType":"dispatch", "curstate":"printStatus", "nextstate":"handleAshMeasurement", "msgId":"ash_measurement"}
-{"actor":"wis", "msgType":"dispatch", "curstate":"startBurningPhase", "nextstate":"updateIncStatus", "msgId":"burning"}
-{"actor":"incinerator", "msgType":"dispatch", "curstate":"s0", "nextstate":"startup", "msgId":"startIncinerator"}
-{"actor":"incinerator", "msgType":"dispatch", "curstate":"startup", "nextstate":"startBurning", "msgId":"startBurning"}
-{"actor":"incinerator", "msgType":"dispatch", "curstate":"startBurning", "nextstate":"startBurning", "msgId":"startBurning"}
-{"actor":"scale_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"addWeight", "msgId":"load_weight"}
-{"actor":"scale_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"removeWeight", "msgId":"unload_weight"}
-{"actor":"scale_device", "msgType":"dispatch", "curstate":"addWeight", "nextstate":"addWeight", "msgId":"load_weight"}
-{"actor":"scale_device", "msgType":"dispatch", "curstate":"addWeight", "nextstate":"removeWeight", "msgId":"unload_weight"}
-{"actor":"scale_device", "msgType":"dispatch", "curstate":"removeWeight", "nextstate":"addWeight", "msgId":"load_weight"}
-{"actor":"scale_device", "msgType":"dispatch", "curstate":"removeWeight", "nextstate":"removeWeight", "msgId":"unload_weight"}
 {"actor":"led", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleUpdateLedStatus", "msgId":"update_led_mode"}
 {"actor":"led", "msgType":"dispatch", "curstate":"handleUpdateLedStatus", "nextstate":"handleUpdateLedStatus", "msgId":"update_led_mode"}
 {"actor":"led_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleUpdateMode", "msgId":"update_physical_led_mode"}

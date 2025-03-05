@@ -18,7 +18,7 @@ QActor scale context ctxscale_tests {
 		delay 1000
 		subscribeTo scale_device for scale_data
 	}
-	
+ 
 	Transition t0
 		whenEvent scale_data -> handleScaleData
 

@@ -80,7 +80,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						 var ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
 						CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
 						if(  (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT && INCSTATUS == 0)  
-						 ){request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
+						 ){CommUtils.outblack("oprobot start phase")
+						request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
 						}
 						//genTimer( actor, state )
 					}

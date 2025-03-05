@@ -11,10 +11,10 @@ Context ctxscale ip [host="localhost" port=8123]
 ExternalQActor wis context ctxwis24
 
 QActor scale context ctxscale {
-	[# var RPCONT = 0 #]
-	
+	[# var RPCONT = 5 #]
+
 	State s0 initial {
-		println("$name starts") color yellow
+		println("$name starts") color green
 		delay 1000
 		subscribeTo scale_device for scale_data
 	}
@@ -39,13 +39,13 @@ QActor scale context ctxscale {
 }
 
 QActor scale_device context ctxscale {
-	[# var CURRENT_WEIGHT = 0 #]
+	[# var CURRENT_WEIGHT = 250 #]
 	
 	State s0 initial {
-		println("$name starts") color yellow
+		println("$name starts") color green
 		delay 500
 	}
-	
+
 	Transition t0
 		whenMsg load_weight -> addWeight
 		whenMsg unload_weight -> removeWeight
@@ -70,6 +70,7 @@ QActor scale_device context ctxscale {
 	 		[# CURRENT_WEIGHT -= 50 #]
 	 		
 	 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+	 		println("$name weight removed, current = $CURRENT_WEIGHT") 
  		}
 	}
 	
@@ -78,6 +79,7 @@ QActor scale_device context ctxscale {
 		whenMsg unload_weight -> removeWeight
 }
 
+/*
 QActor mock_rp_loader_external context ctxscale {
 	State s0 initial {
 		println("$name starts")
@@ -94,4 +96,4 @@ QActor mock_rp_loader_external context ctxscale {
 	
 	Goto work
 }
-
+ */
