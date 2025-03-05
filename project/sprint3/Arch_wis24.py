@@ -32,9 +32,9 @@ with Diagram('wis24Arch', show=False, outformat='png', graph_attr=graphattr) as 
           oprobot=Custom('oprobot','./qakicons/symActorSmall.png')
           incinerator=Custom('incinerator','./qakicons/symActorSmall.png')
      with Cluster('ctxmonitoringdevice', graph_attr=nodeattr):
-          sonar_device=Custom('sonar_device(ext)','./qakicons/externalQActor.png')
           led=Custom('led(ext)','./qakicons/externalQActor.png')
           sonar=Custom('sonar(ext)','./qakicons/externalQActor.png')
+          sonar_device=Custom('sonar_device(ext)','./qakicons/externalQActor.png')
      with Cluster('ctxscale', graph_attr=nodeattr):
           scale_device=Custom('scale_device(ext)','./qakicons/externalQActor.png')
      oprobot >> Edge(color='magenta', style='solid', decorate='true', label='<engage &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot

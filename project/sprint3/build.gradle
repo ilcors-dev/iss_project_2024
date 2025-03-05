@@ -186,6 +186,20 @@ task run0(type: JavaExec) {
     main = 'it.unibo.ctxwis24.MainCtxwis24Kt'
 }
 
+task runMonitoringDevice(type: JavaExec) {
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'it.unibo.ctxmonitoringdevice.MainCtxmonitoringdeviceKt'
+}
+
+task runWeighingDevice(type: JavaExec) {
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'it.unibo.ctxscale.MainCtxscaleKt'
+}
+
 /*
 //TODO
 tasks.register('copyReport', Copy) {
