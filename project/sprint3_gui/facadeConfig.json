@@ -1,0 +1,8 @@
+{
+  "host": "localhost",
+  "port": "8080",
+  "context": "ctxwis24",
+  "facade": "observedactor",
+  "facadeport": "8085",
+  "sysdescr": "sprint3"
+}
