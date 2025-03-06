@@ -21,8 +21,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		
-				var ACTIVE = false;
+		 var ACTIVE = false  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -51,14 +50,10 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 				}	 
 				state("startBurning") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						if( checkMsgContent( Term.createTerm("startBurning(BTIME)"), Term.createTerm("startBurning(BTIME)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 var BurnTime = payloadArg(0).toLong()  
 								CommUtils.outmagenta("$name - Start burning phase")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "burning_phase_started" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","burning_phase_started").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								forward("burning", "burning(0)" ,"wis" ) 
 								delay(BurnTime)
 								CommUtils.outmagenta("$name - Finished burning RP")

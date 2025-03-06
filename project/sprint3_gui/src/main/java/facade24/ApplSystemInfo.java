@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /*
 readConfig invocato da CustomContainer
@@ -25,47 +26,61 @@ public class ApplSystemInfo {
     public static String facadeportStr;
     public static int facadeport;
     public static String appName;
+    public static List<String> systemTheories;
 
     private static Prolog pengine;
 
     /*
-    facadeConfig.json
-
-    {"host":"<qakSysHost>", "port":"<ctxportStr>", "context":"<qakSysCtx>",
-      "facade": "<applActorName>", "facadeport":"<facadeportStr>",
-      "sysdescr":"<appName>" }
+     * facadeConfig.json
      */
-    public static void readConfig(){
-        List<String> config = QaksysConfigSupport.readConfig("facadeConfig.json");
-        if( config != null ) {
-            qakSysHost    = config.get(0);
-            ctxportStr    = config.get(1);
-            qakSysCtx     = config.get(2);
-            applActorName = config.get(3);
-            facadeportStr = config.get(4);
-            appName       = config.get(5);
-            ctxport       = Integer.parseInt(ctxportStr);
-            facadeport    = Integer.parseInt(facadeportStr);
+    public static void readConfig() {
+        Map<String, Object> config = QaksysConfigSupport.readConfig("facadeConfig.json");
+        if (config != null) {
+            // qakSysHost = config.get(0);
+            // ctxportStr = config.get(1);
+            // qakSysCtx = config.get(2);
+            // applActorName = config.get(3);
+            // facadeportStr = config.get(4);
+            // appName = config.get(5);
+            qakSysHost = (String) config.get("host");
+            ctxportStr = (String) config.get("port");
+            qakSysCtx = (String) config.get("context");
+            applActorName = (String) config.get("facade");
+            facadeportStr = (String) config.get("facadeport");
+            appName = (String) config.get("appName");
+
+            Object theoriesObj = config.get("systemTheories");
+            systemTheories = new ArrayList<>();
+            if (theoriesObj instanceof List<?>) {
+                for (Object item : (List<?>) theoriesObj) {
+                    if (item instanceof String) {
+                        systemTheories.add((String) item);
+                    }
+                }
+            }
+
+            ctxport = Integer.parseInt(ctxportStr);
+            facadeport = Integer.parseInt(facadeportStr);
         }
 
-        //setup();
-        //getActorNamesInApplCtx( );
+        // setup();
+        // getActorNamesInApplCtx( );
     }
 
-    public  static List<String> getActorNamesInApplCtx( ) {
-        //CommUtils.outcyan( "ApplSystemInfo | getActorNames ctx=" + ctx  );
+    public static List<String> getActorNamesInApplCtx() {
+        // CommUtils.outcyan( "ApplSystemInfo | getActorNames ctx=" + ctx );
         List<String> actors = getAllActorNames(qakSysCtx);
-        CommUtils.outcyan( "ApplSystemInfo ACTORS ON THE localhost  "  );
-        actors.forEach( a -> CommUtils.outcyan( a) );
+        CommUtils.outcyan("ApplSystemInfo ACTORS ON THE localhost  ");
+        actors.forEach(a -> CommUtils.outcyan(a));
 
         return actors;
     }
 
-    public static List<String> getAllActorNames(String ctxName )  {
+    public static List<String> getAllActorNames(String ctxName) {
         try {
-            SolveInfo actorNamesSol = pengine.solve("getActorNames(A," + ctxName + ")."  );
+            SolveInfo actorNamesSol = pengine.solve("getActorNames(A," + ctxName + ").");
             String actorNames = actorNamesSol.getVarValue("A").toString();
-            return  Arrays.asList(actorNames.replace("[", "")
+            return Arrays.asList(actorNames.replace("[", "")
                     .replace("]", "").split(","));
         } catch (Exception e) {
             CommUtils.outred("ApplSystemInfo | getAllActorNames");
@@ -76,13 +91,18 @@ public class ApplSystemInfo {
     public static void setup() {
         try {
             pengine = new Prolog();
-            Theory systemTh = new Theory(new FileInputStream(appName + ".pl"));
-            Theory rulesTh  = new Theory(new FileInputStream("sysRules.pl"));
-            //CommUtils.outblue("ApplSystemInfo | setup systemTh:\n" + systemTh);
-            CommUtils.outblue("" + systemTh);
-            pengine.addTheory(systemTh);
+
+            for (String systemTheory : systemTheories) {
+                Theory systemTh = new Theory(new FileInputStream(systemTheory));
+                pengine.addTheory(systemTh);
+                CommUtils.outblue("ApplSystemInfo | setup theories:\n" + systemTh);
+            }
+
+            Theory rulesTh = new Theory(new FileInputStream("sysRules.pl"));
             pengine.addTheory(rulesTh);
+            CommUtils.outblue("ApplSystemInfo | setup theories:\n" + rulesTh);
         } catch (Exception e) {
+            e.printStackTrace();
             CommUtils.outred("ApplSystemInfo | setup ERROR:" + e.getMessage());
         }
     }

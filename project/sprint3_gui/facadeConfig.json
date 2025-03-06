@@ -1,8 +1,13 @@
 {
   "host": "localhost",
-  "port": "8080",
+  "port": "8121",
   "context": "ctxwis24",
-  "facade": "observedactor",
+  "facade": "wis",
   "facadeport": "8085",
-  "sysdescr": "sprint3"
+  "systemTheories": [
+    "scale.pl",
+    "monitoringdevice.pl",
+    "wis24.pl"
+  ],
+  "appName": "wis24"
 }

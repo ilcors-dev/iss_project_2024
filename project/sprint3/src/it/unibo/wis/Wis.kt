@@ -22,50 +22,80 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		 
-				// constants
-				val DLIMIT = 100; // max 4 rp in ash storage (capacity - DLIMIT)
-				val ASH_STORAGE_THRESHOLD = 25;
-				val LED_OFF = "off";
-				val LED_ON = "on";
-				val LED_BLINK = "blink";
-				
-				// variables
-				var ASHLEVEL  = 60;
-				var RPCONT    = 5;
-				var INCSTATUS = 0;    // 0 free, 1 busy
-				var INHOME    = 0;    // 0 in home, 1 not in home
-			
-				val LOCATIONS = mapOf(
-					"home" 			to Position(0,0),
-					"wastein" 		to Position(0,4),
-					"burn_in"		to Position(3,2),
-					"burn_out"		to Position(5,3),
-					"ashout"		to Position(6,4)
-				);
 		
-				val WASTEIN_POS_X = LOCATIONS["wastein"]?.x;
-				val WASTEIN_POS_Y = LOCATIONS["wastein"]?.y;
+		    /////////////////////////////////////////////////////////////////////////////////////
+		    // constants
+		    /////////////////////////////////////////////////////////////////////////////////////
 		
-				val HOME_POS_X = LOCATIONS["home"]?.x;
-				val HOME_POS_Y = LOCATIONS["home"]?.y;
-				
-				val BURN_IN_POS_X = LOCATIONS["burn_in"]?.x;
-				val BURN_IN_POS_Y = LOCATIONS["burn_in"]?.y;
-				
-				val BURN_OUT_POS_X = LOCATIONS["burn_out"]?.x;
-				val BURN_OUT_POS_Y = LOCATIONS["burn_out"]?.y;
-				
-				val ASHOUT_POS_X = LOCATIONS["ashout"]?.x;
-				val ASHOUT_POS_Y = LOCATIONS["ashout"]?.y;
+		    val DLIMIT = 100
+		    val ASH_STORAGE_THRESHOLD = 25
+		
+		    // LED statuses
+		    val LED_OFF = "off"
+		    val LED_ON = "on"
+		    val LED_BLINK = "blink"
+		
+		    // Possible states that the robot may be in
+		    val ROBOT_STATE_HOME = "home"
+		    val ROBOT_STATE_MOVING_TO_HOME = "moving_to_home"
+		    val ROBOT_STATE_MOVING_TO_WASTEIN = "moving_to_wastein"
+		    val ROBOT_STATE_WASTEIN = "wastein"
+		    val ROBOT_STATE_MOVING_TO_BURN_IN = "moving_to_burn_in"
+		    val ROBOT_STATE_BURN_IN = "burn_in"
+		    val ROBOT_STATE_MOVING_TO_BURN_OUT = "moving_to_burn_out"
+		    val ROBOT_STATE_BURN_OUT = "burn_out"
+		    val ROBOT_STATE_MOVING_TO_ASHOUT = "moving_to_ashout"
+		    val ROBOT_STATE_ASHOUT = "ashout"
+		
+		    /////////////////////////////////////////////////////////////////////////////////////
+		    // Possible robot locations in the map
+		    /////////////////////////////////////////////////////////////////////////////////////
+		    val LOCATIONS =
+		      mapOf(
+		        "home" to Position(0, 0),
+		        "wastein" to Position(0, 4),
+		        "burn_in" to Position(3, 2),
+		        "burn_out" to Position(5, 3),
+		        "ashout" to Position(6, 4)
+		      )
+		
+		    val WASTEIN_POS_X = LOCATIONS["wastein"]?.x
+		    val WASTEIN_POS_Y = LOCATIONS["wastein"]?.y
+		
+		    val HOME_POS_X = LOCATIONS["home"]?.x
+		    val HOME_POS_Y = LOCATIONS["home"]?.y
+		
+		    val BURN_IN_POS_X = LOCATIONS["burn_in"]?.x
+		    val BURN_IN_POS_Y = LOCATIONS["burn_in"]?.y
+		
+		    val BURN_OUT_POS_X = LOCATIONS["burn_out"]?.x
+		    val BURN_OUT_POS_Y = LOCATIONS["burn_out"]?.y
+		
+		    val ASHOUT_POS_X = LOCATIONS["ashout"]?.x
+		    val ASHOUT_POS_Y = LOCATIONS["ashout"]?.y
+		
+		    /////////////////////////////////////////////////////////////////////////////////////
+		    // status variables
+		    /////////////////////////////////////////////////////////////////////////////////////
+		    var ASHLEVEL = 60
+		    var RPCONT = 5
+		    var INCSTATUS = 0 // 0 free, 1 busy
+		    var INHOME = 0 // 0 in home, 1 not in home
+		    var ROBOT_STATE = ROBOT_STATE_HOME // robot current state
+		
+		    /////////////////////////////////////////////////////////////////////////////////////
+		    // Helper Functions
+		    /////////////////////////////////////////////////////////////////////////////////////
+		    fun calculateAshPercentage(): Int {
+		      val ashFullness = DLIMIT - ASHLEVEL
+		      return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // Ensure within 0-100
+		    }
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
 						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						delay(500) 
 						CommUtils.outgreen("$name start")
-						//val m = MsgUtil.buildEvent(name, "mqtt_info", "start" ) 
-						publish(MsgUtil.buildEvent(name,"mqtt_info","start").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -77,11 +107,17 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						CommUtils.outgreen("$name setupping system..")
 						forward("startIncinerator", "startIncinerator(0)" ,"incinerator" ) 
-						 var ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
+						 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
 						CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
-						if(  (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT && INCSTATUS == 0)  
+						if( 
+						      (
+						        RPCONT > 0 &&
+						        (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT &&
+						        INCSTATUS == 0
+						      )
 						 ){CommUtils.outblack("oprobot start phase")
 						request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
+						 ROBOT_STATE = ROBOT_STATE_MOVING_TO_WASTEIN  
 						}
 						//genTimer( actor, state )
 					}
@@ -92,16 +128,17 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("printStatus") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						
-									val status = "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}";
-									val RP_STATUS = "RPCONT_${RPCONT}";
-									val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
-						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$RP_STATUS" ) 
-						publish(MsgUtil.buildEvent(name,"mqtt_info","$RP_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
-						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$ASHLEVEL_STATUS" ) 
-						publish(MsgUtil.buildEvent(name,"mqtt_info","$ASHLEVEL_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
+						      val status =
+						        "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}"
+						      val RP_STATUS = "RPCONT_${RPCONT}"
+						      val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
+						
+						      val ashPercentage = calculateAshPercentage()
+						updateResourceRep(
+						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: $ashPercentage%"
+						)
+						CommUtils.outmagenta("PRINT STATUS")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -116,16 +153,21 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("moveToBurnIn") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
+						 ROBOT_STATE = ROBOT_STATE_WASTEIN  
+						updateResourceRep(
+						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+						)
 						if( checkMsgContent( Term.createTerm("getrp_status(0)"), Term.createTerm("getrp_status(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INHOME = 0  
 								 RPCONT -= 1  
-								 var STATUS = "update_rp_count_to__${RPCONT}"  
+								 val STATUS = "update_rp_count_to__${RPCONT}"  
 								CommUtils.outgreen("$name - Moving to burn in")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
+								delay(200) 
+								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_IN  
+								updateResourceRep(
+								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								)
 								request("depositrp", "depositrp($BURN_IN_POS_X,$BURN_IN_POS_Y)" ,"oprobot" )  
 						}
 						//genTimer( actor, state )
@@ -137,9 +179,11 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("startBurningPhase") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						CommUtils.outgreen("$name - Start burning phase")
+						 ROBOT_STATE = ROBOT_STATE_BURN_IN  
+						updateResourceRep(
+						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+						)
 						forward("startBurning", "startBurning(9000)" ,"incinerator" ) 
 						//genTimer( actor, state )
 					}
@@ -150,12 +194,19 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("moveToAshOut") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
+						 ROBOT_STATE = ROBOT_STATE_BURN_OUT  
+						updateResourceRep(
+						    	"app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+						)
 						if( checkMsgContent( Term.createTerm("extractash_status(0)"), Term.createTerm("extractash_status(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INHOME = 0  
 								CommUtils.outgreen("$name - Moving to ash out")
+								delay(200) 
+								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_ASHOUT  
+								updateResourceRep(
+								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								)
 								request("depositash", "depositash($ASHOUT_POS_X,$ASHOUT_POS_Y)" ,"oprobot" )  
 						}
 						//genTimer( actor, state )
@@ -167,9 +218,11 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("goHome") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						CommUtils.outgreen("$name - Moving to home")
+						 ROBOT_STATE = ROBOT_STATE_MOVING_TO_HOME  
+						updateResourceRep(
+						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+						)
 						request("gohome", "gohome($HOME_POS_X,$HOME_POS_Y)" ,"oprobot" )  
 						//genTimer( actor, state )
 					}
@@ -180,15 +233,22 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("inHome") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						if( checkMsgContent( Term.createTerm("gohome_status(0)"), Term.createTerm("gohome_status(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INHOME = 1  
 								CommUtils.outgreen("$name - arrived in home")
-								 var ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
+								 ROBOT_STATE = ROBOT_STATE_HOME  
+								updateResourceRep(
+								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								)
+								 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
 								CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
-								if(  (RPCONT > 0 && (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT && INCSTATUS == 0)  
+								if( 
+								        (
+								          RPCONT > 0 &&
+								          (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT &&
+								          INCSTATUS == 0
+								        )
 								 ){request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
 								}
 						}
@@ -201,22 +261,20 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("updateIncStatus") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						if( checkMsgContent( Term.createTerm("burning(0)"), Term.createTerm("burning(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 1  
 								CommUtils.outmagenta("$name - start incinerator, update status")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_BURNING" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								forward("update_led_mode", "update_led_mode($LED_ON)" ,"led" ) 
 						}
 						if( checkMsgContent( Term.createTerm("finishedBurning(0)"), Term.createTerm("finishedBurning(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 0  
 								CommUtils.outmagenta("$name - finish incinerator, update status")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_FINISHED_BURNING" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_FINISHED_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
+								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_OUT  
+								updateResourceRep(
+								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								)
 								request("extractash", "extractash($BURN_OUT_POS_X,$BURN_OUT_POS_Y)" ,"oprobot" )  
 								forward("update_led_mode", "update_led_mode($LED_OFF)" ,"led" ) 
 						}
@@ -232,15 +290,10 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("handleScaleRPStatus") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						if( checkMsgContent( Term.createTerm("update_scale_count(COUNT)"), Term.createTerm("update_scale_count(COUNT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								
-												RPCONT = payloadArg(0).toInt()
+								 RPCONT = payloadArg(0).toInt()  
 								CommUtils.outmagenta("$name - scale status changed, rp in storage = $RPCONT")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "updated_scale_rp_status" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","updated_scale_rp_status").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
 						//genTimer( actor, state )
 					}
@@ -251,22 +304,18 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				}	 
 				state("handleAshMeasurement") { //this:State
 					action { //it:State
-						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
 						if( checkMsgContent( Term.createTerm("ash_measurement(L)"), Term.createTerm("ash_measurement(L)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								
-												var level = payloadArg(0).toInt()
-												ASHLEVEL = level
-												val STATUS = "ash_level_to__${ASHLEVEL}"
-								if( ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT) 
+								        var level = payloadArg(0).toInt()
+								        ASHLEVEL = level
+								        val STATUS = "ash_level_to__${ASHLEVEL}"
+								if( 
+								        ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 ||
+								        (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)
 								 ){forward("update_led_mode", "update_led_mode($LED_BLINK)" ,"led" ) 
 								CommUtils.outmagenta("$name - ash level changed, update")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								}
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
 						//genTimer( actor, state )
 					}

@@ -6,6 +6,8 @@ dispatch( startBurning, startBurning(BTIME) ).
 dispatch( burning, burning(0) ).
 dispatch( finishedBurning, finishedBurning(0) ).
 request( engage, engage(OWNER,STEPTIME) ).
+reply( engagedone, engagedone(ARG) ).  %%for engage
+reply( engagerefused, engagerefused(ARG) ).  %%for engage
 request( moverobot, moverobot(TARGETX,TARGETY) ).
 reply( moverobotdone, moverobotok(ARG) ).  %%for moverobot
 reply( moverobotfailed, moverobotfailed(PLANDONE,PLANTODO) ).  %%for moverobot

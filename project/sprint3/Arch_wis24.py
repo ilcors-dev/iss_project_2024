@@ -37,7 +37,7 @@ with Diagram('wis24Arch', show=False, outformat='png', graph_attr=graphattr) as 
           sonar_device=Custom('sonar_device(ext)','./qakicons/externalQActor.png')
      with Cluster('ctxscale', graph_attr=nodeattr):
           scale_device=Custom('scale_device(ext)','./qakicons/externalQActor.png')
-     oprobot >> Edge(color='magenta', style='solid', decorate='true', label='<engage &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
+     oprobot >> Edge(color='magenta', style='solid', decorate='true', label='<engage<font color="darkgreen"> engagedone engagerefused</font> &nbsp; moverobot<font color="darkgreen"> moverobotdone moverobotfailed</font> &nbsp; >',  fontcolor='magenta') >> basicrobot
      wis >> Edge(color='magenta', style='solid', decorate='true', label='<getrp<font color="darkgreen"> getrp_status</font> &nbsp; depositrp<font color="darkgreen"> depositrp_status</font> &nbsp; depositash<font color="darkgreen"> depositash_status</font> &nbsp; gohome<font color="darkgreen"> gohome_status</font> &nbsp; extractash<font color="darkgreen"> extractash_status</font> &nbsp; >',  fontcolor='magenta') >> oprobot
      oprobot >> Edge(color='blue', style='solid',  decorate='true', label='<load_ash &nbsp; >',  fontcolor='blue') >> sonar_device
      incinerator >> Edge(color='blue', style='solid',  decorate='true', label='<burning &nbsp; finishedBurning &nbsp; >',  fontcolor='blue') >> wis

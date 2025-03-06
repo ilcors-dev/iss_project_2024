@@ -1,4 +1,5 @@
 package facade24;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -9,11 +10,11 @@ import unibo.basicomm23.utils.CommUtils;
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
-    public final String wsPath  = "WebRobot24Gui";
+    public final String wsPath = "WebRobot24Gui";
 
-    public WebSocketConfiguration(){
-        //Inovocato alla CONNESSIONE
-        //CommUtils.outred("WebSocketConfiguration onnnnnnnnnnnnnnnnnn");
+    public WebSocketConfiguration() {
+        // Inovocato alla CONNESSIONE
+        // CommUtils.outred("WebSocketConfiguration onnnnnnnnnnnnnnnnnn");
     }
 
     @Override
