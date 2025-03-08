@@ -114,18 +114,18 @@
       <h2>Modello del sistema dello Sprint2</h2>
       <div class="remark">
         <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_wis24arch.png"><img
-          alt="./immagini/sprint2_wis24arch.png" class="align-right" src="./immagini/sprint2_wis24arch.png"
-          style="width: 100%" /></a>
+            alt="./immagini/sprint2_wis24arch.png" class="align-right" src="./immagini/sprint2_wis24arch.png"
+            style="width: 100%" /></a>
 
-      <div class="flex">
-        <a class="reference internal image-reference flex justify-center"
-        href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
-          class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 100%" /></a>
+        <div class="flex">
+          <a class="reference internal image-reference flex justify-center"
+            href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
+              class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 100%" /></a>
 
-        <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_scalearch.png"><img
-          alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
-          style="width: 100%" /></a>
-      </div>
+          <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_scalearch.png"><img
+              alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
+              style="width: 100%" /></a>
+        </div>
       </div>
       <h2>Analisi del problema</h2>
       <div class="remark">
@@ -133,10 +133,12 @@
       </div>
       <h6><b>ServiceStatusGUI</b></h6>
       <div class="remark">
-        Viene richiesto di implementare una <b>GUI</b> che permetta di ricevere informazioni dal sistema e far visualizzare lo stato <u>attuale</u> a un'osservatore esterno. <br>
+        Viene richiesto di implementare una <b>GUI</b> che permetta di ricevere informazioni dal sistema e far
+        visualizzare lo stato <u>attuale</u> a un'osservatore esterno. <br>
         Non sono richieste interazioni con agenti esterni. <br>
         Non sono stati esplicitati metodi di interazione specifici con il sistema. <br><br>
-        Non essendo specificato il modo in cui la <b>GUI</b> riceve le informarzioni dal sistema, sono presenti varie possibilità:
+        Non essendo specificato il modo in cui la <b>GUI</b> riceve le informarzioni dal sistema, sono presenti varie
+        possibilità:
         <ul>
           <li>
             La <b>GUI</b> sfrutta un sistema di Polling ad ogni attore per acquisire le informazioni.
@@ -145,11 +147,16 @@
             La <b>GUI</b> riceve informazioni ad ogni cambiamento di stato degli attori grazie ad un attore specifico.
           </li>
           <li>
-            La <b>GUI</b> riceve informazioni riguardo lo stato degli attori direttamente dal <span class="blue">WIS</span>.
+            La <b>GUI</b> riceve informazioni riguardo lo stato degli attori direttamente dal <span
+              class="blue">WIS</span>.
           </li>
         </ul>
-        Considerando il meccanismo di <b>Request-Reply</b> utilizzato dal <span class="blue">WIS</span>, che permette di tenere aggiornato lo stato del sistema, si consiglia la scelta della terza opzione. <br><br>
-        La nostra software house ha in passato implementato in un progetto <a href="../../html/Facade24Start.html">Facade24Start</a>. Non essendo specificate le modalità per l'implementazione della <b>GUI</b> e considerando le similitudini al progetto sopra menzionato, si consiglia di utilizzare la stessa implementazione. <br>
+        Considerando il meccanismo di <b>Request-Reply</b> utilizzato dal <span class="blue">WIS</span>, che permette di
+        tenere aggiornato lo stato del sistema, si consiglia la scelta della terza opzione. <br><br>
+        La nostra software house ha in passato implementato in un progetto <a
+          href="../../html/Facade24Start.html">Facade24Start</a>. Non essendo specificate le modalità per
+        l'implementazione della <b>GUI</b> e considerando le similitudini al progetto sopra menzionato, si consiglia di
+        utilizzare la stessa implementazione. <br>
       </div>
 
       <h2>Modello del sistema</h2>
@@ -162,107 +169,37 @@
 
         <div class="flex">
           <a class="reference internal image-reference flex justify-center"
-          href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
-            class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 100%" /></a>
+            href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
+              class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 100%" /></a>
 
           <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_scalearch.png"><img
-            alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
-            style="width: 100%" /></a>
+              alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
+              style="width: 100%" /></a>
         </div>
-        
+
       </div>
 
       <h4>WIS</h4>
       <div class="remark">
-        Il <span class="blue">WIS</span> è modellato come attore (<a href="./../src/system.qak">system.qak</a>). Il suo
-        compito in questa fase è quello di comunicare con il <span class="blue">MonitoringDevice</span> per monitorare il livello di cenere
-        presente nell'<span class="blue">AshStorage</span> e per gestire il comportamento del <span class="blue">Led</span> legato allo stato del sistema. Comunicherà
-        inoltre con la <span class="blue">Scale</span> per controllare la quantità di RP presenti nel <span class="blue">WasteStorage</span>. <br />
-
-        <ul>
-          <li>
-            <b>riceverà</b> il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
-            dall'attore Scale contenente il numero di RP presenti nel WasteStorage Container. <br />
-          </li>
-
-          <li>
-            <b>invierà</b> il messaggio <b><code>Dispatch update_led_mode : update_led_mode(MODE)</code></b> all'attore
-            Led
-            contenente il comportamento che il Led dovrà adottare.
-          </li>
-          <li>
-            <b>riceverà</b> il messaggio
-            <b><code>Dispatch ash_measurement : ash_measurement(L)</code></b> dall'attore Sonar contenente la distanza
-            tra la cenere e il Sonar. <br />
-          </li>
+        Le modifiche degne di nota riguardano solo il WIS, modellato come attore (<a
+          href="./../src/system.qak">system.qak</a>) a cui è stata aggiunta l'integrazione con la
+        <b>ServiceStatusGUI</b> tramite una `updateResource`, inviata ad ogni cambio di stato interno del sistema.
       </div>
-
-      <h4>Sonar & Sonar_device</h4>
+      <h4>Facade24Start</h4>
       <div class="remark">
-        Per la gestione del Sonar, verranno usati 2 attori: <span class="blue">Sonar</span> e <span
-          class="blue">Sonar_device</span>. <br />
-        <br>
-        Il <span class="blue">Sonar_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo
-        fisico del Sonar. <br>
-        Invierà per prima cosa un messaggio <b><code>Dispatch sonar_sensitivity : sonar_sensitivity(S)</code></b>
-        all'attore Sonar contenente la sensibilità del Sonar, valore che dipende dalla tecnologia utilizzata. <br>
-        Successivamente, attraverso una EmitLocalStream, invierà al <span class="blue">Sonar</span> il valore letto dal
-        dispositivo fisico <b><code>Event sonar_data : distance(D)</code></b>. Si è scelto di utilizzare un EmitLocalStream per motivi di efficienza e per evitare un'inutile trasmissione eventi via rete (si veda <a href="../../html/QakActors24.html#azioni-di-un-attore">QakActors24</a> e <a href="../../html/RaspApplCode24.html#progetto-sonarqak24">Sonarqak24</a> per ulteriori dettagli)<br>
-        <br />
-        Il <span class="blue">Sonar</span> sarà modellato come attore e si occuperà di inviare al <span
-          class="blue">WIS</span> la distanza tra la cenere e il Sonar. <br />
-        Il <span class="blue">Sonar</span> ha una variabile Sensitivity inizializzata a 1 contenente la sensibilità del
-        Sonar. <br>
-        Dovrà innanzitutto iscriversi all'evento che il <span class="blue">Sonar_device</span> lancerà. Successivamente,
-        potrà riceverà il valore
-        della sensibilità dipendente dalla tecnologia adottata. <br>
-        Utilizzerà questa variabile per filtrare i messaggi ricevuti dal <span class="blue">Sonar_device</span>,
-        inoltrando al <span class="blue">WIS</span> solamente i valori significativi. <br>
-        <b>Invierà</b> quindi il messaggio <b><code>Dispatch ash_measurement : ash_measurement(L)</code></b> al <span
-          class="blue">WIS</span> contenente la distanza tra la cenere e il <span class="blue">Sonar</span>. <br />
-
-      </div>
-
-      <h4>Led & Led_device</h4>
-      <div class="remark">
-        Per la gestione del Led, verranno usati 2 attori: <span class="blue">Led</span> e <span
-          class="blue">Led_device</span>. <br />
-        <br>
-        Il <span class="blue">Led</span> sarà modellato come attore e riceverà dal <span class="blue">WIS</span> il
-        comportamento che dovrà adottare, attraverso il messaggio
-        <b><code>Dispatch update_led_mode : update_led_mode(MODE)</code></b>.
-        <br />
-        <br>
-        Il <span class="blue">Led_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo
-        fisico del Led. <br>
-        Riceverà dal <span class="blue">Led</span> il messaggio
-        <b><code>Dispatch update_physical_led_mode : update_physical_led_mode(MODE)</code></b> contenente il
-        comportamento da adottare e lo attuerà sul dispositivo fisico. <br>
-      </div>
-
-      <h4>Scale</h4>
-      <div class="remark">
-        Per la gestione della bilancia, verranno usati 2 attori: <span class="blue">Scale</span> e <span
-          class="blue">Scale_device</span>. <br />
-        <br>
-        <span class="blue">Scale_device</span> sarà modellato come attore e si occuperà di gestire il dispositivo fisico
-        della bilancia. <br>
-
-        Attraverso una EmitLocalStream, invierà a <span class="blue">Scale</span> il valore pesato dal
-        dispositivo fisico <b><code>Event scale_data 			: scale_data(WEIGHT)</code></b>.  Si è scelto di utilizzare un EmitLocalStream per motivi di efficienza e per evitare un'inutile trasmissione eventi via rete (si veda <a href="../../html/QakActors24.html#azioni-di-un-attore">QakActors24</a> e <a href="../../html/RaspApplCode24.html#progetto-sonarqak24">Sonarqak24</a> per ulteriori dettagli)<br>
-        Inoltre, <b>riceverà</b> dall'<span class="blue">OpRobot</span> il messaggio <b><code>Dispatch unload_weight : unload_weight(WEIGHT)</code></b> per simulare la rimozione di un RP in quanto non è presente un dispositivo fisico adibito alla misurazione del peso nel <span class="blue">WasteStorage</span>. <br>
-        <br />
-        <span class="blue">Scale</span> sarà modellato come attore e si occuperà di convertire in RP il peso della bilancia
-        in quel momento. <br />
-        <b>Invierà</b> quindi il messaggio <b><code>Dispatch update_scale_count : update_scale_count(COUNT)</code></b>
-        al <span class="blue">WIS</span> contenente il numero di RP presenti nel <span class="blue">WasteStorage</span>. <br />
-
+        La Facade24Start è già presente nella software house, le uniche modifiche necessarie hanno riguardato la pulizia
+        del codice non utilizzato e la configurazione dell'applicazione (<a
+          href="./../../sprint3_gui/src/main/java/facade24/ApplSystemInfo.java">ApplSystemInfo.java</a> & <a
+          href="./../../sprint3_gui/facadeConfig.json">facadeConfig.json</a>) per
+        mettersi in ascolto all'attore `WIS`
+        del sistema, dal quale riceve gli aggiornamenti per mostrarli nella pagina web <a
+          href="./../../sprint3_gui/src/main/resources/templates/WebRobot24Gui.html">WebRobot24Gui.html</a>.
       </div>
 
       <h3>Piani di testing</h3>
       <div class="remark">
-        In questo sprint vengono analizzati e modellati i comportamenti del <span class="blue">MonitoringDevice</span> e
-        del <span class="blue">WasteStorage</span>, pertanto i test saranno focalizzati su queste due parti del sistema.
+        In questo sprint viene analizzata e modellata l'integrazione con la <b>ServiceStatusGUI</b>. Pertanto i test
+        sono focalizzati su questa parte del sistema. <br>
 
         <table>
           <thead>
@@ -280,37 +217,14 @@
                 led è acceso</td>
             </tr>
             <tr>
-              <td class="font-bold"><a
-                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedBlink.kt">TestMonitoringDeviceLedBlink.kt</a>
-              </td>
-              <td>L'inceneritore non è in fase di burning, l'AshStorage non è pieno nè vuoto, il led è spento</td>
-              <td>L'inceneritore non è in fase di burning, l'AshStorage è pieno, il led lampeggia </td>
-            </tr>
-            <tr>
-              <td class="font-bold"><a
-                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedOn.kt">TestMonitoringDeviceLedOn.kt</a></td>
-              <td>L'inceneritore non è in fase di burning, il led è spento</td>
-              <td>L'inceneritore è in fase di burning, il led è acceso</td>
-            </tr>
-            <tr>
-              <td class="font-bold"><a
-                  href="./../src/main/kotlin/test/TestMonitoringDeviceLedOff.kt">TestMonitoringDeviceLedOff.kt</a></td>
-              <td>L'inceneritore è in fase di burning, il led è acceso</td>
-              <td>L'inceneritore non è in fase di burning, il led è spento</td>
-            </tr>
-            <tr>
               <td class="font-bold">
-                <a
-                  href="./../src/main/kotlin/test/TestMonitoringDeviceScaleChange.kt">TestMonitoringDeviceScaleChange.kt</a>
+                <a href="./../../sprint3_gui/src/main/kotlin/test/TestGUI.kt">TestGUI.kt</a>
               </td>
-              <td>Il WasteStorage è vuoto, viene aggiunto un RP</td>
-              <td>Il peso misurato dal WasteStorage è aumentato</td>
+              <td>Il Waste Incinerator Service è in esecuzione, la GUI è accesa</td>
+              <td>La GUI riceve gli aggiornamenti dal WIS</td>
             </tr>
           </tbody>
         </table>
-
-        Aggiunto il messaggio <b><code>Dispatch load_weight : load_weight(WEIGHT)</code></b> inviato da un attore mock che simula il deposito di un nuovo RP da parte di un agente esterno.
-        WEIGHT corrisponde a 50, una quantità intera e positiva, come specificato da requisiti. <br>
       </div>
 
       <h3>Footer</h3>

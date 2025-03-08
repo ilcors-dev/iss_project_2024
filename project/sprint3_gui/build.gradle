@@ -1,71 +1,148 @@
 plugins {
-	id 'application'
-	id 'java'
+    id 'application'
+    id 'java'
     id 'eclipse'
-	id 'org.springframework.boot' version '2.7.16'
-	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-	//id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+    id 'org.springframework.boot' version '2.7.16'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.21'
 }
 
 group   = 'com.example'
 version = '1.0'
 
 java {
-	sourceCompatibility = '1.8'
+    sourceCompatibility = '1.8'
 }
 
 repositories {
-	mavenCentral()
-	flatDir { dirs '../unibolibs' }
+    mavenCentral()
+    flatDir { dirs '../unibolibs' }
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	//depends on spring-boot-starter-logging, which already pulls in spring-jcl for us.
-	//When using starters, Logback is used for logging by default.
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-	//JSON
-	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-	implementation group: 'org.json', name: 'json', version: '20180130'
-
-	//CUSTOM unibo
-	implementation name: 'uniboInterfaces'
-	implementation name: '2p301'
-	implementation name: 'unibo.qakactor23-5.0'
-	implementation name: 'unibo.basicomm23-1.0'
-
-	//implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-
-	implementation group: 'org.eclipse.californium', name: 'californium-core', version: '3.5.0'
-	implementation group: 'org.eclipse.californium', name: 'californium-proxy2', version: '3.5.0'
-	implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
-
-//	implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "$kotlinVersion", ext: 'pom'
-//	implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core-jvm', version: "$kotlinVersion"
-
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    
+    // Kotlin dependencies
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
+    testImplementation 'junit:junit:4.13.2'
+    
+    // JSON
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation group: 'org.json', name: 'json', version: '20180130'
+    
+    // CUSTOM unibo
+    implementation name: 'uniboInterfaces'
+    implementation name: '2p301'
+    implementation name: 'unibo.qakactor23-5.0'
+    implementation name: 'unibo.basicomm23-1.0'
+    
+    // CoAP and MQTT
+    implementation group: 'org.eclipse.californium', name: 'californium-core', version: '3.5.0'
+    implementation group: 'org.eclipse.californium', name: 'californium-proxy2', version: '3.5.0'
+    implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src', 'src/main/java', 'src/main/kotlin']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java', 'src/main/kotlin/test']  // Include main/kotlin/test for your test
+        }
+        kotlin {
+            srcDirs = ['src/test/kotlin', 'src/main/kotlin/test']  // Include main/kotlin/test for your test
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+    }
+}
+
+// Configure Kotlin compilation
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs = ["-Xjsr305=strict"]
+    }
+}
+
+// Create a custom task to run the specific test
+task runGuiTest(type: Test) {
+    description = 'Runs the TestGUI test'
+    group = 'verification'
+    
+    // Set the test class name
+    filter {
+        includeTestsMatching "test.TestGUI"
+    }
+    
+    // Use JUnit 4
+    useJUnit()
+    
+    // Set the classpath to include your test
+    testClassesDirs = files("$buildDir/classes/kotlin/main", "$buildDir/classes/java/main")
+    classpath = sourceSets.main.runtimeClasspath
+    
+    // Logging
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+// Configure the standard test task to also find your test
+test {
+    useJUnit()
+    
+    // Include your test directory
+    testClassesDirs = files(
+        "$buildDir/classes/java/test", 
+        "$buildDir/classes/kotlin/test",
+        "$buildDir/classes/kotlin/main/test",  // This is where your test is compiled to
+        "$buildDir/classes/java/main/test"
+    )
+    
+    // Logging
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+eclipse {
+    classpath {
+        sourceSets -= [sourceSets.main, sourceSets.test]    
+    }    
 }
 
 jar {
-	println("building jar")
-	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)  //per via di locgback.xml quando si usa spring
-	from sourceSets.main.allSource
-	from('./') {
-		include '*.pl'
-		include '*.json'
-	}
-	manifest {
-		attributes 'Main-Class': "$mainClassName"
-	}
+    println("building jar")
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    from sourceSets.main.allSource
+    from('./') {
+        include '*.pl'
+        include '*.json'
+    }
+    manifest {
+        attributes 'Main-Class': "$mainClassName"
+    }
 }
 
 application {
-	mainClass = 'facade24.Facade24Application'  
+    mainClass = 'facade24.Facade24Application'  
 }
