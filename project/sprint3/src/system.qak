@@ -130,9 +130,13 @@ QActor wis context ctxwis24 {
     /////////////////////////////////////////////////////////////////////////////////////
     // Helper Functions
     /////////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Converts the current ash level into a percentage signaling how much the storage is full
+     */
     fun calculateAshPercentage(): Int {
       val ashFullness = DLIMIT - ASHLEVEL
-      return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // Ensure within 0-100
+      return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // ensure within 0-100
     }
   #]
 
@@ -140,7 +144,7 @@ QActor wis context ctxwis24 {
     connectToMqttBroker "tcp://broker.hivemq.com"
     delay 500
     println("$name start") color green
-    // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : start
+    publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : start
   }
   Goto setupSystem
 
@@ -175,8 +179,8 @@ QActor wis context ctxwis24 {
       val ashPercentage = calculateAshPercentage()
     #]
 
-    // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : $RP_STATUS
-    // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : $ASHLEVEL_STATUS
+    publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $RP_STATUS
+    publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $ASHLEVEL_STATUS
     updateResource [#
       "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: $ashPercentage%"
     #]
@@ -204,7 +208,7 @@ QActor wis context ctxwis24 {
       [# val STATUS = "update_rp_count_to__${RPCONT}" #]
 
       println("$name - Moving to burn in") color green
-      // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
+      publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
       delay 200
 
       [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_IN #]
@@ -278,7 +282,7 @@ QActor wis context ctxwis24 {
       #]
 
       [# val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
-      println("current ash level=$ASH_LEVEL_LOG") color green
+      println("----- current ash level=$ASH_LEVEL_LOG") color green
 
       if [#
         (
@@ -298,16 +302,15 @@ QActor wis context ctxwis24 {
     onMsg(burning : burning(0)) {
       [# INCSTATUS = 1 #]
       println("$name - start incinerator, update status") color magenta
-      // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info :
-      // incinerator_status_BURNING
+      publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_BURNING
       forward led -m update_led_mode : update_led_mode($LED_ON)
     }
 
     onMsg(finishedBurning : finishedBurning(0)) {
       [# INCSTATUS = 0 #]
       println("$name - finish incinerator, update status") color magenta
-      // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info :
-      // incinerator_status_FINISHED_BURNING
+      publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_FINISHED_BURNING
+      
       [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_OUT #]
       updateResource [#
         "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
@@ -326,8 +329,7 @@ QActor wis context ctxwis24 {
 
       println("$name - scale status changed, rp in storage = $RPCONT")
         color magenta
-      // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info :
-      // updated_scale_rp_status
+        publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : updated_scale_rp_status
     }
   }
 
@@ -342,16 +344,20 @@ QActor wis context ctxwis24 {
         val STATUS = "ash_level_to__${ASHLEVEL}"
       #]
 
+      println("----- $name - ash level changed, update") color magenta
       if [#
         ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 ||
         (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)
       #] {
         forward led -m update_led_mode : update_led_mode($LED_BLINK)
-        println("$name - ash level changed, update") color magenta
-        // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info :
-        // led_status_blink
+        publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
       }
-      // publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
+
+        publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
+        
+      updateResource [#
+        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+      #]
     }
   }
 
@@ -364,7 +370,7 @@ QActor oprobot context ctxwis24 {
   State s0 initial {
     connectToMqttBroker "tcp://broker.hivemq.com"
     println("$name STARTS") color green
-		// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : start
+		     publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : start
   }
 
   Goto engage
@@ -418,7 +424,7 @@ QActor oprobot context ctxwis24 {
       #]
       println("$name - Moving to ($X,$Y)") color green
       delay 500 // simulating oprobot taking time to go to wastein port
-			// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_WasteIn_port
+     publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_WasteIn_port
 
       request basicrobot -m moverobot : moverobot($X, $Y)
     }
@@ -429,7 +435,7 @@ QActor oprobot context ctxwis24 {
     whenReply moverobotfailed -> execGetRp
 
   State getRpOk {
-		// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : collected_RP_from_WasteIn_port
+		     publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : collected_RP_from_WasteIn_port
     delay 200
 
     forward scale_device -m unload_weight : unload_weight(50) // 🏃🏻
@@ -447,7 +453,7 @@ QActor oprobot context ctxwis24 {
 
       println("$name - Depositing RP in ($X, $Y)") color green
       delay 500 // simulating deposit action
-			// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_BurnIn_port
+      publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_BurnIn_port
 
       request basicrobot -m moverobot : moverobot($X, $Y)
     }
@@ -458,7 +464,7 @@ QActor oprobot context ctxwis24 {
     whenReply moverobotfailed -> execDepositRp
 
   State depositRpOk {
-		// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_RP_in_BurnIn_port
+		     publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_RP_in_BurnIn_port
     replyTo depositrp with depositrp_status : depositrp_status(0)
   }
 
@@ -473,7 +479,7 @@ QActor oprobot context ctxwis24 {
       println("$name - Moving to ($X,$Y)") color green
       delay 500 // simulating oprobot taking time to moverobot
 			// 💀🔫
-			// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_BurnOut_port
+      publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_BurnOut_port
 
       request basicrobot -m moverobot : moverobot($X, $Y)
     }
@@ -484,7 +490,7 @@ QActor oprobot context ctxwis24 {
     whenReply moverobotfailed -> execExtractAsh
 
   State extractAshOk {
-		// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : collected_ash_from_BurnOut_port
+	publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : collected_ash_from_BurnOut_port
     replyTo extractash with extractash_status : extractash_status(0)
   }
 
@@ -499,7 +505,7 @@ QActor oprobot context ctxwis24 {
 
       println("$name - Depositing Ash in ($X, $Y)") color green
       delay 500
-			// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_AshOut_port
+      publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : moving_to_AshOut_port
         	 // 🔫🔫🔫
       request basicrobot -m moverobot : moverobot($X, $Y)
     }
@@ -510,7 +516,7 @@ QActor oprobot context ctxwis24 {
     whenReply moverobotfailed -> execDepositAsh
 
   State depositAshOk {
-		// publish"it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_ash_in_AshOut_port
+    publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : deposited_ash_in_AshOut_port
     forward sonar_device -m load_ash : load_ash(25)
     replyTo depositash with depositash_status : depositash_status(0)
   }

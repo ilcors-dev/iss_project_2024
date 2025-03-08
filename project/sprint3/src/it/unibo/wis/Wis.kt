@@ -86,9 +86,13 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		    /////////////////////////////////////////////////////////////////////////////////////
 		    // Helper Functions
 		    /////////////////////////////////////////////////////////////////////////////////////
+		    
+		    /**
+		     * Converts the current ash level into a percentage signaling how much the storage is full
+		     */
 		    fun calculateAshPercentage(): Int {
 		      val ashFullness = DLIMIT - ASHLEVEL
-		      return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // Ensure within 0-100
+		      return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // ensure within 0-100
 		    }
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
@@ -96,6 +100,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						delay(500) 
 						CommUtils.outgreen("$name start")
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "start" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","start").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -135,6 +141,10 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						      val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
 						
 						      val ashPercentage = calculateAshPercentage()
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$RP_STATUS" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","$RP_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$ASHLEVEL_STATUS" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","$ASHLEVEL_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						updateResourceRep(
 						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: $ashPercentage%"
 						)
@@ -163,6 +173,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								 RPCONT -= 1  
 								 val STATUS = "update_rp_count_to__${RPCONT}"  
 								CommUtils.outgreen("$name - Moving to burn in")
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								delay(200) 
 								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_IN  
 								updateResourceRep(
@@ -242,7 +254,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
 								)
 								 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
-								CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
+								CommUtils.outgreen("----- current ash level=$ASH_LEVEL_LOG")
 								if( 
 								        (
 								          RPCONT > 0 &&
@@ -265,12 +277,16 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 1  
 								CommUtils.outmagenta("$name - start incinerator, update status")
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_BURNING" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								forward("update_led_mode", "update_led_mode($LED_ON)" ,"led" ) 
 						}
 						if( checkMsgContent( Term.createTerm("finishedBurning(0)"), Term.createTerm("finishedBurning(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INCSTATUS = 0  
 								CommUtils.outmagenta("$name - finish incinerator, update status")
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_FINISHED_BURNING" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_FINISHED_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_OUT  
 								updateResourceRep(
 								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
@@ -294,6 +310,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 RPCONT = payloadArg(0).toInt()  
 								CommUtils.outmagenta("$name - scale status changed, rp in storage = $RPCONT")
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "updated_scale_rp_status" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","updated_scale_rp_status").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
 						//genTimer( actor, state )
 					}
@@ -310,12 +328,19 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								        var level = payloadArg(0).toInt()
 								        ASHLEVEL = level
 								        val STATUS = "ash_level_to__${ASHLEVEL}"
+								CommUtils.outmagenta("----- $name - ash level changed, update")
 								if( 
 								        ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 ||
 								        (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)
 								 ){forward("update_led_mode", "update_led_mode($LED_BLINK)" ,"led" ) 
-								CommUtils.outmagenta("$name - ash level changed, update")
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								}
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
+								updateResourceRep(
+								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								)
 						}
 						//genTimer( actor, state )
 					}

@@ -1,11 +1,6 @@
 package facade24;
 
-import unibo.basicomm23.interfaces.IApplMessage;
 import unibo.basicomm23.utils.CommUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /*
 Logica applicativa (domain core) della gui

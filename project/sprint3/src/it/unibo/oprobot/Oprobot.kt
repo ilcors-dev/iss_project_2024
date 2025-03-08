@@ -27,6 +27,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					action { //it:State
 						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						CommUtils.outgreen("$name STARTS")
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "start" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","start").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -97,6 +99,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								        var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
 								delay(500) 
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "moving_to_WasteIn_port" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","moving_to_WasteIn_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -109,6 +113,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 				}	 
 				state("getRpOk") { //this:State
 					action { //it:State
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "collected_RP_from_WasteIn_port" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","collected_RP_from_WasteIn_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						delay(200) 
 						forward("unload_weight", "unload_weight(50)" ,"scale_device" ) 
 						answer("getrp", "getrp_status", "getrp_status(0)"   )  
@@ -128,6 +134,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								        var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing RP in ($X, $Y)")
 								delay(500) 
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "moving_to_BurnIn_port" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","moving_to_BurnIn_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -140,6 +148,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 				}	 
 				state("depositRpOk") { //this:State
 					action { //it:State
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "deposited_RP_in_BurnIn_port" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","deposited_RP_in_BurnIn_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						answer("depositrp", "depositrp_status", "depositrp_status(0)"   )  
 						//genTimer( actor, state )
 					}
@@ -157,6 +167,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								        var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
 								delay(500) 
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "moving_to_BurnOut_port" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","moving_to_BurnOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -169,6 +181,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 				}	 
 				state("extractAshOk") { //this:State
 					action { //it:State
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "collected_ash_from_BurnOut_port" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","collected_ash_from_BurnOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						answer("extractash", "extractash_status", "extractash_status(0)"   )  
 						//genTimer( actor, state )
 					}
@@ -186,6 +200,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								        var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing Ash in ($X, $Y)")
 								delay(500) 
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "moving_to_AshOut_port" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","moving_to_AshOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -198,6 +214,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 				}	 
 				state("depositAshOk") { //this:State
 					action { //it:State
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "deposited_ash_in_AshOut_port" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","deposited_ash_in_AshOut_port").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						forward("load_ash", "load_ash(25)" ,"sonar_device" ) 
 						answer("depositash", "depositash_status", "depositash_status(0)"   )  
 						//genTimer( actor, state )
