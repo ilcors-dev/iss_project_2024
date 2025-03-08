@@ -6,9 +6,6 @@ os.environ['PATH'] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
 
 graphattr = {     #https://www.graphviz.org/doc/info/attrs.html
     'fontsize': '22',
-    'margin': '0',  # Remove margins around the diagram
-    'pad': '0.2',   # Reduce padding
-    'dpi': '300'    # Increase resolution for better quality
 }
 
 nodeattr = {   

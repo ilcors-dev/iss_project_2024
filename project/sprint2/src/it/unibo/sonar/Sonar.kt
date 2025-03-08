@@ -39,8 +39,8 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t04",targetState="handleSonarData",cond=whenEvent("sonar_data"))
-					transition(edgeName="t05",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
+					 transition(edgeName="t043",targetState="handleSonarData",cond=whenEvent("sonar_data"))
+					transition(edgeName="t044",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
 				}	 
 				state("updateSensitivity") { //this:State
 					action { //it:State
@@ -55,8 +55,8 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t06",targetState="handleSonarData",cond=whenEvent("sonar_data"))
-					transition(edgeName="t07",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
+					 transition(edgeName="t045",targetState="handleSonarData",cond=whenEvent("sonar_data"))
+					transition(edgeName="t046",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
 				}	 
 				state("handleSonarData") { //this:State
 					action { //it:State
@@ -81,8 +81,8 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t08",targetState="handleSonarData",cond=whenEvent("sonar_data"))
-					transition(edgeName="t09",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
+					 transition(edgeName="t047",targetState="handleSonarData",cond=whenEvent("sonar_data"))
+					transition(edgeName="t048",targetState="updateSensitivity",cond=whenDispatch("sonar_sensitivity"))
 				}	 
 			}
 		}

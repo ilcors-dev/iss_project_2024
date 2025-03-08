@@ -38,7 +38,7 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t010",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
+					 transition(edgeName="t049",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
 				}	 
 				state("handleLoadAsh") { //this:State
 					action { //it:State
@@ -58,7 +58,7 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t011",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
+					 transition(edgeName="t050",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
 				}	 
 			}
 		}
