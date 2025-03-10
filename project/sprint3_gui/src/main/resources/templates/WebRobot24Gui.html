@@ -689,15 +689,15 @@
 
         // Connect to MQTT
         function connectMqtt() {
-            updateMqttStatus('Connecting...');
+            updateMqttStatus("Connecting...");
 
             try {
                 // Generate a random client ID
-                const clientId = 'waste_management_' + Math.random().toString(16).substr(2, 8);
+                const clientId = "waste_management_" + Math.random().toString(16).substr(2, 8);
 
-                // Use HiveMQ public broker
-                const host = "broker.hivemq.com";
-                const port = 8884; // WebSocket Secure port for HiveMQ
+                // Use local broker
+                const host = "localhost";
+                const port = 9001; // WebSocket port
 
                 // Create a new MQTT client instance
                 mqttClient = new Paho.MQTT.Client(host, port, clientId);
@@ -706,20 +706,20 @@
                 mqttClient.onConnectionLost = onMqttConnectionLost;
                 mqttClient.onMessageArrived = onMqttMessageArrived;
 
-                // Connect the client with SSL
+                // Connect the client WITHOUT SSL
                 mqttClient.connect({
                     onSuccess: onMqttConnect,
                     onFailure: onMqttFailure,
-                    useSSL: true,
+                    useSSL: false, // Disable SSL for local, non-SSL broker
                     timeout: 3,
-                    keepAliveInterval: 30
+                    keepAliveInterval: 30,
                 });
 
-                addLogEntry('Connecting to MQTT broker at ' + host, 'info');
+                addLogEntry("Connecting to MQTT broker at " + host, "info");
             } catch (error) {
                 console.error("MQTT Connection Error:", error);
-                updateMqttStatus('Error');
-                addLogEntry('MQTT connection error: ' + error.message, 'error');
+                updateMqttStatus("Error");
+                addLogEntry("MQTT connection error: " + error.message, "error");
             }
         }
 

@@ -97,11 +97,9 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						connectToMqttBroker( "tcp://broker.hivemq.com" )
+						connectToMqttBroker( "tcp://localhost" )
 						delay(500) 
 						CommUtils.outgreen("$name start")
-						//val m = MsgUtil.buildEvent(name, "mqtt_info", "start" ) 
-						publish(MsgUtil.buildEvent(name,"mqtt_info","start").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -135,20 +133,18 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				state("printStatus") { //this:State
 					action { //it:State
 						
-						      val status =
-						        "INHOME=${INHOME}_RPCONT=${RPCONT}_ASHCONT=${ASHLEVEL}_INCSTATUS=${INCSTATUS}"
 						      val RP_STATUS = "RPCONT_${RPCONT}"
 						      val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
-						
 						      val ashPercentage = calculateAshPercentage()
+						      val STATUS = "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: $ashPercentage%"
 						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$RP_STATUS" ) 
 						publish(MsgUtil.buildEvent(name,"mqtt_info","$RP_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$ASHLEVEL_STATUS" ) 
 						publish(MsgUtil.buildEvent(name,"mqtt_info","$ASHLEVEL_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
-						updateResourceRep(
-						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: $ashPercentage%"
+						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
+						publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
+						updateResourceRep( STATUS  
 						)
-						CommUtils.outmagenta("PRINT STATUS")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -171,10 +167,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INHOME = 0  
 								 RPCONT -= 1  
-								 val STATUS = "update_rp_count_to__${RPCONT}"  
 								CommUtils.outgreen("$name - Moving to burn in")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								delay(200) 
 								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_IN  
 								updateResourceRep(
@@ -254,7 +247,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
 								)
 								 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
-								CommUtils.outgreen("----- current ash level=$ASH_LEVEL_LOG")
+								CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
 								if( 
 								        (
 								          RPCONT > 0 &&
@@ -308,10 +301,9 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("update_scale_count(COUNT)"), Term.createTerm("update_scale_count(COUNT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 RPCONT = payloadArg(0).toInt()  
+								
+								      	RPCONT = payloadArg(0).toInt()
 								CommUtils.outmagenta("$name - scale status changed, rp in storage = $RPCONT")
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "updated_scale_rp_status" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","updated_scale_rp_status").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
 						//genTimer( actor, state )
 					}
@@ -327,8 +319,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								
 								        var level = payloadArg(0).toInt()
 								        ASHLEVEL = level
-								        val STATUS = "ash_level_to__${ASHLEVEL}"
-								CommUtils.outmagenta("----- $name - ash level changed, update")
+								CommUtils.outmagenta("$name - ash level changed, update")
 								if( 
 								        ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 ||
 								        (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)
@@ -336,8 +327,6 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								}
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								updateResourceRep(
 								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
 								)

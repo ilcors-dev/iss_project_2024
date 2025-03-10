@@ -179,6 +179,13 @@ distributions {
     }
 } 
 
+task("runAll") {
+    group = "Execution"
+    description = "Run all main methods in separate threads"
+
+    dependsOn("run0", "runMonitoringDevice", "runWeighingDevice")
+}
+
 task run0(type: JavaExec) {
     group = "Execution"
     description = "Run the main class with JavaExecTask"

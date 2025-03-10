@@ -17,7 +17,8 @@ ExternalQActor wis context ctxwis24
 
 QActor led context ctxmonitoringdevice {
 	State s0 initial {
- 		connectToMqttBroker "tcp://broker.hivemq.com"
+ 		connectToMqttBroker "tcp://localhost"
+	
 		println("$name starts") color green
 	}
 
@@ -56,7 +57,7 @@ QActor led_device context ctxmonitoringdevice {
 	Transition t0 whenMsg update_physical_led_mode -> handleUpdateMode
 				 
 	State handleUpdateMode {
-		printCurrentMessage color green
+		printCurrentMessage
 		onMsg(update_physical_led_mode : update_physical_led_mode(MODE)) {
 			[#
 				val S = payloadArg(0)
@@ -68,15 +69,16 @@ QActor led_device context ctxmonitoringdevice {
 					"on"		-> Runtime.getRuntime().exec("echo ledOn.py")
 					"off" 		-> Runtime.getRuntime().exec("echo ledOff.py")
 				    else -> {
-				        println("Invalid command: $S") // Or log it, or throw an exception
-				        null // Or some other default value for P, depending on its type
+				        println("Invalid command: $S")
+				        null
 				    }
 				}
 			#]
 		}
 	}
 
-	Transition t0 whenMsg update_physical_led_mode -> handleUpdateMode
+	Transition t0
+		whenMsg update_physical_led_mode -> handleUpdateMode
 }
 
 QActor sonar context ctxmonitoringdevice {
@@ -150,7 +152,6 @@ QActor sonar_device context ctxmonitoringdevice {
 	#]
 	
 	State s0 initial {
- 		connectToMqttBroker "tcp://broker.hivemq.com"
 		println("$name starts") color blue
 		
 		delay 1000
@@ -166,9 +167,6 @@ QActor sonar_device context ctxmonitoringdevice {
 			
 			println("loaded ash, sonar measuring = $Distance")
 			emitlocalstream sonar_data : distance($Distance)
-			
-			[# val NEW_ASH_LOG = "ash_level_updated=$Distance" #]
-			publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $NEW_ASH_LOG
 		}
 	}
 		

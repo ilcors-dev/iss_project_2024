@@ -21,9 +21,31 @@ class TestWis5RP {
         @BeforeClass
         @JvmStatic
         fun setup() {
-            it.unibo.ctxwis24_functional_test.main()
-			
-			delay(2000)
+            // Start the required processes using Gradle
+            startGradleProcesses()
+            delay(2000)
+        }
+        
+        private fun startGradleProcesses() {
+            try {
+                // Start the main context
+                ProcessBuilder("./gradlew", "run0").start()
+                println("Started main context")
+                delay(1000)
+                
+                // Start monitoring device
+                ProcessBuilder("./gradlew", "runMonitoringDevice").start()
+                println("Started monitoring device")
+                delay(1000)
+                
+                // Start weighing device
+                ProcessBuilder("./gradlew", "runWeighingDevice").start()
+                println("Started weighing device")
+                delay(1000)
+            } catch (e: Exception) {
+                println("Error starting Gradle processes: ${e.message}")
+                e.printStackTrace()
+            }
         }
     }
 
@@ -36,29 +58,29 @@ class TestWis5RP {
         val client = MqttClient(brokerUrl, clientId, persistence)
         val connOpts = MqttConnectOptions().apply { isCleanSession = true }
         client.connect(connOpts)
-		
-	    fun attemptReconnect() {
-	      try {
-	        println("Attempting to reconnect...")
-	        client.connect(connOpts)
-	        client.subscribe("it.unib0.iss.waste-incinerator-service")
-	        println("Reconnected successfully.")
-	      } catch (e: Exception) {
-	        println("Reconnect failed: ${e.message}")
-	        delay(5000) // Wait before retrying
-	        attemptReconnect() // Recursive call to retry
-	      }
-	    }
+        
+        fun attemptReconnect() {
+            try {
+                println("Attempting to reconnect...")
+                client.connect(connOpts)
+                client.subscribe("it.unib0.iss.waste-incinerator-service")
+                println("Reconnected successfully.")
+            } catch (e: Exception) {
+                println("Reconnect failed: ${e.message}")
+                delay(5000) // Wait before retrying
+                attemptReconnect() // Recursive call to retry
+            }
+        }
 
         var testSuccess = false
         val receivedMessages = ArrayList<String>()
         val messagesStack =
             ArrayDeque(
                 listOf(
-					"ASHLEVEL_35",
-					"ASHLEVEL_10", // aka ash storage almost full
-					"led_status_change_to_blink",
-                	"ASHLEVEL_0",  // aka ash storage full
+                    "ASHLEVEL_35",
+                    "ASHLEVEL_10", // aka ash storage almost full
+                    "led_status_change_to_blink",
+                    "ASHLEVEL_0",  // aka ash storage full
                 ),
             )
 
@@ -66,8 +88,7 @@ class TestWis5RP {
             object : MqttCallback {
                 override fun connectionLost(cause: Throwable?) {
                     println("Connection lost: ${cause?.message}")
-					attemptReconnect()
-					
+                    attemptReconnect()
                 }
 
                 override fun messageArrived(
@@ -97,7 +118,7 @@ class TestWis5RP {
 
         client.subscribe("it.unib0.iss.waste-incinerator-service")
 
-		delay(160000)
+        delay(160000)
 
         assertEquals(true, testSuccess)
     }

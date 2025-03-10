@@ -147,7 +147,7 @@ eclipse {
 
 application {
     //Define the main class for the application.
-    mainClassName    = 'it.unibo.ctxscale.MainCtxscaleKt'
+    mainClassName    = 'it.unibo.ctxwis24.MainCtxwis24Kt'
 }
  
  jar {
@@ -170,9 +170,9 @@ task dovesiamo {
 
 distributions {
     main {
-        distributionBaseName = 'scale'
+        distributionBaseName = 'wis24'
         contents { 
-             from './scale.pl'
+             from './wis24.pl'
              from './sysRules.pl'
              from './facadeConfig.json'
         }
@@ -183,7 +183,7 @@ task run0(type: JavaExec) {
     group = "Execution"
     description = "Run the main class with JavaExecTask"
     classpath = sourceSets.main.runtimeClasspath
-    main = 'it.unibo.ctxscale.MainCtxscaleKt'
+    main = 'it.unibo.ctxwis24.MainCtxwis24Kt'
 }
 
 /*

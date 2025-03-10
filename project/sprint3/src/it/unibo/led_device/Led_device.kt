@@ -36,7 +36,7 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 				}	 
 				state("handleUpdateMode") { //this:State
 					action { //it:State
-						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
 						 	   
 						if( checkMsgContent( Term.createTerm("update_physical_led_mode(MODE)"), Term.createTerm("update_physical_led_mode(MODE)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
@@ -50,8 +50,8 @@ class Led_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fals
 													"on"		-> Runtime.getRuntime().exec("echo ledOn.py")
 													"off" 		-> Runtime.getRuntime().exec("echo ledOff.py")
 												    else -> {
-												        println("Invalid command: $S") // Or log it, or throw an exception
-												        null // Or some other default value for P, depending on its type
+												        println("Invalid command: $S")
+												        null
 												    }
 												}
 						}

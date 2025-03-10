@@ -21,11 +21,11 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		 var CURRENT_WEIGHT = 250  
+		 var CURRENT_WEIGHT = 0  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						CommUtils.outgreen("$name starts")
+						CommUtils.outyellow("$name starts")
 						delay(500) 
 						//genTimer( actor, state )
 					}
@@ -59,7 +59,6 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 CURRENT_WEIGHT -= 50  
 								emitLocalStreamEvent("scale_data", "scale_data($CURRENT_WEIGHT)" ) 
-								CommUtils.outblack("$name weight removed, current = $CURRENT_WEIGHT")
 						}
 						//genTimer( actor, state )
 					}

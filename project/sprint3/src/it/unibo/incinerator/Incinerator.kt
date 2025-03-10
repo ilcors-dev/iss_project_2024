@@ -25,7 +25,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						connectToMqttBroker( "tcp://broker.hivemq.com" )
+						connectToMqttBroker( "tcp://localhost" )
 						CommUtils.outmagenta("$name STARTS")
 						//genTimer( actor, state )
 					}

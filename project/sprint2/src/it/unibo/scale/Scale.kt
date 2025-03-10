@@ -21,11 +21,12 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		 var RPCONT = 5  
+		 var RPCONT = 0  
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						CommUtils.outgreen("$name starts")
+						connectToMqttBroker( "tcp://broker.hivemq.com" )
+						CommUtils.outyellow("$name starts")
 						delay(1000) 
 						subscribeToLocalActor("scale_device") 
 						//genTimer( actor, state )
@@ -42,9 +43,12 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 						if( checkMsgContent( Term.createTerm("scale_data(WEIGHT)"), Term.createTerm("scale_data(WEIGHT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("$name weight=${payloadArg(0)}")
-								 RPCONT = (payloadArg(0).toInt() / 50)  
+								 
+												RPCONT = (payloadArg(0).toInt() / 50)
+												val RPCONT_LOG = "rp_in_waste_storage_$RPCONT"
 								CommUtils.outyellow("$name the RP number now is $RPCONT")
-								forward("update_scale_count", "update_scale_count($RPCONT)" ,"wis" ) 
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$RPCONT_LOG" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","$RPCONT_LOG").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
 						//genTimer( actor, state )
 					}

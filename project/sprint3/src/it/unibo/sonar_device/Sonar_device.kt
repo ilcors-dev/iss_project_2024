@@ -30,7 +30,6 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						connectToMqttBroker( "tcp://broker.hivemq.com" )
 						CommUtils.outblue("$name starts")
 						delay(1000) 
 						//genTimer( actor, state )
@@ -49,9 +48,6 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 								 Distance -= payloadArg(0).toInt()  
 								CommUtils.outblack("loaded ash, sonar measuring = $Distance")
 								emitLocalStreamEvent("sonar_data", "distance($Distance)" ) 
-								 val NEW_ASH_LOG = "ash_level_updated=$Distance"  
-								//val m = MsgUtil.buildEvent(name, "mqtt_info", "$NEW_ASH_LOG" ) 
-								publish(MsgUtil.buildEvent(name,"mqtt_info","$NEW_ASH_LOG").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						}
 						//genTimer( actor, state )
 					}
