@@ -120,7 +120,7 @@
         <div class="grid grid-cols-2">
           <a class="reference internal image-reference flex justify-center"
             href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
-              class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 100%" /></a>
+              class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 90%" /></a>
 
           <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_scalearch.png"><img
               alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
@@ -161,7 +161,8 @@
 
       <h2>Modello del sistema</h2>
       <div class="remark">
-        Il modello del sistema per lo Sprint2 è raffigurato nell'immagine sottostante. <br />
+        Il modello del sistema per lo Sprint3 è raffigurato nell'immagine sottostante, identico al modello del sistema
+        dello <a href="../../sprint2/userDocs/sprint2.html">Sprint2</a>.<br />
 
         <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_wis24arch.png"><img
             alt="./immagini/sprint2_wis24arch.png" class="align-right" src="./immagini/sprint2_wis24arch.png"
@@ -170,7 +171,7 @@
         <div class="grid grid-cols-2">
           <a class="reference internal image-reference flex justify-center"
             href="./immagini/sprint2_monitoringdevicearch.png"><img alt="./immagini/sprint2_monitoringdevicearch.png"
-              class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 100%" /></a>
+              class="align-right" src="./immagini/sprint2_monitoringdevicearch.png" style="width: 90%" /></a>
 
           <a class="reference internal image-reference flex justify-center" href="./immagini/sprint2_scalearch.png"><img
               alt="./immagini/sprint2_scalearch.png" class="align-right" src="./immagini/sprint2_scalearch.png"
@@ -183,22 +184,23 @@
       <div class="remark">
         Le modifiche degne di nota riguardano solo il WIS, modellato come attore (<a
           href="./../src/system.qak">system.qak</a>) a cui è stata aggiunta l'integrazione con la
-        <b>ServiceStatusGUI</b> tramite una `updateResource`, inviata ad ogni cambio di stato interno del sistema.
+        <b>ServiceStatusGUI</b>, che riceve gli aggiornamenti del sistema tramite una `updateResource`, inviata ad ogni
+        cambio di stato.
       </div>
-      <h4>Facade24Start</h4>
+      <h4>ServiceStatusGUI</h4>
       <div class="remark">
-        La Facade24Start è già presente nella software house, le uniche modifiche necessarie hanno riguardato la pulizia
-        del codice non utilizzato e la configurazione dell'applicazione (<a
+        La ServiceStatusGUI si basa sulla Facade24Start già presente nella software house. La GUI è un'applicazione
+        Spring, che effettua l'iscrizione all'attore WIS per ricevere gli aggiornamenti del sistema tramite il
+        protocollo <a href="./../../html/Principi.html?highlight=coap#il-protocollo-coap">COAP</a>.
+        Le uniche modifiche necessarie hanno riguardato la pulizia del codice non utilizzato e la configurazione
+        dell'applicazione (<a
           href="./../../sprint3_gui/src/main/java/facade24/ApplSystemInfo.java">ApplSystemInfo.java</a> & <a
-          href="./../../sprint3_gui/facadeConfig.json">facadeConfig.json</a>) per
-        mettersi in ascolto all'attore `WIS`
-        del sistema, dal quale riceve gli aggiornamenti per mostrarli nella pagina web <a
-          href="./../../sprint3_gui/src/main/resources/templates/WebRobot24Gui.html">WebRobot24Gui.html</a>.
+          href="./../../sprint3_gui/facadeConfig.json">facadeConfig.json</a>).
       </div>
 
       <h3>Piani di testing</h3>
       <div class="remark">
-        In questo sprint viene analizzata e modellata l'integrazione con la <b>ServiceStatusGUI</b>. Pertanto i test
+        In questo sprint viene analizzata e modellata l'integrazione con la <b>ServiceStatusGUI</b>, pertanto i test
         sono focalizzati su questa parte del sistema. <br>
 
         <table>
