@@ -33,7 +33,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t028",targetState="startup",cond=whenDispatch("startIncinerator"))
+					 transition(edgeName="t027",targetState="startup",cond=whenDispatch("startIncinerator"))
 				}	 
 				state("startup") { //this:State
 					action { //it:State
@@ -47,7 +47,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t029",targetState="startBurning",cond=whenDispatch("startBurning"))
+					 transition(edgeName="t028",targetState="startBurning",cond=whenDispatch("startBurning"))
 				}	 
 				state("startBurning") { //this:State
 					action { //it:State
@@ -59,17 +59,17 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 								CommUtils.outmagenta("$name - Start burning phase")
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "burning_phase_started" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","burning_phase_started").toString(), "it.unib0.iss.waste-incinerator-service" )   
-								forward("burning", "burning(0)" ,"wis" ) 
+								emit("burning", "burning(0)" ) 
 								delay(BurnTime)
 								CommUtils.outmagenta("$name - Finished burning RP")
-								forward("finishedBurning", "finishedBurning(0)" ,"wis" ) 
+								emit("finishedBurning", "finishedBurning(0)" ) 
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t030",targetState="startBurning",cond=whenDispatch("startBurning"))
+					 transition(edgeName="t029",targetState="startBurning",cond=whenDispatch("startBurning"))
 				}	 
 			}
 		}

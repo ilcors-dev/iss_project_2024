@@ -53,7 +53,7 @@ Event mqtt_info          : mqtt_info(MSG)
 // CONTEXTS
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
 Context ctxwis24 ip [host="localhost" port=8121]
-Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
+Context ctxmonitoringdevice ip [host="192.168.0.101" port=8122]
 Context ctxscale ip [host="127.0.0.1" port=8123]
 
 ExternalQActor basicrobot context ctxbasicrobot

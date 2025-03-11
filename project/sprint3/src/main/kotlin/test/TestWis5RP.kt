@@ -113,21 +113,35 @@ class TestWis5RP {
         val persistence = MemoryPersistence()
 
         val client = MqttClient(brokerUrl, clientId, persistence)
-        val connOpts = MqttConnectOptions().apply { isCleanSession = true }
+        val connOpts = MqttConnectOptions().apply {
+			isCleanSession = true
+		    keepAliveInterval = 30  // seconds
+		    connectionTimeout = 60  // seconds
+		}
         client.connect(connOpts)
         
-        fun attemptReconnect() {
-            try {
-                println("Attempting to reconnect...")
-                client.connect(connOpts)
-                client.subscribe("it.unib0.iss.waste-incinerator-service")
-                println("Reconnected successfully.")
-            } catch (e: Exception) {
-                println("Reconnect failed: ${e.message}")
-                delay(5000) // Wait before retrying
-                attemptReconnect() // Recursive call to retry
-            }
-        }
+		fun attemptReconnect(maxRetries: Int = 5) {
+		    var retries = 0
+		    while (!client.isConnected && retries < maxRetries) {
+		        try {
+		            println("Attempting to reconnect... (${retries + 1}/$maxRetries)")
+		            client.connect(connOpts)
+		            client.subscribe("it.unib0.iss.waste-incinerator-service")
+		            println("Reconnected successfully.")
+		            break
+		        } catch (e: Exception) {
+		            println("Reconnect failed: ${e.message}")
+		            retries++
+		            if (retries < maxRetries) {
+		                delay(5000) // Wait before retrying
+		            }
+		        }
+		    }
+		    
+		    if (!client.isConnected) {
+		        println("Failed to reconnect after $maxRetries attempts")
+		    }
+		}
 
         var testSuccess = false
         val receivedMessages = ArrayList<String>()

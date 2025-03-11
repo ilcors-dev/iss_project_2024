@@ -1,0 +1,268 @@
+System monitoringdevice
+
+Dispatch update_led_mode 			  : update_led_mode(MODE)
+Dispatch update_physical_led_mode     : update_physical_led_mode(MODE)
+
+Event sonar_data 					  : distance(D)
+Dispatch sonar_sensitivity            : sonar_sensitivity(S)
+Dispatch ash_measurement		 	  : ash_measurement(L)
+Dispatch load_ash					  : load_ash(D)
+
+Event mqtt_info       				  : mqtt_info(MSG)
+
+Context ctxwis24 ip [host="192.168.0.200" port=8121]
+Context ctxmonitoringdevice ip [host="localhost" port=8122]
+
+ExternalQActor wis context ctxwis24
+
+QActor led context ctxmonitoringdevice {
+	State s0 initial {
+		println("$name starts") color green
+	}
+
+	Transition t0
+		whenMsg update_led_mode -> handleUpdateLedStatus
+		
+	State handleUpdateLedStatus {
+		printCurrentMessage
+		
+		onMsg (update_led_mode : update_led_mode(MODE)) {
+			[#
+				val NEW_MODE = payloadArg(0).toString()
+				val NEW_MODE_LOG = "led_status_change_to_$NEW_MODE"
+			#]
+			
+			forward led_device -m update_physical_led_mode : update_physical_led_mode($NEW_MODE)
+
+			println("$NEW_MODE_LOG") color green
+		}
+	}
+	
+	Transition t0
+		whenMsg update_led_mode -> handleUpdateLedStatus
+}
+
+QActor led_device context ctxmonitoringdevice {
+	[#
+		var P = Runtime.getRuntime().exec("python3 scripts/ledOff.py");
+	#]
+	
+	State s0 initial{
+ 		connectToMqttBroker "tcp://192.168.0.200"
+		
+		println("$name starts") color green
+	}
+	
+	Transition t0 whenMsg update_physical_led_mode -> handleUpdateMode
+				 
+	State handleUpdateMode {
+		printCurrentMessage
+		onMsg(update_physical_led_mode : update_physical_led_mode(MODE)) {
+			[#
+				val S = payloadArg(0)
+				val NEW_MODE_LOG = "led_status_change_to_$S"
+				
+				P.destroy();
+				
+				P = when (S) {
+					"blink" 	-> Runtime.getRuntime().exec("python3 scripts/ledBlink.py")
+					"on"		-> Runtime.getRuntime().exec("python3 scripts/ledOn.py")
+					"off" 		-> Runtime.getRuntime().exec("python3 scripts/ledOff.py")
+				    else -> {
+				        println("Invalid command: $S")
+				        null
+				    }
+				}
+			#]
+			
+    		publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $NEW_MODE_LOG
+		}
+	}
+
+	Transition t0
+		whenMsg update_physical_led_mode -> handleUpdateMode
+}
+
+QActor sonar context ctxmonitoringdevice {
+	[# 
+		var CURRENT = 60
+		var PREVIOUS = 0
+		val MIN_DISTANCE = 0
+		val MAX_DISTANCE = 100
+		
+		var SONAR_SENSITIVITY = 1
+	#]
+	
+	State s0 initial {
+		println("$name starts") color green
+		
+		delay 1000
+		
+		subscribeTo sonar_device for sonar_data
+	}
+	
+	Transition t0
+		whenEvent sonar_data -> handleSonarData
+		whenMsg sonar_sensitivity -> updateSensitivity
+		
+	State updateSensitivity {
+		printCurrentMessage
+		
+		onMsg(sonar_sensitivity : sonar_sensitivity(S)) {
+			[# SONAR_SENSITIVITY = payloadArg(0).toInt() #]
+		}
+	}
+	
+	Transition t0
+		whenEvent sonar_data -> handleSonarData
+		whenMsg sonar_sensitivity -> updateSensitivity
+		
+	State handleSonarData {
+		printCurrentMessage
+		onMsg(sonar_data : distance(D)){
+	      	[#  
+	      		CURRENT = payloadArg(0).toInt()
+		
+	      		if(CURRENT <= MIN_DISTANCE) CURRENT = MIN_DISTANCE
+	      		if(CURRENT >= MAX_DISTANCE) CURRENT = MAX_DISTANCE
+	      	#]
+	      	
+	      	println("current ash level $CURRENT") color green
+	      	
+	      	if [# CURRENT >= (PREVIOUS + SONAR_SENSITIVITY) || CURRENT <= (PREVIOUS - SONAR_SENSITIVITY) #] {
+	      		println("current ash level $CURRENT") color green
+	      		
+	     		forward wis -m ash_measurement : ash_measurement($CURRENT)
+	     		
+	     		[# PREVIOUS = CURRENT #]
+	     	}
+		}
+	}
+	
+	Transition t0
+		whenEvent sonar_data -> handleSonarData
+		whenMsg sonar_sensitivity -> updateSensitivity
+}
+
+QActor sonar_device context ctxmonitoringdevice {
+	[# 
+		lateinit var reader  : java.io.BufferedReader
+	    lateinit var process : Process	
+	    var Distance = 60
+	    
+	    val SENSITIVITY = 1
+	#]
+	
+	State s0 initial {
+		println("$name starts") color blue
+		
+		delay 1000
+	}
+	
+	Transition t0
+		whenMsg load_ash -> handleLoadAsh
+		
+	State handleLoadAsh {
+		printCurrentMessage
+		onMsg(load_ash : load_ash(D)) {
+			[# Distance -= payloadArg(0).toInt() #]
+			
+			println("loaded ash, sonar measuring = $Distance")
+			emitlocalstream sonar_data : distance($Distance)
+		}
+	}
+		
+	Transition t0
+		whenMsg load_ash -> handleLoadAsh
+/*
+	Goto readData
+		
+	State readData {
+		[# 
+			var data = reader.readLine()
+			
+			CommUtils.outyellow("$name with echo: data = $data"   ) 
+			
+			if (data != null) {
+				try { 
+					Distance = (data.toFloat()).toInt();
+				} catch(e: Exception){
+					CommUtils.outred("$name sonar error: $e "   )
+				}
+			}
+		#]
+				
+		if [# data != null #] {
+			emitlocalstream sonar_data : distance($Distance)
+		}
+		
+		delay 5000
+	}
+	
+	Goto readData
+*/
+}
+
+/*
+QActor sonar_device context ctxmonitoringdevice {
+	[# 
+		lateinit var reader  : java.io.BufferedReader
+	    lateinit var process : Process	
+	    var Distance = 0
+	    
+	    val SENSITIVITY = 1
+	#]	
+	
+	State s0 initial {
+		println("$name starts") color blue
+		
+		delay 1000
+		
+		forward sonar -m sonar_sensitivity : sonar_sensitivity($SENSITIVITY)
+
+		[#	
+			process = Runtime.getRuntime().exec("echo sonar.py")
+			reader  = java.io.BufferedReader(java.io.InputStreamReader(process.getInputStream()))
+		#]		
+	}
+	
+	Goto readData
+		
+	State readData {
+		[# 
+			var data = reader.readLine()
+			
+			CommUtils.outyellow("$name with echo: data = $data"   ) 
+			
+			if (data != null) {
+				try { 
+					Distance = (data.toFloat()).toInt();
+				} catch(e: Exception){
+					CommUtils.outred("$name sonar error: $e "   )
+				}
+			}
+		#]
+		emitlocalstream sonar_data : distance($Distance)
+
+		delay 1000
+	}
+	
+	Goto readData
+}
+*/
+
+/*
+QActor mock_ash_unloader_external context ctxmonitoringdevice {
+	State s0 initial {
+		println("$name starts")
+	}
+	
+	Goto work
+	
+	State work {
+		delay 60000
+	}
+	
+	Goto work
+}
+*/
