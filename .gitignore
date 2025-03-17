@@ -1,1 +1,35 @@
-**/**/.gradle
+# Gradle related ignores
+.gradle/
+**/build/
+
+# Built application files
+*.apk
+*.apks
+*.class
+*.dex
+/output/
+
+# Local configuration file (contains local paths, etc)
+local.properties
+
+# Android Studio generated files
+.idea/
+.gradle
+**/build/
+
+# Enable this to prevent committing the debug key store,
+# but you should sign your releases with your own key.
+# debug.keystore
+
+# Exclude all .iml files
+*.iml
+
+# Exclude all .ldb files
+*.ldb
+
+# Ignore OS specific files
+.DS_Store
+**/._*
+Thumbs.db
+
+.venv
