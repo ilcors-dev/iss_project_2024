@@ -254,7 +254,7 @@ class TestWis5RP {
 
         try {
             // wait for test to complete or timeout
-            val timeout = 160000L
+            val timeout = 180000L
             val startTime = System.currentTimeMillis()
             while (!testSuccess && System.currentTimeMillis() - startTime < timeout) {
                 delay(1000)

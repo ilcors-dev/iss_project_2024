@@ -21,7 +21,9 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		 var CURRENT_WEIGHT = 250  
+		
+				val MAX_WEIGHT = 250; // aka 5 rp
+				var CURRENT_WEIGHT = 250; 
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -39,9 +41,12 @@ class Scale_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("load_weight(WEIGHT)"), Term.createTerm("load_weight(WEIGHT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
-								 CURRENT_WEIGHT += payloadArg(0).toInt()  
+								 val NEW_WEIGHT = payloadArg(0).toInt()  
+								if(  NEW_WEIGHT < MAX_WEIGHT  
+								 ){ CURRENT_WEIGHT += NEW_WEIGHT  
 								emitLocalStreamEvent("scale_data", "scale_data($CURRENT_WEIGHT)" ) 
 								CommUtils.outblack("$name weight added, current = $CURRENT_WEIGHT")
+								}
 						}
 						//genTimer( actor, state )
 					}

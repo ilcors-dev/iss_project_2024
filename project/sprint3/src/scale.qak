@@ -29,16 +29,12 @@ QActor scale context ctxscale {
 		printCurrentMessage
 		onMsg(scale_data : scale_data(WEIGHT)){
 			println("$name weight=${payloadArg(0)}") color yellow
+
+			[# RPCONT = (payloadArg(0).toInt() / 50) #]
 			
-			[# val NEW_CONT = (payloadArg(0).toInt() / 50) #]
+			println("$name the RP number now is $RPCONT") color yellow
 			
-			if [# NEW_CONT <= MAX_RPCONT #] {
-				[# RPCONT = NEW_CONT #]
-				
-				println("$name the RP number now is $RPCONT") color yellow
-				
-				forward wis -m update_scale_count : update_scale_count($RPCONT)
-			}
+			forward wis -m update_scale_count : update_scale_count($RPCONT)
 		}
 	}
 	
@@ -47,7 +43,10 @@ QActor scale context ctxscale {
 }
 
 QActor scale_device context ctxscale {
-	[# var CURRENT_WEIGHT = 250 #]
+	[#
+		val MAX_WEIGHT = 250; // aka 5 rp
+		var CURRENT_WEIGHT = 250; 
+	#]
 	
 	State s0 initial {
 		println("$name starts") color green
@@ -61,9 +60,13 @@ QActor scale_device context ctxscale {
 	State addWeight {
  		// rp incoming from external source
 		onMsg(load_weight : load_weight(WEIGHT)) {
-	 		[# CURRENT_WEIGHT += payloadArg(0).toInt() #]
-	 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
-			println("$name weight added, current = $CURRENT_WEIGHT") 
+			[# val NEW_WEIGHT = payloadArg(0).toInt() #]
+			
+			if [# NEW_WEIGHT < MAX_WEIGHT #] {
+		 		[# CURRENT_WEIGHT += NEW_WEIGHT #]
+		 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)
+				println("$name weight added, current = $CURRENT_WEIGHT")
+			}
 		}
 	}
 	
@@ -90,7 +93,7 @@ QActor scale_device context ctxscale {
 QActor mock_rp_loader_external context ctxscale {
 	State s0 initial {
 		println("$name starts")
-		delay 10000
+		delay 90000
 	}
 	
 	Goto work
@@ -98,7 +101,7 @@ QActor mock_rp_loader_external context ctxscale {
 	State work {
 		forward scale_device -m load_weight : load_weight(50)
 		println("$name new rp")
-		delay 60000
+		delay 90000
 	}
 	
 	Goto work

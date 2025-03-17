@@ -125,21 +125,13 @@ QActor wis context ctxwis24 {
     var ASHLEVEL = 60
     var RPCONT = 5
     var INCSTATUS = 0 // 0 free, 1 busy
-    var INHOME = 0 // 0 in home, 1 not in home
+    var INHOME = 1 // 1 in home, 0 not in home
     var ROBOT_STATE = ROBOT_STATE_HOME // robot current state
 
     /////////////////////////////////////////////////////////////////////////////////////
     // Helper Functions
     /////////////////////////////////////////////////////////////////////////////////////
-    
-    fun checkCondition(): Boolean {
-    	val hasRp = RPCONT > 0;
-    	val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT;
-    	val isIncineratorOff = INCSTATUS == 0;
-        
-        return hasRp && ashStorageNotFull && isIncineratorOff;
-    }
-    
+ 
     /**
      * Converts the current ash level into a percentage signaling how much the storage is full
      */
@@ -148,6 +140,9 @@ QActor wis context ctxwis24 {
       return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // ensure within 0-100
     }
     
+    /**
+     * Returns the status report string to update the GUI (or generally who's subscribing to the wis actor)
+     */
     fun getStatusString(): String {
     	return "'name=$name;rp=$RPCONT;incinerator=$INCSTATUS;robot=$ROBOT_STATE;ash=${calculateAshPercentage()}%'"
     }
@@ -170,9 +165,26 @@ QActor wis context ctxwis24 {
   Goto check
   
   State check {
-  	if [# checkCondition() #] {
+	[#
+    	val hasRp = RPCONT > 0;
+    	val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT;
+    	val isIncineratorOff = INCSTATUS == 0;
+    	val inHome = INHOME == 1;
+    	
+    	CommUtils.outgreen("hasRp: $hasRp");
+    	CommUtils.outgreen("ashStorageNotFull: $ashStorageNotFull");
+    	CommUtils.outgreen("isIncineratorOff: $isIncineratorOff");
+    	CommUtils.outgreen("inHome: $inHome");
+    	val condition = hasRp && ashStorageNotFull && isIncineratorOff && inHome;
+	#]
+  	
+  	if [# hasRp && ashStorageNotFull && isIncineratorOff && inHome #] {
+  	  println("condition met: has rp available, ash storage is not full, incinerator is off")
       request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
-      [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_WASTEIN #]
+      [#
+      	INHOME = 0
+      	ROBOT_STATE = ROBOT_STATE_MOVING_TO_WASTEIN
+      #]
     }
   }
 
@@ -225,25 +237,25 @@ QActor wis context ctxwis24 {
     [# ROBOT_STATE = ROBOT_STATE_BURN_IN #]
     updateResource [# getStatusString() #]
 
-    forward incinerator -m startBurning : startBurning(9000)
+    forward incinerator -m startBurning : startBurning(10000)
   }
 
   Transition t0 whenMsg burning -> updateIncStatus
 
   State moveToAshOut {
   	[# ROBOT_STATE = ROBOT_STATE_BURN_OUT #]
-  	updateResource [# getStatusString() #]
     onMsg(extractash_status : extractash_status(0)) {
 
       [# INHOME = 0 #]
       println("$name - Moving to ash out") color green
       
-      delay 200
+      delay 500
 
       [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_ASHOUT #]
       updateResource [# getStatusString() #]
 
       request oprobot -m depositash : depositash($ASHOUT_POS_X, $ASHOUT_POS_Y)
+	  updateResource [# getStatusString() #]
     }
   }
 
@@ -308,10 +320,9 @@ QActor wis context ctxwis24 {
     }
   }
 
-  Goto check
+  Goto check if [# INHOME == 1 #] else printStatus
 
-  State handleAshMeasurement { // update the ash level measurement & check if led
-                               // needs to be changed aswell
+  State handleAshMeasurement { // update the ash level measurement & check if led needs to be changed aswell                  
     onMsg(ash_measurement : ash_measurement(L)) {
       [#
         var level = payloadArg(0).toInt()
@@ -319,8 +330,9 @@ QActor wis context ctxwis24 {
       #]
 
       println("$name - ash level changed, update") color magenta
-		//        ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || // we agreed with the client that the led should blink only when the storage is full
-      if [# ASHLEVEL + ASH_STORAGE_THRESHOLD >= DLIMIT #] {
+
+	  // ASHLEVEL + ASH_STORAGE_THRESHOLD >= DLIMIT <= 0 || // we agreed with the client that the led should blink only when the storage is full
+      if [# (ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 #] {
         forward led -m update_led_mode : update_led_mode($LED_BLINK)
         publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
       }
@@ -329,7 +341,7 @@ QActor wis context ctxwis24 {
     }
   }
 
-  Goto check
+  Goto check if [# INHOME == 1 #] else printStatus
 }
 
 QActor oprobot context ctxwis24 {
@@ -390,7 +402,7 @@ QActor oprobot context ctxwis24 {
         var Y = payloadArg(1).toInt()
       #]
       println("$name - Moving to ($X,$Y)") color green
-      delay 500 // simulating oprobot taking time to go to wastein port
+      delay 1000 // simulating oprobot taking time to go to wastein port
 
       request basicrobot -m moverobot : moverobot($X, $Y)
     }
@@ -401,7 +413,7 @@ QActor oprobot context ctxwis24 {
     whenReply moverobotfailed -> execGetRp
 
   State getRpOk {
-    delay 200
+    delay 500
 
     forward scale_device -m unload_weight : unload_weight(50) // 🏃🏻
     replyTo getrp with getrp_status : getrp_status(0)
@@ -417,7 +429,7 @@ QActor oprobot context ctxwis24 {
       #]
 
       println("$name - Depositing RP in ($X, $Y)") color green
-      delay 500 // simulating deposit action
+      delay 1000 // simulating deposit action
 
       request basicrobot -m moverobot : moverobot($X, $Y)
     }
@@ -440,7 +452,7 @@ QActor oprobot context ctxwis24 {
         var Y = payloadArg(1).toInt()
       #]
       println("$name - Moving to ($X,$Y)") color green
-      delay 500 // simulating oprobot taking time to moverobot
+      delay 1000 // simulating oprobot taking time to moverobot
 
       request basicrobot -m moverobot : moverobot($X, $Y)
     }
@@ -464,7 +476,7 @@ QActor oprobot context ctxwis24 {
       #]
 
       println("$name - Depositing Ash in ($X, $Y)") color green
-      delay 500
+      delay 1000
         	 // 🔫🔫🔫
       request basicrobot -m moverobot : moverobot($X, $Y)
     }
@@ -499,12 +511,12 @@ QActor incinerator context ctxwis24 {
     }
   }
 
-  Transition t0 whenMsg startBurning -> startBurning
+  Transition t0 whenMsg startBurning -> handleStartBurning
 
-  State startBurning {
+  State handleStartBurning {
     onMsg(startBurning : startBurning(BTIME)) {
       [# var BurnTime = payloadArg(0).toLong() #]
-      println("$name - Start burning phase") color magenta
+      println("$name - Start burning phase, for $BurnTime ms") color magenta
 
       forward wis -m burning : burning(0)
 
@@ -515,5 +527,5 @@ QActor incinerator context ctxwis24 {
       forward wis -m finishedBurning : finishedBurning(0)
     }
   }
-  Transition t0 whenMsg startBurning -> startBurning
+  Transition t0 whenMsg startBurning -> handleStartBurning
 }

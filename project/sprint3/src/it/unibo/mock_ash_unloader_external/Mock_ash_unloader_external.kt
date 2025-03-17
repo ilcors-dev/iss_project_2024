@@ -25,7 +25,7 @@ class Mock_ash_unloader_external ( name: String, scope: CoroutineScope, isconfin
 				state("s0") { //this:State
 					action { //it:State
 						CommUtils.outblack("$name starts")
-						delay(10000) 
+						delay(90000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -37,7 +37,7 @@ class Mock_ash_unloader_external ( name: String, scope: CoroutineScope, isconfin
 					action { //it:State
 						forward("unload_ash", "unload_ash(25)" ,"sonar_device" ) 
 						CommUtils.outblack("$name unloaded ash")
-						delay(60000) 
+						delay(90000) 
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

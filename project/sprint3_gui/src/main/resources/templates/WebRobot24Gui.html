@@ -180,8 +180,8 @@
                     </div>
                 </div>
 
-                <!-- MQTT Messages and System Log -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                MQTT Messages and System Log
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 hidden">
                     <!-- MQTT Messages -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
@@ -693,11 +693,12 @@
 
             try {
                 // Generate a random client ID
-                const clientId = "waste_management_" + Math.random().toString(16).substr(2, 8);
+                const clientId =
+                    "waste_management_" + Math.random().toString(16).substr(2, 8);
 
                 // Use local broker
                 const host = "localhost";
-                const port = 9001; // WebSocket port
+                const port = 1883; // Standard MQTT port
 
                 // Create a new MQTT client instance
                 mqttClient = new Paho.MQTT.Client(host, port, clientId);

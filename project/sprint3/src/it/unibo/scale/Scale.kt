@@ -44,12 +44,9 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 						if( checkMsgContent( Term.createTerm("scale_data(WEIGHT)"), Term.createTerm("scale_data(WEIGHT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("$name weight=${payloadArg(0)}")
-								 val NEW_CONT = (payloadArg(0).toInt() / 50)  
-								if(  NEW_CONT <= MAX_RPCONT  
-								 ){ RPCONT = NEW_CONT  
+								 RPCONT = (payloadArg(0).toInt() / 50)  
 								CommUtils.outyellow("$name the RP number now is $RPCONT")
 								forward("update_scale_count", "update_scale_count($RPCONT)" ,"wis" ) 
-								}
 						}
 						//genTimer( actor, state )
 					}

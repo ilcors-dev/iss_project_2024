@@ -269,7 +269,7 @@ QActor sonar_device context ctxmonitoringdevice {
 QActor mock_ash_unloader_external context ctxmonitoringdevice {
 	State s0 initial {
 		println("$name starts")
-		delay 10000
+		delay 90000
 	}
 	
 	Goto work
@@ -277,7 +277,7 @@ QActor mock_ash_unloader_external context ctxmonitoringdevice {
 	State work {
 		forward sonar_device -m unload_ash : unload_ash(25)
 		println("$name unloaded ash")
-		delay 60000
+		delay 90000
 	}
 	
 	Goto work

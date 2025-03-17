@@ -46,14 +46,14 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t029",targetState="startBurning",cond=whenDispatch("startBurning"))
+					 transition(edgeName="t029",targetState="handleStartBurning",cond=whenDispatch("startBurning"))
 				}	 
-				state("startBurning") { //this:State
+				state("handleStartBurning") { //this:State
 					action { //it:State
 						if( checkMsgContent( Term.createTerm("startBurning(BTIME)"), Term.createTerm("startBurning(BTIME)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 var BurnTime = payloadArg(0).toLong()  
-								CommUtils.outmagenta("$name - Start burning phase")
+								CommUtils.outmagenta("$name - Start burning phase, for $BurnTime ms")
 								forward("burning", "burning(0)" ,"wis" ) 
 								delay(BurnTime)
 								CommUtils.outmagenta("$name - Finished burning RP")
@@ -64,7 +64,7 @@ class Incinerator ( name: String, scope: CoroutineScope, isconfined: Boolean=fal
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t030",targetState="startBurning",cond=whenDispatch("startBurning"))
+					 transition(edgeName="t030",targetState="handleStartBurning",cond=whenDispatch("startBurning"))
 				}	 
 			}
 		}

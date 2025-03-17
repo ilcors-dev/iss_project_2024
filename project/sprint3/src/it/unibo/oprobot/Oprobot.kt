@@ -96,7 +96,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								        var X = payloadArg(0).toInt()
 								        var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
-								delay(500) 
+								delay(1000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -109,7 +109,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 				}	 
 				state("getRpOk") { //this:State
 					action { //it:State
-						delay(200) 
+						delay(500) 
 						forward("unload_weight", "unload_weight(50)" ,"scale_device" ) 
 						answer("getrp", "getrp_status", "getrp_status(0)"   )  
 						//genTimer( actor, state )
@@ -127,7 +127,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								        var X = payloadArg(0).toInt()
 								        var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing RP in ($X, $Y)")
-								delay(500) 
+								delay(1000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -156,7 +156,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								        var X = payloadArg(0).toInt()
 								        var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Moving to ($X,$Y)")
-								delay(500) 
+								delay(1000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
@@ -185,7 +185,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 								        var X = payloadArg(0).toInt()
 								        var Y = payloadArg(1).toInt()
 								CommUtils.outgreen("$name - Depositing Ash in ($X, $Y)")
-								delay(500) 
+								delay(1000) 
 								request("moverobot", "moverobot($X,$Y)" ,"basicrobot" )  
 						}
 						//genTimer( actor, state )
