@@ -72,7 +72,7 @@ QActor wis context ctxwis24 {
     // constants
     /////////////////////////////////////////////////////////////////////////////////////
 
-    val DLIMIT = 100
+    val DLIMIT = 25 // supposing 100 is full
     val ASH_STORAGE_THRESHOLD = 25
 
     // LED statuses
@@ -122,7 +122,7 @@ QActor wis context ctxwis24 {
     /////////////////////////////////////////////////////////////////////////////////////
     // status variables
     /////////////////////////////////////////////////////////////////////////////////////
-    var ASHLEVEL = 60
+    var ASHLEVEL = 75
     var RPCONT = 5
     var INCSTATUS = 0 // 0 free, 1 busy
     var INHOME = 1 // 1 in home, 0 not in home
@@ -136,8 +136,8 @@ QActor wis context ctxwis24 {
      * Converts the current ash level into a percentage signaling how much the storage is full
      */
     fun calculateAshPercentage(): Int {
-      val ashFullness = DLIMIT - ASHLEVEL
-      return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // ensure within 0-100
+      val ashFullness = 100 - ASHLEVEL
+      return (ashFullness * 100 / 100).coerceIn(0, 100) // ensure within 0-100
     }
     
     /**
@@ -167,18 +167,23 @@ QActor wis context ctxwis24 {
   State check {
 	[#
     	val hasRp = RPCONT > 0;
-    	val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT;
+    	// val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) >= DLIMIT;
+    	
+    	// 4 ash -> spazio rimasto = 0
+    	// 3 ash -> spazio rimasto = 25
+    	// 2 ash -> spazio rimasto = 50
+    	// 1 ash -> spazio rimasto = 75
+    	val ashStorageFull = ASHLEVEL <= DLIMIT;
     	val isIncineratorOff = INCSTATUS == 0;
     	val inHome = INHOME == 1;
     	
     	CommUtils.outgreen("hasRp: $hasRp");
-    	CommUtils.outgreen("ashStorageNotFull: $ashStorageNotFull");
+    	CommUtils.outgreen("ashStorageFull: $ashStorageFull");
     	CommUtils.outgreen("isIncineratorOff: $isIncineratorOff");
     	CommUtils.outgreen("inHome: $inHome");
-    	val condition = hasRp && ashStorageNotFull && isIncineratorOff && inHome;
 	#]
   	
-  	if [# hasRp && ashStorageNotFull && isIncineratorOff && inHome #] {
+  	if [# hasRp && !ashStorageFull && isIncineratorOff && inHome #] {
   	  println("condition met: has rp available, ash storage is not full, incinerator is off")
       request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
       [#
@@ -244,22 +249,53 @@ QActor wis context ctxwis24 {
 
   State moveToAshOut {
   	[# ROBOT_STATE = ROBOT_STATE_BURN_OUT #]
+    updateResource [# getStatusString() #]
     onMsg(extractash_status : extractash_status(0)) {
-
       [# INHOME = 0 #]
       println("$name - Moving to ash out") color green
-      
+     
       delay 500
 
       [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_ASHOUT #]
       updateResource [# getStatusString() #]
 
       request oprobot -m depositash : depositash($ASHOUT_POS_X, $ASHOUT_POS_Y)
-	  updateResource [# getStatusString() #]
     }
   }
 
-  Transition t5 whenReply depositash_status -> goHome
+  Transition t5 whenReply depositash_status -> step
+  
+  // this empty state is needed to consume the depositash_status, after that we should
+  // wait for the ash measurement level update. THIS STEP IS CRUCIAL otherwise the
+  // oprobot would go on taking an rp from the wastein storage even if the ash
+  // storage is considered full, which violates the given project requirements
+  State step {
+  	println("🫣")
+  }
+  
+  Transition t1
+  	whenMsg ash_measurement -> waitForAshUpdateAfterDeposit
+  
+  State waitForAshUpdateAfterDeposit {
+  	onMsg(ash_measurement : ash_measurement(L)) {
+      [#
+        var level = payloadArg(0).toInt()
+        ASHLEVEL = level
+      #]
+
+      println("$name - ash level changed, update") color magenta
+
+	  // ASHLEVEL + ASH_STORAGE_THRESHOLD >= DLIMIT <= 0 || // we agreed with the client that the led should blink only when the storage is full
+      if [# (ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 #] {
+        forward led -m update_led_mode : update_led_mode($LED_BLINK)
+        publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
+      }
+        
+      updateResource [# getStatusString() #]
+    }
+  }
+  
+  Goto goHome
 
   State goHome {
     println("$name - Moving to home") color green
@@ -489,6 +525,7 @@ QActor oprobot context ctxwis24 {
   State depositAshOk {
     forward sonar_device -m load_ash : load_ash(25)
     replyTo depositash with depositash_status : depositash_status(0)
+    println("$name deposited ash in ash storage") color magenta
   }
 
   Transition t0 whenRequest gohome -> execGoHome

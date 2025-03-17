@@ -200,10 +200,10 @@ class TestWis5RP {
         val messagesStack =
             ArrayDeque(
                 listOf(
-                    "ASHLEVEL_35",
-                    "ASHLEVEL_10", // aka ash storage almost full
+					"ASHLEVEL_75",
+					"ASHLEVEL_50",
+                    "ASHLEVEL_25",
                     "led_status_change_to_blink",
-                    "ASHLEVEL_0", // aka ash storage full
                 ),
             )
 

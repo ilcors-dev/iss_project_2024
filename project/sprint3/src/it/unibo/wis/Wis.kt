@@ -27,7 +27,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		    // constants
 		    /////////////////////////////////////////////////////////////////////////////////////
 		
-		    val DLIMIT = 100
+		    val DLIMIT = 25 // supposing 100 is full
 		    val ASH_STORAGE_THRESHOLD = 25
 		
 		    // LED statuses
@@ -77,7 +77,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		    /////////////////////////////////////////////////////////////////////////////////////
 		    // status variables
 		    /////////////////////////////////////////////////////////////////////////////////////
-		    var ASHLEVEL = 60
+		    var ASHLEVEL = 75
 		    var RPCONT = 5
 		    var INCSTATUS = 0 // 0 free, 1 busy
 		    var INHOME = 1 // 1 in home, 0 not in home
@@ -91,8 +91,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		     * Converts the current ash level into a percentage signaling how much the storage is full
 		     */
 		    fun calculateAshPercentage(): Int {
-		      val ashFullness = DLIMIT - ASHLEVEL
-		      return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // ensure within 0-100
+		      val ashFullness = 100 - ASHLEVEL
+		      return (ashFullness * 100 / 100).coerceIn(0, 100) // ensure within 0-100
 		    }
 		    
 		    /**
@@ -131,16 +131,21 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						
 						    	val hasRp = RPCONT > 0;
-						    	val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT;
+						    	// val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) >= DLIMIT;
+						    	
+						    	// 4 ash -> spazio rimasto = 0
+						    	// 3 ash -> spazio rimasto = 25
+						    	// 2 ash -> spazio rimasto = 50
+						    	// 1 ash -> spazio rimasto = 75
+						    	val ashStorageFull = ASHLEVEL <= DLIMIT;
 						    	val isIncineratorOff = INCSTATUS == 0;
 						    	val inHome = INHOME == 1;
 						    	
 						    	CommUtils.outgreen("hasRp: $hasRp");
-						    	CommUtils.outgreen("ashStorageNotFull: $ashStorageNotFull");
+						    	CommUtils.outgreen("ashStorageFull: $ashStorageFull");
 						    	CommUtils.outgreen("isIncineratorOff: $isIncineratorOff");
 						    	CommUtils.outgreen("inHome: $inHome");
-						    	val condition = hasRp && ashStorageNotFull && isIncineratorOff && inHome;
-						if(  hasRp && ashStorageNotFull && isIncineratorOff && inHome  
+						if(  hasRp && !ashStorageFull && isIncineratorOff && inHome  
 						 ){CommUtils.outblack("condition met: has rp available, ash storage is not full, incinerator is off")
 						request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
 						
@@ -220,6 +225,8 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				state("moveToAshOut") { //this:State
 					action { //it:State
 						 ROBOT_STATE = ROBOT_STATE_BURN_OUT  
+						updateResourceRep( getStatusString()  
+						)
 						if( checkMsgContent( Term.createTerm("extractash_status(0)"), Term.createTerm("extractash_status(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 INHOME = 0  
@@ -229,6 +236,37 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								updateResourceRep( getStatusString()  
 								)
 								request("depositash", "depositash($ASHOUT_POS_X,$ASHOUT_POS_Y)" ,"oprobot" )  
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t58",targetState="step",cond=whenReply("depositash_status"))
+				}	 
+				state("step") { //this:State
+					action { //it:State
+						CommUtils.outblack("🫣")
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t19",targetState="waitForAshUpdateAfterDeposit",cond=whenDispatch("ash_measurement"))
+				}	 
+				state("waitForAshUpdateAfterDeposit") { //this:State
+					action { //it:State
+						if( checkMsgContent( Term.createTerm("ash_measurement(L)"), Term.createTerm("ash_measurement(L)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								
+								        var level = payloadArg(0).toInt()
+								        ASHLEVEL = level
+								CommUtils.outmagenta("$name - ash level changed, update")
+								if(  (ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0  
+								 ){forward("update_led_mode", "update_led_mode($LED_BLINK)" ,"led" ) 
+								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
+								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
+								}
 								updateResourceRep( getStatusString()  
 								)
 						}
@@ -237,7 +275,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t58",targetState="goHome",cond=whenReply("depositash_status"))
+					 transition( edgeName="goto",targetState="goHome", cond=doswitch() )
 				}	 
 				state("goHome") { //this:State
 					action { //it:State
@@ -251,7 +289,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t29",targetState="inHome",cond=whenReply("gohome_status"))
+					 transition(edgeName="t210",targetState="inHome",cond=whenReply("gohome_status"))
 				}	 
 				state("inHome") { //this:State
 					action { //it:State

@@ -37,7 +37,7 @@ QActor scale context ctxscale {
 			forward wis -m update_scale_count : update_scale_count($RPCONT)
 		}
 	}
-	
+
 	Transition t0
 		whenEvent scale_data -> handleScaleData
 }
@@ -61,7 +61,7 @@ QActor scale_device context ctxscale {
  		// rp incoming from external source
 		onMsg(load_weight : load_weight(WEIGHT)) {
 			[# val NEW_WEIGHT = payloadArg(0).toInt() #]
-			
+		
 			if [# NEW_WEIGHT < MAX_WEIGHT #] {
 		 		[# CURRENT_WEIGHT += NEW_WEIGHT #]
 		 		emitlocalstream scale_data : scale_data($CURRENT_WEIGHT)

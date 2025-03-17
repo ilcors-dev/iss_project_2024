@@ -24,7 +24,7 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 		 
 				lateinit var reader  : java.io.BufferedReader
 			    lateinit var process : Process	
-			    var Distance = 60
+			    var Distance = 75
 			    
 			    val SENSITIVITY = 1
 		return { //this:ActionBasciFsm

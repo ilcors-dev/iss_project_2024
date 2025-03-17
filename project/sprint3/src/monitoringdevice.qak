@@ -84,8 +84,8 @@ QActor led_device context ctxmonitoringdevice {
 
 QActor sonar context ctxmonitoringdevice {
 	[# 
-		var CURRENT = 60
-		var PREVIOUS = 0
+		var CURRENT = 75
+		var PREVIOUS = 75
 		val MIN_DISTANCE = 0
 		val MAX_DISTANCE = 100
 		
@@ -103,7 +103,7 @@ QActor sonar context ctxmonitoringdevice {
 	Transition t0
 		whenEvent sonar_data -> handleSonarData
 		whenMsg sonar_sensitivity -> updateSensitivity
-		
+	
 	State updateSensitivity {
 		printCurrentMessage
 		
@@ -147,7 +147,7 @@ QActor sonar_device context ctxmonitoringdevice {
 	[# 
 		lateinit var reader  : java.io.BufferedReader
 	    lateinit var process : Process	
-	    var Distance = 60
+	    var Distance = 75
 	    
 	    val SENSITIVITY = 1
 	#]
@@ -269,7 +269,7 @@ QActor sonar_device context ctxmonitoringdevice {
 QActor mock_ash_unloader_external context ctxmonitoringdevice {
 	State s0 initial {
 		println("$name starts")
-		delay 90000
+		delay 120000
 	}
 	
 	Goto work
@@ -277,7 +277,7 @@ QActor mock_ash_unloader_external context ctxmonitoringdevice {
 	State work {
 		forward sonar_device -m unload_ash : unload_ash(25)
 		println("$name unloaded ash")
-		delay 90000
+		delay 120000
 	}
 	
 	Goto work

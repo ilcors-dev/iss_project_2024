@@ -43,8 +43,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t010",targetState="inHome",cond=whenReply("engagedone"))
-					transition(edgeName="t011",targetState="handleEngageRefused",cond=whenReply("engagerefused"))
+					 transition(edgeName="t011",targetState="inHome",cond=whenReply("engagedone"))
+					transition(edgeName="t012",targetState="handleEngageRefused",cond=whenReply("engagerefused"))
 				}	 
 				state("handleEngageRefused") { //this:State
 					action { //it:State
@@ -73,8 +73,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t012",targetState="inHome",cond=whenReply("moverobotdone"))
-					transition(edgeName="t013",targetState="execGoHome",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t013",targetState="inHome",cond=whenReply("moverobotdone"))
+					transition(edgeName="t014",targetState="execGoHome",cond=whenReply("moverobotfailed"))
 				}	 
 				state("inHome") { //this:State
 					action { //it:State
@@ -85,8 +85,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t014",targetState="execGetRp",cond=whenRequest("getrp"))
-					transition(edgeName="t015",targetState="execExtractAsh",cond=whenRequest("extractash"))
+					 transition(edgeName="t015",targetState="execGetRp",cond=whenRequest("getrp"))
+					transition(edgeName="t016",targetState="execExtractAsh",cond=whenRequest("extractash"))
 				}	 
 				state("execGetRp") { //this:State
 					action { //it:State
@@ -104,8 +104,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t016",targetState="getRpOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t017",targetState="execGetRp",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t017",targetState="getRpOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t018",targetState="execGetRp",cond=whenReply("moverobotfailed"))
 				}	 
 				state("getRpOk") { //this:State
 					action { //it:State
@@ -117,7 +117,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t118",targetState="execDepositRp",cond=whenRequest("depositrp"))
+					 transition(edgeName="t119",targetState="execDepositRp",cond=whenRequest("depositrp"))
 				}	 
 				state("execDepositRp") { //this:State
 					action { //it:State
@@ -135,8 +135,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t219",targetState="depositRpOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t220",targetState="execDepositRp",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t220",targetState="depositRpOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t221",targetState="execDepositRp",cond=whenReply("moverobotfailed"))
 				}	 
 				state("depositRpOk") { //this:State
 					action { //it:State
@@ -146,7 +146,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t321",targetState="execGoHome",cond=whenRequest("gohome"))
+					 transition(edgeName="t322",targetState="execGoHome",cond=whenRequest("gohome"))
 				}	 
 				state("execExtractAsh") { //this:State
 					action { //it:State
@@ -164,8 +164,8 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t022",targetState="extractAshOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t023",targetState="execExtractAsh",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t023",targetState="extractAshOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t024",targetState="execExtractAsh",cond=whenReply("moverobotfailed"))
 				}	 
 				state("extractAshOk") { //this:State
 					action { //it:State
@@ -175,7 +175,7 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t024",targetState="execDepositAsh",cond=whenRequest("depositash"))
+					 transition(edgeName="t025",targetState="execDepositAsh",cond=whenRequest("depositash"))
 				}	 
 				state("execDepositAsh") { //this:State
 					action { //it:State
@@ -193,19 +193,20 @@ class Oprobot ( name: String, scope: CoroutineScope, isconfined: Boolean=false  
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t025",targetState="depositAshOk",cond=whenReply("moverobotdone"))
-					transition(edgeName="t026",targetState="execDepositAsh",cond=whenReply("moverobotfailed"))
+					 transition(edgeName="t026",targetState="depositAshOk",cond=whenReply("moverobotdone"))
+					transition(edgeName="t027",targetState="execDepositAsh",cond=whenReply("moverobotfailed"))
 				}	 
 				state("depositAshOk") { //this:State
 					action { //it:State
 						forward("load_ash", "load_ash(25)" ,"sonar_device" ) 
 						answer("depositash", "depositash_status", "depositash_status(0)"   )  
+						CommUtils.outmagenta("$name deposited ash in ash storage")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t027",targetState="execGoHome",cond=whenRequest("gohome"))
+					 transition(edgeName="t028",targetState="execGoHome",cond=whenRequest("gohome"))
 				}	 
 			}
 		}

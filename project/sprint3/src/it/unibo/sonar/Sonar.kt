@@ -22,8 +22,8 @@ class Sonar ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		 
-				var CURRENT = 60
-				var PREVIOUS = 0
+				var CURRENT = 75
+				var PREVIOUS = 75
 				val MIN_DISTANCE = 0
 				val MAX_DISTANCE = 100
 				
