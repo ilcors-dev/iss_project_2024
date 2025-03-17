@@ -640,14 +640,14 @@
                 const data = event.data;
                 console.log(data);
 
-                let splitted = data.split(";");
+                let splitted = data.replace(/'/g, "").split(";");
                 console.log(splitted);
 
-                const app = splitted[0].split(":")[1].trim();
-                const wasteStorageMatch = splitted[1].split(":")[1].trim();
-                const incineratorStatusMatch = splitted[2].split(":")[1].trim();
-                const robotLocationMatch = splitted[3].split(":")[1].trim();
-                const ashStorageMatch = splitted[4].split(":")[1].trim();
+                const app = splitted[0].split("=")[1].trim();
+                const wasteStorageMatch = splitted[1].split("=")[1].trim();
+                const incineratorStatusMatch = splitted[2].split("=")[1].trim();
+                const robotLocationMatch = splitted[3].split("=")[1].trim();
+                const ashStorageMatch = splitted[4].split("=")[1].trim();
 
                 // Update table fields with extracted data
                 if (wasteStorageMatch) {

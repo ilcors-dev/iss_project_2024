@@ -94,6 +94,10 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		      val ashFullness = DLIMIT - ASHLEVEL
 		      return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // ensure within 0-100
 		    }
+		    
+		    fun getStatusString(): String {
+		    	return "'name=$name;rp=$RPCONT;incinerator=$INCSTATUS;robot=$ROBOT_STATE;ash=${calculateAshPercentage()}%'"
+		    }
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -135,15 +139,14 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						
 						      val RP_STATUS = "RPCONT_${RPCONT}"
 						      val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
-						      val ashPercentage = calculateAshPercentage()
-						      val STATUS = "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: $ashPercentage%"
+						      val STATUS = getStatusString()
 						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$RP_STATUS" ) 
 						publish(MsgUtil.buildEvent(name,"mqtt_info","$RP_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$ASHLEVEL_STATUS" ) 
 						publish(MsgUtil.buildEvent(name,"mqtt_info","$ASHLEVEL_STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
 						//val m = MsgUtil.buildEvent(name, "mqtt_info", "$STATUS" ) 
 						publish(MsgUtil.buildEvent(name,"mqtt_info","$STATUS").toString(), "it.unib0.iss.waste-incinerator-service" )   
-						updateResourceRep( STATUS  
+						updateResourceRep( getStatusString()  
 						)
 						//genTimer( actor, state )
 					}
@@ -160,8 +163,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				state("moveToBurnIn") { //this:State
 					action { //it:State
 						 ROBOT_STATE = ROBOT_STATE_WASTEIN  
-						updateResourceRep(
-						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+						updateResourceRep( getStatusString()  
 						)
 						if( checkMsgContent( Term.createTerm("getrp_status(0)"), Term.createTerm("getrp_status(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
@@ -170,8 +172,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								CommUtils.outgreen("$name - Moving to burn in")
 								delay(200) 
 								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_IN  
-								updateResourceRep(
-								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								updateResourceRep( getStatusString()  
 								)
 								request("depositrp", "depositrp($BURN_IN_POS_X,$BURN_IN_POS_Y)" ,"oprobot" )  
 						}
@@ -186,8 +187,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						CommUtils.outgreen("$name - Start burning phase")
 						 ROBOT_STATE = ROBOT_STATE_BURN_IN  
-						updateResourceRep(
-						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+						updateResourceRep( getStatusString()  
 						)
 						forward("startBurning", "startBurning(9000)" ,"incinerator" ) 
 						//genTimer( actor, state )
@@ -200,8 +200,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 				state("moveToAshOut") { //this:State
 					action { //it:State
 						 ROBOT_STATE = ROBOT_STATE_BURN_OUT  
-						updateResourceRep(
-						    	"app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+						updateResourceRep( getStatusString()  
 						)
 						if( checkMsgContent( Term.createTerm("extractash_status(0)"), Term.createTerm("extractash_status(0)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
@@ -209,8 +208,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								CommUtils.outgreen("$name - Moving to ash out")
 								delay(200) 
 								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_ASHOUT  
-								updateResourceRep(
-								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								updateResourceRep( getStatusString()  
 								)
 								request("depositash", "depositash($ASHOUT_POS_X,$ASHOUT_POS_Y)" ,"oprobot" )  
 						}
@@ -225,8 +223,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						CommUtils.outgreen("$name - Moving to home")
 						 ROBOT_STATE = ROBOT_STATE_MOVING_TO_HOME  
-						updateResourceRep(
-						      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+						updateResourceRep( getStatusString()  
 						)
 						request("gohome", "gohome($HOME_POS_X,$HOME_POS_Y)" ,"oprobot" )  
 						//genTimer( actor, state )
@@ -243,8 +240,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								 INHOME = 1  
 								CommUtils.outgreen("$name - arrived in home")
 								 ROBOT_STATE = ROBOT_STATE_HOME  
-								updateResourceRep(
-								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								updateResourceRep( getStatusString()  
 								)
 								 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
 								CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
@@ -281,8 +277,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "incinerator_status_FINISHED_BURNING" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","incinerator_status_FINISHED_BURNING").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								 ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_OUT  
-								updateResourceRep(
-								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								updateResourceRep( getStatusString()  
 								)
 								request("extractash", "extractash($BURN_OUT_POS_X,$BURN_OUT_POS_Y)" ,"oprobot" )  
 								forward("update_led_mode", "update_led_mode($LED_OFF)" ,"led" ) 
@@ -327,8 +322,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
 								}
-								updateResourceRep(
-								        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
+								updateResourceRep( getStatusString()  
 								)
 						}
 						//genTimer( actor, state )

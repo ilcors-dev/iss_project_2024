@@ -1,11 +1,18 @@
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.util.ArrayList
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.collections.ArrayDeque
+import kotlin.concurrent.thread
+import kotlinx.coroutines.*
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-import org.junit.Assert.assertEquals
 import org.junit.AfterClass
+import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
 import unibo.basicomm23.*
@@ -13,42 +20,45 @@ import unibo.basicomm23.interfaces.*
 import unibo.basicomm23.msg.*
 import unibo.basicomm23.utils.*
 import unibo.basicomm23.utils.CommUtils.delay
-import unibo.basicomm23.utils.ConnectionFactory
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.util.ArrayList
-import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.collections.ArrayDeque
-import kotlin.concurrent.thread
 
 class TestWis5RP {
     companion object {
         // list to keep track of all started processes
         private val runningProcesses = CopyOnWriteArrayList<Process>()
-        
+
         @BeforeClass
         @JvmStatic
         fun setup() {
             // start the required processes using Gradle
             startGradleProcesses()
             delay(2000)
+            // Setup Ctrl+C handler
+            setupShutdownHook()
         }
-        
+
         @AfterClass
         @JvmStatic
         fun tearDown() {
             // kill all processes when test is done
             killAllProcesses()
         }
-        
+
         private fun startGradleProcesses() {
             try {
                 // Start monitoring device
-                startProcessWithOutput("Monitoring Device", "./gradlew", "runMonitoringDevice")
+                startProcessWithOutput(
+                    "Monitoring Device",
+                    "./gradlew",
+                    "runMonitoringDevice",
+                )
                 delay(2000)
-                
+
                 // Start weighing device
-                startProcessWithOutput("Weighing Device", "./gradlew", "runWeighingDevice")
+                startProcessWithOutput(
+                    "Weighing Device",
+                    "./gradlew",
+                    "runWeighingDevice",
+                )
                 delay(2000)
 
                 // Start the main context
@@ -61,15 +71,18 @@ class TestWis5RP {
                 killAllProcesses()
             }
         }
-        
-        private fun startProcessWithOutput(name: String, vararg command: String): Process {
+
+        private fun startProcessWithOutput(
+            name: String,
+            vararg command: String,
+        ): Process {
             val processBuilder = ProcessBuilder(*command)
             // Redirect error stream to output stream
             processBuilder.redirectErrorStream(true)
-            
+
             val process = processBuilder.start()
             runningProcesses.add(process)
-            
+
             // Start a thread to read and print the output
             thread(start = true) {
                 BufferedReader(InputStreamReader(process.inputStream)).use { reader ->
@@ -79,11 +92,11 @@ class TestWis5RP {
                     }
                 }
             }
-            
+
             println("Started $name process")
             return process
         }
-        
+
         private fun killAllProcesses() {
             println("Shutting down all processes...")
             runningProcesses.forEach { process ->
@@ -104,6 +117,42 @@ class TestWis5RP {
             runningProcesses.clear()
             println("All processes have been terminated")
         }
+
+        private fun setupShutdownHook() {
+            Runtime.getRuntime().addShutdownHook(
+                Thread {
+                    println("Ctrl+C detected.  Running kill_pending_processes.sh...")
+                    runKillPendingProcesses()
+                    killAllProcesses() // Ensure processes are killed on shutdown
+                },
+            )
+        }
+
+        private fun runKillPendingProcesses() {
+            try {
+                val process =
+                    ProcessBuilder("./../../kill_pending_processes.sh").start()
+
+                val reader = BufferedReader(InputStreamReader(process.inputStream))
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    println(line)
+                }
+
+                val errorReader = BufferedReader(InputStreamReader(process.errorStream))
+                while (errorReader.readLine().also { line = it } != null) {
+                    System.err.println(line)
+                }
+
+                val exitCode = process.waitFor()
+                println("kill_pending_processes.sh exited with code: $exitCode")
+            } catch (e: Exception) {
+                System.err.println(
+                    "Error running kill_pending_processes.sh: ${e.message}",
+                )
+                e.printStackTrace()
+            }
+        }
     }
 
     @Test
@@ -113,35 +162,38 @@ class TestWis5RP {
         val persistence = MemoryPersistence()
 
         val client = MqttClient(brokerUrl, clientId, persistence)
-        val connOpts = MqttConnectOptions().apply {
-			isCleanSession = true
-		    keepAliveInterval = 30  // seconds
-		    connectionTimeout = 60  // seconds
-		}
+        val connOpts =
+            MqttConnectOptions().apply {
+                isCleanSession = true
+                keepAliveInterval = 30 // seconds
+                connectionTimeout = 60 // seconds
+            }
         client.connect(connOpts)
-        
-		fun attemptReconnect(maxRetries: Int = 5) {
-		    var retries = 0
-		    while (!client.isConnected && retries < maxRetries) {
-		        try {
-		            println("Attempting to reconnect... (${retries + 1}/$maxRetries)")
-		            client.connect(connOpts)
-		            client.subscribe("it.unib0.iss.waste-incinerator-service")
-		            println("Reconnected successfully.")
-		            break
-		        } catch (e: Exception) {
-		            println("Reconnect failed: ${e.message}")
-		            retries++
-		            if (retries < maxRetries) {
-		                delay(5000) // Wait before retrying
-		            }
-		        }
-		    }
-		    
-		    if (!client.isConnected) {
-		        println("Failed to reconnect after $maxRetries attempts")
-		    }
-		}
+
+        fun attemptReconnect(maxRetries: Int = 5) {
+            var retries = 0
+            while (!client.isConnected && retries < maxRetries) {
+                try {
+                    println(
+                        "Attempting to reconnect... (${retries + 1}/$maxRetries)",
+                    )
+                    client.connect(connOpts)
+                    client.subscribe("it.unib0.iss.waste-incinerator-service")
+                    println("Reconnected successfully.")
+                    break
+                } catch (e: Exception) {
+                    println("Reconnect failed: ${e.message}")
+                    retries++
+                    if (retries < maxRetries) {
+                        delay(5000) // Wait before retrying
+                    }
+                }
+            }
+
+            if (!client.isConnected) {
+                println("Failed to reconnect after $maxRetries attempts")
+            }
+        }
 
         var testSuccess = false
         val receivedMessages = ArrayList<String>()
@@ -151,7 +203,7 @@ class TestWis5RP {
                     "ASHLEVEL_35",
                     "ASHLEVEL_10", // aka ash storage almost full
                     "led_status_change_to_blink",
-                    "ASHLEVEL_0",  // aka ash storage full
+                    "ASHLEVEL_0", // aka ash storage full
                 ),
             )
 
@@ -167,19 +219,30 @@ class TestWis5RP {
                     message: MqttMessage?,
                 ) {
                     val payload = message?.toString() ?: ""
+					
                     println("Received on $topic: $payload")
-                    val msg = ApplMessage(payload)
-                    println("Message content: ${msg.msgContent()}")
-                    println("Message in stack: ${messagesStack.firstOrNull() ?: "empty stack"}")
+                    try {
+                        val msg = ApplMessage(payload)
+                        println("Message content: ${msg.msgContent()}")
+                        println(
+                            "Message in stack: ${messagesStack.firstOrNull() ?: "empty stack"}",
+                        )
 
-                    if (messagesStack.isNotEmpty() && msg.msgContent() == messagesStack.first()) {
-                        receivedMessages.add(msg.msgContent())
-                        messagesStack.removeFirst()
-                    }
+                        if (
+                            messagesStack.isNotEmpty() &&
+                            msg.msgContent() == messagesStack.first()
+                        ) {
+                            receivedMessages.add(msg.msgContent())
+                            messagesStack.removeFirst()
+                        }
 
-                    if (messagesStack.isEmpty()) {
-                        println("Received all messages.")
-                        testSuccess = true
+                        if (messagesStack.isEmpty()) {
+                            println("Received all messages.")
+                            testSuccess = true
+                        }
+                    } catch (cause: Throwable) {
+                        println("Error creating ApplMessage or processing message:")
+                        cause.printStackTrace()
                     }
                 }
 
@@ -196,7 +259,7 @@ class TestWis5RP {
             while (!testSuccess && System.currentTimeMillis() - startTime < timeout) {
                 delay(1000)
             }
-            
+
             assertEquals(true, testSuccess)
         } finally {
             // Clean up MQTT client
