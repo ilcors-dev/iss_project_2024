@@ -32,7 +32,9 @@ with Diagram('monitoringdeviceArch', show=False, outformat='png', graph_attr=gra
           led_device=Custom('led_device','./qakicons/symActorSmall.png')
           sonar=Custom('sonar','./qakicons/symActorSmall.png')
           sonar_device=Custom('sonar_device','./qakicons/symActorSmall.png')
+          mock_ash_unloader_external=Custom('mock_ash_unloader_external','./qakicons/symActorSmall.png')
      sonar_device >> Edge( label='sonar_data', **eventedgeattr, decorate='true', fontcolor='red') >> sonar
+     mock_ash_unloader_external >> Edge(color='blue', style='solid',  decorate='true', label='<unload_ash &nbsp; >',  fontcolor='blue') >> sonar_device
      led >> Edge(color='blue', style='solid',  decorate='true', label='<update_physical_led_mode &nbsp; >',  fontcolor='blue') >> led_device
      sonar >> Edge(color='blue', style='solid',  decorate='true', label='<ash_measurement &nbsp; >',  fontcolor='blue') >> wis
 diag

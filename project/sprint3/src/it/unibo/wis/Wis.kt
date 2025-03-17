@@ -87,6 +87,14 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		    // Helper Functions
 		    /////////////////////////////////////////////////////////////////////////////////////
 		    
+		    fun checkCondition(): Boolean {
+		    	val hasRp = RPCONT > 0;
+		    	val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT;
+		    	val isIncineratorOff = INCSTATUS == 0;
+		        
+		        return hasRp && ashStorageNotFull && isIncineratorOff;
+		    }
+		    
 		    /**
 		     * Converts the current ash level into a percentage signaling how much the storage is full
 		     */
@@ -117,14 +125,17 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 						forward("startIncinerator", "startIncinerator(0)" ,"incinerator" ) 
 						 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
 						CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
-						if( 
-						      (
-						        RPCONT > 0 &&
-						        (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT &&
-						        INCSTATUS == 0
-						      )
-						 ){CommUtils.outblack("oprobot start phase")
-						request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="check", cond=doswitch() )
+				}	 
+				state("check") { //this:State
+					action { //it:State
+						if(  checkCondition()  
+						 ){request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
 						 ROBOT_STATE = ROBOT_STATE_MOVING_TO_WASTEIN  
 						}
 						//genTimer( actor, state )
@@ -244,21 +255,13 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								)
 								 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
 								CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
-								if( 
-								        (
-								          RPCONT > 0 &&
-								          (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT &&
-								          INCSTATUS == 0
-								        )
-								 ){request("getrp", "getrp($WASTEIN_POS_X,$WASTEIN_POS_Y)" ,"oprobot" )  
-								}
 						}
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="printStatus", cond=doswitch() )
+					 transition( edgeName="goto",targetState="check", cond=doswitch() )
 				}	 
 				state("updateIncStatus") { //this:State
 					action { //it:State
@@ -305,7 +308,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="printStatus", cond=doswitch() )
+					 transition( edgeName="goto",targetState="check", cond=doswitch() )
 				}	 
 				state("handleAshMeasurement") { //this:State
 					action { //it:State
@@ -315,9 +318,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								        var level = payloadArg(0).toInt()
 								        ASHLEVEL = level
 								CommUtils.outmagenta("$name - ash level changed, update")
-								if( 
-								        ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 ||
-								        (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)
+								if(  ASHLEVEL + ASH_STORAGE_THRESHOLD >= DLIMIT  
 								 ){forward("update_led_mode", "update_led_mode($LED_BLINK)" ,"led" ) 
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
@@ -330,7 +331,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition( edgeName="goto",targetState="printStatus", cond=doswitch() )
+					 transition( edgeName="goto",targetState="check", cond=doswitch() )
 				}	 
 			}
 		}

@@ -38,6 +38,7 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					sysaction { //it:State
 					}	 	 
 					 transition(edgeName="t010",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
+					transition(edgeName="t011",targetState="handleUnloadAsh",cond=whenDispatch("unload_ash"))
 				}	 
 				state("handleLoadAsh") { //this:State
 					action { //it:State
@@ -54,7 +55,26 @@ class Sonar_device ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t011",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
+					 transition(edgeName="t012",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
+					transition(edgeName="t013",targetState="handleUnloadAsh",cond=whenDispatch("unload_ash"))
+				}	 
+				state("handleUnloadAsh") { //this:State
+					action { //it:State
+						CommUtils.outcyan("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
+						 	   
+						if( checkMsgContent( Term.createTerm("unload_ash(D)"), Term.createTerm("unload_ash(D)"), 
+						                        currentMsg.msgContent()) ) { //set msgArgList
+								 Distance += payloadArg(0).toInt()  
+								CommUtils.outblack("unloaded ash, sonar measuring = $Distance")
+								emitLocalStreamEvent("sonar_data", "distance($Distance)" ) 
+						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition(edgeName="t014",targetState="handleLoadAsh",cond=whenDispatch("load_ash"))
+					transition(edgeName="t015",targetState="handleUnloadAsh",cond=whenDispatch("unload_ash"))
 				}	 
 			}
 		}

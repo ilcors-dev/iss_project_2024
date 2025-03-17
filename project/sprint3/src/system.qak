@@ -53,7 +53,8 @@ Event mqtt_info          : mqtt_info(MSG)
 // CONTEXTS
 Context ctxbasicrobot ip [host="127.0.0.1" port=8020]
 Context ctxwis24 ip [host="localhost" port=8121]
-Context ctxmonitoringdevice ip [host="192.168.0.101" port=8122]
+// Context ctxmonitoringdevice ip [host="192.168.0.101" port=8122]
+Context ctxmonitoringdevice ip [host="127.0.0.1" port=8122]
 Context ctxscale ip [host="127.0.0.1" port=8123]
 
 ExternalQActor basicrobot context ctxbasicrobot
@@ -131,12 +132,24 @@ QActor wis context ctxwis24 {
     // Helper Functions
     /////////////////////////////////////////////////////////////////////////////////////
     
+    fun checkCondition(): Boolean {
+    	val hasRp = RPCONT > 0;
+    	val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT;
+    	val isIncineratorOff = INCSTATUS == 0;
+        
+        return hasRp && ashStorageNotFull && isIncineratorOff;
+    }
+    
     /**
      * Converts the current ash level into a percentage signaling how much the storage is full
      */
     fun calculateAshPercentage(): Int {
       val ashFullness = DLIMIT - ASHLEVEL
       return (ashFullness * 100 / DLIMIT).coerceIn(0, 100) // ensure within 0-100
+    }
+    
+    fun getStatusString(): String {
+    	return "'name=$name;rp=$RPCONT;incinerator=$INCSTATUS;robot=$ROBOT_STATE;ash=${calculateAshPercentage()}%'"
     }
   #]
 
@@ -152,15 +165,12 @@ QActor wis context ctxwis24 {
     forward incinerator -m startIncinerator : startIncinerator(0)
     [# val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
     println("current ash level=$ASH_LEVEL_LOG") color green
-
-    if [#
-      (
-        RPCONT > 0 &&
-        (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT &&
-        INCSTATUS == 0
-      )
-    #] {
-      println("oprobot start phase")
+  }
+  
+  Goto check
+  
+  State check {
+  	if [# checkCondition() #] {
       request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
       [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_WASTEIN #]
     }
@@ -172,14 +182,13 @@ QActor wis context ctxwis24 {
     [#
       val RP_STATUS = "RPCONT_${RPCONT}"
       val ASHLEVEL_STATUS = "ASHLEVEL_${ASHLEVEL}"
-      val ashPercentage = calculateAshPercentage()
-      val STATUS = "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: $ashPercentage%"
+      val STATUS = getStatusString()
     #]
 
     publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $RP_STATUS
     publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $ASHLEVEL_STATUS
     publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : $STATUS
-    updateResource [# STATUS #]
+    updateResource [# getStatusString() #]
   }
 
   Transition t0
@@ -192,9 +201,7 @@ QActor wis context ctxwis24 {
 
   State moveToBurnIn {
     [# ROBOT_STATE = ROBOT_STATE_WASTEIN #]
-    updateResource [#
-      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-    #]
+    updateResource [# getStatusString() #]
 
     onMsg(getrp_status : getrp_status(0)) {
       [# INHOME = 0 #]
@@ -204,9 +211,7 @@ QActor wis context ctxwis24 {
       delay 200
 
       [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_IN #]
-      updateResource [#
-        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-      #]
+      updateResource [# getStatusString() #]
 
       request oprobot -m depositrp : depositrp($BURN_IN_POS_X, $BURN_IN_POS_Y)
     }
@@ -218,9 +223,7 @@ QActor wis context ctxwis24 {
     println("$name - Start burning phase") color green
 
     [# ROBOT_STATE = ROBOT_STATE_BURN_IN #]
-    updateResource [#
-      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-    #]
+    updateResource [# getStatusString() #]
 
     forward incinerator -m startBurning : startBurning(9000)
   }
@@ -229,9 +232,7 @@ QActor wis context ctxwis24 {
 
   State moveToAshOut {
   	[# ROBOT_STATE = ROBOT_STATE_BURN_OUT #]
-  	updateResource [#
-    	"app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-  	#]
+  	updateResource [# getStatusString() #]
     onMsg(extractash_status : extractash_status(0)) {
 
       [# INHOME = 0 #]
@@ -240,9 +241,7 @@ QActor wis context ctxwis24 {
       delay 200
 
       [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_ASHOUT #]
-      updateResource [#
-        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-      #]
+      updateResource [# getStatusString() #]
 
       request oprobot -m depositash : depositash($ASHOUT_POS_X, $ASHOUT_POS_Y)
     }
@@ -254,9 +253,7 @@ QActor wis context ctxwis24 {
     println("$name - Moving to home") color green
 
     [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_HOME #]
-    updateResource [#
-      "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-    #]
+    updateResource [# getStatusString() #]
 
     request oprobot -m gohome : gohome($HOME_POS_X, $HOME_POS_Y)
   }
@@ -269,26 +266,14 @@ QActor wis context ctxwis24 {
       println("$name - arrived in home") color green
 
       [# ROBOT_STATE = ROBOT_STATE_HOME #]
-      updateResource [#
-        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-      #]
+      updateResource [# getStatusString() #]
 
       [# val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
       println("current ash level=$ASH_LEVEL_LOG") color green
-
-      if [#
-        (
-          RPCONT > 0 &&
-          (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) > DLIMIT &&
-          INCSTATUS == 0
-        )
-      #] {
-        request oprobot -m getrp : getrp($WASTEIN_POS_X, $WASTEIN_POS_Y)
-      }
     }
   }
 
-  Goto printStatus
+  Goto check
 
   State updateIncStatus { // update incinerator status
     onMsg(burning : burning(0)) {
@@ -304,9 +289,7 @@ QActor wis context ctxwis24 {
       publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : incinerator_status_FINISHED_BURNING
       
       [# ROBOT_STATE = ROBOT_STATE_MOVING_TO_BURN_OUT #]
-      updateResource [#
-        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-      #]
+      updateResource [# getStatusString() #]
 
       request oprobot -m extractash : extractash($BURN_OUT_POS_X, $BURN_OUT_POS_Y)
       forward led -m update_led_mode : update_led_mode($LED_OFF)
@@ -325,7 +308,7 @@ QActor wis context ctxwis24 {
     }
   }
 
-  Goto printStatus
+  Goto check
 
   State handleAshMeasurement { // update the ash level measurement & check if led
                                // needs to be changed aswell
@@ -336,21 +319,17 @@ QActor wis context ctxwis24 {
       #]
 
       println("$name - ash level changed, update") color magenta
-      if [#
-        ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 ||
-        (ASHLEVEL + ASH_STORAGE_THRESHOLD) >= DLIMIT)
-      #] {
+		//        ((ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 || // we agreed with the client that the led should blink only when the storage is full
+      if [# ASHLEVEL + ASH_STORAGE_THRESHOLD >= DLIMIT #] {
         forward led -m update_led_mode : update_led_mode($LED_BLINK)
         publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
       }
         
-      updateResource [#
-        "app: $name;rp: $RPCONT;incinerator: $INCSTATUS;robot: $ROBOT_STATE;ash: ${calculateAshPercentage()}%"
-      #]
+      updateResource [# getStatusString() #]
     }
   }
 
-  Goto printStatus
+  Goto check
 }
 
 QActor oprobot context ctxwis24 {

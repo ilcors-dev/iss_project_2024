@@ -21,7 +21,9 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 	}
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
-		 var RPCONT = 5  
+		
+				val MAX_RPCONT = 5;
+				var RPCONT = 5;
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
@@ -42,9 +44,12 @@ class Scale ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) 
 						if( checkMsgContent( Term.createTerm("scale_data(WEIGHT)"), Term.createTerm("scale_data(WEIGHT)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								CommUtils.outyellow("$name weight=${payloadArg(0)}")
-								 RPCONT = (payloadArg(0).toInt() / 50)  
+								 val NEW_CONT = (payloadArg(0).toInt() / 50)  
+								if(  NEW_CONT <= MAX_RPCONT  
+								 ){ RPCONT = NEW_CONT  
 								CommUtils.outyellow("$name the RP number now is $RPCONT")
 								forward("update_scale_count", "update_scale_count($RPCONT)" ,"wis" ) 
+								}
 						}
 						//genTimer( actor, state )
 					}

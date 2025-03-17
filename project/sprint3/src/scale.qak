@@ -11,7 +11,10 @@ Context ctxscale ip [host="localhost" port=8123]
 ExternalQActor wis context ctxwis24
 
 QActor scale context ctxscale {
-	[# var RPCONT = 5 #]
+	[#
+		val MAX_RPCONT = 5;
+		var RPCONT = 5;
+	#]
 
 	State s0 initial {
 		println("$name starts") color green
@@ -27,10 +30,15 @@ QActor scale context ctxscale {
 		onMsg(scale_data : scale_data(WEIGHT)){
 			println("$name weight=${payloadArg(0)}") color yellow
 			
-			[# RPCONT = (payloadArg(0).toInt() / 50) #]
-			println("$name the RP number now is $RPCONT") color yellow
+			[# val NEW_CONT = (payloadArg(0).toInt() / 50) #]
 			
-			forward wis -m update_scale_count : update_scale_count($RPCONT)
+			if [# NEW_CONT <= MAX_RPCONT #] {
+				[# RPCONT = NEW_CONT #]
+				
+				println("$name the RP number now is $RPCONT") color yellow
+				
+				forward wis -m update_scale_count : update_scale_count($RPCONT)
+			}
 		}
 	}
 	
@@ -79,7 +87,6 @@ QActor scale_device context ctxscale {
 		whenMsg unload_weight -> removeWeight
 }
 
-/*
 QActor mock_rp_loader_external context ctxscale {
 	State s0 initial {
 		println("$name starts")
@@ -96,4 +103,3 @@ QActor mock_rp_loader_external context ctxscale {
 	
 	Goto work
 }
- */

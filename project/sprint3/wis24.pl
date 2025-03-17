@@ -35,7 +35,7 @@ event( mqtt_info, mqtt_info(MSG) ).
 %====================================================================================
 context(ctxbasicrobot, "127.0.0.1",  "TCP", "8020").
 context(ctxwis24, "localhost",  "TCP", "8121").
-context(ctxmonitoringdevice, "192.168.0.101",  "TCP", "8122").
+context(ctxmonitoringdevice, "127.0.0.1",  "TCP", "8122").
 context(ctxscale, "127.0.0.1",  "TCP", "8123").
  qactor( basicrobot, ctxbasicrobot, "external").
   qactor( scale_device, ctxscale, "external").

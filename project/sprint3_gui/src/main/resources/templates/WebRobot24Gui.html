@@ -481,8 +481,8 @@
             wasteStorage.textContent = value;
             storageCount.textContent = `${value} RPs`;
 
-            // Assuming max capacity is 10 for visualization
-            const percentage = Math.min((value / 10) * 100, 100);
+            // Assuming max capacity is 5 for visualization
+            const percentage = Math.min((value / 5) * 100, 100);
             wasteStorageBar.style.width = `${percentage}%`;
 
             // Update indicator color based on capacity
@@ -521,15 +521,15 @@
             const ashLevel = document.getElementById('ash-level');
 
             ashStorage.textContent = value;
-            ashLevel.textContent = `${value}%`;
+            ashLevel.textContent = value;
 
             // Assuming value is already a percentage
-            ashStorageBar.style.width = `${value}%`;
+            ashStorageBar.style.width = value;
 
             // Update indicator color based on capacity
             if (value > 80) {
                 ashStorageIndicator.className = 'h-10 w-10 rounded-full flex items-center justify-center bg-red-50 text-red-500';
-                addLogEntry(`Ash storage at critical level: ${value}%`, 'warning');
+                addLogEntry(`Ash storage at critical level: ${value}`, 'warning');
             } else if (value > 50) {
                 ashStorageIndicator.className = 'h-10 w-10 rounded-full flex items-center justify-center bg-amber-50 text-amber-500';
             } else {
@@ -710,7 +710,7 @@
                 mqttClient.connect({
                     onSuccess: onMqttConnect,
                     onFailure: onMqttFailure,
-                    useSSL: false, // Disable SSL for local, non-SSL broker
+                    useSSL: false,
                     timeout: 3,
                     keepAliveInterval: 30,
                 });

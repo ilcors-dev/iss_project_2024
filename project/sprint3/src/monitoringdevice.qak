@@ -7,6 +7,7 @@ Event sonar_data 					  : distance(D)
 Dispatch sonar_sensitivity            : sonar_sensitivity(S)
 Dispatch ash_measurement		 	  : ash_measurement(L)
 Dispatch load_ash					  : load_ash(D)
+Dispatch unload_ash					  : unload_ash(D)
 
 Event mqtt_info       				  : mqtt_info(MSG)
 
@@ -159,6 +160,7 @@ QActor sonar_device context ctxmonitoringdevice {
 	
 	Transition t0
 		whenMsg load_ash -> handleLoadAsh
+		whenMsg unload_ash -> handleUnloadAsh
 		
 	State handleLoadAsh {
 		printCurrentMessage
@@ -172,6 +174,21 @@ QActor sonar_device context ctxmonitoringdevice {
 		
 	Transition t0
 		whenMsg load_ash -> handleLoadAsh
+		whenMsg unload_ash -> handleUnloadAsh
+		
+	State handleUnloadAsh {
+		printCurrentMessage
+		onMsg(unload_ash : unload_ash(D)) {
+			[# Distance += payloadArg(0).toInt() #]
+			
+			println("unloaded ash, sonar measuring = $Distance")
+			emitlocalstream sonar_data : distance($Distance)
+		}
+	}
+		
+	Transition t0
+		whenMsg load_ash -> handleLoadAsh
+		whenMsg unload_ash -> handleUnloadAsh
 /*
 	Goto readData
 		
@@ -249,18 +266,19 @@ QActor sonar_device context ctxmonitoringdevice {
 }
 */
 
-/*
 QActor mock_ash_unloader_external context ctxmonitoringdevice {
 	State s0 initial {
 		println("$name starts")
+		delay 10000
 	}
 	
 	Goto work
 	
 	State work {
+		forward sonar_device -m unload_ash : unload_ash(25)
+		println("$name unloaded ash")
 		delay 60000
 	}
 	
 	Goto work
 }
-*/
