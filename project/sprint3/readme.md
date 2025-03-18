@@ -43,17 +43,37 @@ docker-compose -f basicrobot24.yaml up
 
 ### Standalone
 
-Per eseguire l'applicazione standalone, è necessario scaricare 3 componenti, disponibili in [questa pagina](). Dopodiché, aprire aprire 3 terminali e lanciare i seguenti comandi:
+Per eseguire l'applicazione standalone, è necessario scaricare 3 componenti, disponibili in [questa pagina](https://github.com/ilcors-dev/iss_project_2024/releases/tag/v1.0.0). Dopodiché, unzippare le cartelle, aprire aprire 3 terminali e lanciare i seguenti comandi:
 
-- Terminal 1: WeighingDevice `./WeighingDevice`
-- Terminal 2: MonitoringDevice `./MonitoringDevice`
-- Terminal 3: MainApplication `./system`
+#### Terminal 1: WeighingDevice
+
+| Operating System | Command                                             |
+| :--------------- | :-------------------------------------------------- |
+| MacOS/Linux      | `cd weighingDevice-1.0 && ./bin/weighingDevice`     |
+| Windows          | `cd weighingDevice-1.0 && ./bin/weighingDevice.bat` |
+
+#### Terminal 2: MonitoringDevice
+
+| Operating System | Command                                                 |
+| :--------------- | :------------------------------------------------------ |
+| MacOS/Linux      | `cd monitoringDevice-1.0 && ./bin/monitoringDevice`     |
+| Windows          | `cd monitoringDevice-1.0 && ./bin/monitoringDevice.bat` |
+
+#### Terminal 3: Wis24
+
+| Operating System | Command                           |
+| :--------------- | :-------------------------------- |
+| MacOS/Linux      | `cd wis24-1.0 && ./bin/wis24`     |
+| Windows          | `cd wis24-1.0 && ./bin/wis24.bat` |
+
 
 ### Con Raspberry
 
 > **Nota**: Per questa modalità è necessario pre-configurare gli indirizzi IP dei dispositivi all'interno del codice sorgente. In particolare, è necessario modificare i seguenti file:
 > - ./sprint3/src/system.qak (linea 56-57)
 > - ./monitoringdevice_raspberry/src/monitoringdevice.qak (linea 13)
+
+> È quindi necessario, per via dei limiti del linguaggio QAK, avere eclipse configurato per poter compilare il codice sorgente QAK.
 
 Una volta configurati gli indirizzi IP, è possibile eseguire gli stessi comandi della modalità standalone per il **Terminal 1** e il **Terminal 2**.
 
