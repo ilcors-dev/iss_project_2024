@@ -3,6 +3,8 @@
 
 A cura di Corsetti Luca, de Respinis Valentina, Sindaco Daniele
 
+<img src="demo.gif" alt="Demo" width="100%">
+
 ## Descrizione cartelle
 
 - `project/`: contiene tutto il codice sorgente dell'applicazione
