@@ -147,10 +147,10 @@ eclipse {
 
 application {
     //Define the main class for the application.
-    mainClassName    = 'it.unibo.ctxwis24.MainCtxwis24Kt'
+    mainClassName = 'it.unibo.ctxwis24.MainCtxwis24Kt'
 }
  
- jar {
+jar {
     println("building jar")
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)  //per via di locgback.xml quando si usa spring
     from sourceSets.main.allSource
@@ -168,16 +168,94 @@ task dovesiamo {
     println("buildDir  = $buildDir")    
 }
 
+// Define the distributions
 distributions {
     main {
         distributionBaseName = 'wis24'
         contents { 
-             from './wis24.pl'
-             from './sysRules.pl'
-             from './facadeConfig.json'
+            from './wis24.pl'
+            from './sysRules.pl'
+            from './facadeConfig.json'
         }
     }
-} 
+    
+    monitoringDevice {
+        distributionBaseName = "monitoringDevice"
+        contents {
+            from "./monitoringdevice.pl"
+            from "./sysRules.pl"
+            from "./facadeConfig.json"
+        }
+    }
+
+    weighingDevice {
+        distributionBaseName = "weighingDevice"
+        contents {
+            from "./scale.pl"
+            from "./sysRules.pl"
+            from "./facadeConfig.json"
+        }
+    }
+}
+
+// Configure the start scripts for each distribution
+tasks.startScripts {
+    applicationName = 'wis24'
+}
+
+// Create start scripts for the monitoring device
+task monitoringDeviceStartScripts(type: CreateStartScripts) {
+    applicationName = 'monitoringDevice'
+    mainClassName = 'it.unibo.ctxmonitoringdevice.MainCtxmonitoringdeviceKt'
+    outputDir = file("$buildDir/tmp/monitoringDeviceScripts")
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+// Create start scripts for the weighing device
+task weighingDeviceStartScripts(type: CreateStartScripts) {
+    applicationName = 'weighingDevice'
+    mainClassName = 'it.unibo.ctxscale.MainCtxscaleKt'
+    outputDir = file("$buildDir/tmp/weighingDeviceScripts")
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+// Configure the monitoring device distribution
+tasks.monitoringDeviceDistZip {
+    dependsOn monitoringDeviceStartScripts
+    
+    // Add the start scripts to the bin directory
+    into("monitoringDevice-$version/bin") {
+        from monitoringDeviceStartScripts.outputDir
+        fileMode = 0755
+    }
+    
+    // Add the runtime classpath to the lib directory
+    into("monitoringDevice-$version/lib") {
+        from sourceSets.main.runtimeClasspath
+    }
+}
+
+// Configure the weighing device distribution
+tasks.weighingDeviceDistZip {
+    dependsOn weighingDeviceStartScripts
+    
+    // Add the start scripts to the bin directory
+    into("weighingDevice-$version/bin") {
+        from weighingDeviceStartScripts.outputDir
+        fileMode = 0755
+    }
+    
+    // Add the runtime classpath to the lib directory
+    into("weighingDevice-$version/lib") {
+        from sourceSets.main.runtimeClasspath
+    }
+}
+
+// Create a task to generate all zip files
+task allDistZips {
+    dependsOn 'distZip', 'monitoringDeviceDistZip', 'weighingDeviceDistZip'
+    description = 'Generates all distribution zip files'
+}
 
 task("runAll") {
     group = "Execution"

@@ -7,7 +7,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.6.21'
 }
 
-group   = 'com.example'
+group = 'com.example'
 version = '1.0'
 
 java {
@@ -16,7 +16,9 @@ java {
 
 repositories {
     mavenCentral()
-    flatDir { dirs '../unibolibs' }
+    flatDir {
+        dirs '../unibolibs'
+    }
 }
 
 dependencies {
@@ -24,31 +26,32 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    
+
     // Kotlin dependencies
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    
+
     // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
     testImplementation 'junit:junit:4.13.2'
-    
+
     // JSON
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation group: 'org.json', name: 'json', version: '20180130'
-    
+
     // CUSTOM unibo
     implementation name: 'uniboInterfaces'
     implementation name: '2p301'
     implementation name: 'unibo.qakactor23-5.0'
     implementation name: 'unibo.basicomm23-1.0'
-    
+
     // CoAP and MQTT
     implementation group: 'org.eclipse.californium', name: 'californium-core', version: '3.5.0'
     implementation group: 'org.eclipse.californium', name: 'californium-proxy2', version: '3.5.0'
-    implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
+    implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3',
+            version: '1.2.5'
 }
 
 sourceSets {
@@ -62,10 +65,10 @@ sourceSets {
     }
     test {
         java {
-            srcDirs = ['src/test/java', 'src/main/kotlin/test']  // Include main/kotlin/test for your test
+            srcDirs = ['src/test/java', 'src/main/kotlin/test'] // Include main/kotlin/test for your test
         }
         kotlin {
-            srcDirs = ['src/test/kotlin', 'src/main/kotlin/test']  // Include main/kotlin/test for your test
+            srcDirs = ['src/test/kotlin', 'src/main/kotlin/test'] // Include main/kotlin/test for your test
         }
         resources {
             srcDirs = ['src/test/resources']
@@ -85,19 +88,19 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 task runGuiTest(type: Test) {
     description = 'Runs the TestGUI test'
     group = 'verification'
-    
+
     // Set the test class name
     filter {
         includeTestsMatching "test.TestGUI"
     }
-    
+
     // Use JUnit 4
     useJUnit()
-    
+
     // Set the classpath to include your test
     testClassesDirs = files("$buildDir/classes/kotlin/main", "$buildDir/classes/java/main")
     classpath = sourceSets.main.runtimeClasspath
-    
+
     // Logging
     testLogging {
         events "passed", "skipped", "failed"
@@ -108,15 +111,15 @@ task runGuiTest(type: Test) {
 // Configure the standard test task to also find your test
 test {
     useJUnit()
-    
+
     // Include your test directory
     testClassesDirs = files(
-        "$buildDir/classes/java/test", 
-        "$buildDir/classes/kotlin/test",
-        "$buildDir/classes/kotlin/main/test",  // This is where your test is compiled to
-        "$buildDir/classes/java/main/test"
+            "$buildDir/classes/java/test",
+            "$buildDir/classes/kotlin/test",
+            "$buildDir/classes/kotlin/main/test",  // This is where your test is compiled to
+            "$buildDir/classes/java/main/test"
     )
-    
+
     // Logging
     testLogging {
         events "passed", "skipped", "failed"
@@ -126,8 +129,8 @@ test {
 
 eclipse {
     classpath {
-        sourceSets -= [sourceSets.main, sourceSets.test]    
-    }    
+        sourceSets -= [sourceSets.main, sourceSets.test]
+    }
 }
 
 jar {
@@ -136,7 +139,7 @@ jar {
     from sourceSets.main.allSource
     from('./') {
         include '*.pl'
-        include '*.json'
+        include 'facadeConfig.json'
     }
     manifest {
         attributes 'Main-Class': "$mainClassName"
@@ -144,5 +147,37 @@ jar {
 }
 
 application {
-    mainClass = 'facade24.Facade24Application'  
+    mainClass = 'facade24.Facade24Application'
+}
+
+// Clean up the distribution content
+distributions {
+    main {
+        contents {
+            from('./') {
+                include '*.pl'
+                include '*.json'
+            }
+            from('bin') {
+                into 'bin'
+            }
+            from('lib') {
+                into 'lib'
+            }
+
+            exclude 'logs/**'
+            exclude 'src/**'
+            exclude 'build/**'
+            exclude '.gradle/**'
+            exclude 'gradle/**'
+            exclude '.git/**'
+            exclude '.idea/**'
+            exclude '.settings/**'
+        }
+    }
+}
+
+// Override the distZip task to customize it further if needed
+tasks.named('distZip') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
