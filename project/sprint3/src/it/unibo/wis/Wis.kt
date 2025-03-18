@@ -28,7 +28,6 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 		    /////////////////////////////////////////////////////////////////////////////////////
 		
 		    val DLIMIT = 25 // supposing 100 is full
-		    val ASH_STORAGE_THRESHOLD = 25
 		
 		    // LED statuses
 		    val LED_OFF = "off"
@@ -118,7 +117,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						CommUtils.outgreen("$name setupping system..")
 						forward("startIncinerator", "startIncinerator(0)" ,"incinerator" ) 
-						 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
+						 val ASH_LEVEL_LOG = 100 - ASHLEVEL  
 						CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
 						//genTimer( actor, state )
 					}
@@ -131,12 +130,11 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 					action { //it:State
 						
 						    	val hasRp = RPCONT > 0;
-						    	// val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) >= DLIMIT;
 						    	
-						    	// 4 ash -> spazio rimasto = 0
-						    	// 3 ash -> spazio rimasto = 25
-						    	// 2 ash -> spazio rimasto = 50
-						    	// 1 ash -> spazio rimasto = 75
+						    	// 4 ash -> space left = 0
+						    	// 3 ash -> space left = 25
+						    	// 2 ash -> space left = 50
+						    	// 1 ash -> space left = 75
 						    	val ashStorageFull = ASHLEVEL <= DLIMIT;
 						    	val isIncineratorOff = INCSTATUS == 0;
 						    	val inHome = INHOME == 1;
@@ -262,7 +260,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								        var level = payloadArg(0).toInt()
 								        ASHLEVEL = level
 								CommUtils.outmagenta("$name - ash level changed, update")
-								if(  (ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0  
+								if(  ASHLEVEL <= DLIMIT  
 								 ){forward("update_led_mode", "update_led_mode($LED_BLINK)" ,"led" ) 
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   
@@ -300,7 +298,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								 ROBOT_STATE = ROBOT_STATE_HOME  
 								updateResourceRep( getStatusString()  
 								)
-								 val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD)  
+								 val ASH_LEVEL_LOG = 100 - ASHLEVEL  
 								CommUtils.outgreen("current ash level=$ASH_LEVEL_LOG")
 						}
 						//genTimer( actor, state )
@@ -368,7 +366,7 @@ class Wis ( name: String, scope: CoroutineScope, isconfined: Boolean=false  ) : 
 								        var level = payloadArg(0).toInt()
 								        ASHLEVEL = level
 								CommUtils.outmagenta("$name - ash level changed, update")
-								if(  (ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0  
+								if(  ASHLEVEL <= DLIMIT  
 								 ){forward("update_led_mode", "update_led_mode($LED_BLINK)" ,"led" ) 
 								//val m = MsgUtil.buildEvent(name, "mqtt_info", "led_status_blink" ) 
 								publish(MsgUtil.buildEvent(name,"mqtt_info","led_status_blink").toString(), "it.unib0.iss.waste-incinerator-service" )   

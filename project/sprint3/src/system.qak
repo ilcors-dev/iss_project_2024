@@ -73,7 +73,6 @@ QActor wis context ctxwis24 {
     /////////////////////////////////////////////////////////////////////////////////////
 
     val DLIMIT = 25 // supposing 100 is full
-    val ASH_STORAGE_THRESHOLD = 25
 
     // LED statuses
     val LED_OFF = "off"
@@ -158,7 +157,7 @@ QActor wis context ctxwis24 {
   State setupSystem {
     println("$name setupping system..") color green
     forward incinerator -m startIncinerator : startIncinerator(0)
-    [# val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
+    [# val ASH_LEVEL_LOG = 100 - ASHLEVEL #]
     println("current ash level=$ASH_LEVEL_LOG") color green
   }
   
@@ -167,12 +166,11 @@ QActor wis context ctxwis24 {
   State check {
 	[#
     	val hasRp = RPCONT > 0;
-    	// val ashStorageNotFull = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) >= DLIMIT;
     	
-    	// 4 ash -> spazio rimasto = 0
-    	// 3 ash -> spazio rimasto = 25
-    	// 2 ash -> spazio rimasto = 50
-    	// 1 ash -> spazio rimasto = 75
+    	// 4 ash -> space left = 0
+    	// 3 ash -> space left = 25
+    	// 2 ash -> space left = 50
+    	// 1 ash -> space left = 75
     	val ashStorageFull = ASHLEVEL <= DLIMIT;
     	val isIncineratorOff = INCSTATUS == 0;
     	val inHome = INHOME == 1;
@@ -285,8 +283,8 @@ QActor wis context ctxwis24 {
 
       println("$name - ash level changed, update") color magenta
 
-	  // ASHLEVEL + ASH_STORAGE_THRESHOLD >= DLIMIT <= 0 || // we agreed with the client that the led should blink only when the storage is full
-      if [# (ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 #] {
+	  // we agreed with the client that the led should blink only when the storage is full
+      if [# ASHLEVEL <= DLIMIT #] {
         forward led -m update_led_mode : update_led_mode($LED_BLINK)
         publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
       }
@@ -316,7 +314,7 @@ QActor wis context ctxwis24 {
       [# ROBOT_STATE = ROBOT_STATE_HOME #]
       updateResource [# getStatusString() #]
 
-      [# val ASH_LEVEL_LOG = (ASHLEVEL + DLIMIT - ASH_STORAGE_THRESHOLD) #]
+      [# val ASH_LEVEL_LOG = 100 - ASHLEVEL #]
       println("current ash level=$ASH_LEVEL_LOG") color green
     }
   }
@@ -367,8 +365,8 @@ QActor wis context ctxwis24 {
 
       println("$name - ash level changed, update") color magenta
 
-	  // ASHLEVEL + ASH_STORAGE_THRESHOLD >= DLIMIT <= 0 || // we agreed with the client that the led should blink only when the storage is full
-      if [# (ASHLEVEL - ASH_STORAGE_THRESHOLD) <= 0 #] {
+	  // we agreed with the client that the led should blink only when the storage is full
+      if [# ASHLEVEL <= DLIMIT #] {
         forward led -m update_led_mode : update_led_mode($LED_BLINK)
         publish "it.unib0.iss.waste-incinerator-service" -m mqtt_info : led_status_blink
       }

@@ -185,7 +185,7 @@ QActor sonar_device context ctxmonitoringdevice {
 			emitlocalstream sonar_data : distance($Distance)
 		}
 	}
-		
+
 	Transition t0
 		whenMsg load_ash -> handleLoadAsh
 		whenMsg unload_ash -> handleUnloadAsh
