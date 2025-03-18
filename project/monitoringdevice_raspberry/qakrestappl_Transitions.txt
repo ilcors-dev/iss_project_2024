@@ -6,4 +6,8 @@
 {"actor":"sonar", "msgType":"dispatch", "curstate":"updateSensitivity", "nextstate":"updateSensitivity", "msgId":"sonar_sensitivity"}
 {"actor":"sonar", "msgType":"dispatch", "curstate":"handleSonarData", "nextstate":"updateSensitivity", "msgId":"sonar_sensitivity"}
 {"actor":"sonar_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleLoadAsh", "msgId":"load_ash"}
+{"actor":"sonar_device", "msgType":"dispatch", "curstate":"s0", "nextstate":"handleUnloadAsh", "msgId":"unload_ash"}
 {"actor":"sonar_device", "msgType":"dispatch", "curstate":"handleLoadAsh", "nextstate":"handleLoadAsh", "msgId":"load_ash"}
+{"actor":"sonar_device", "msgType":"dispatch", "curstate":"handleLoadAsh", "nextstate":"handleUnloadAsh", "msgId":"unload_ash"}
+{"actor":"sonar_device", "msgType":"dispatch", "curstate":"handleUnloadAsh", "nextstate":"handleLoadAsh", "msgId":"load_ash"}
+{"actor":"sonar_device", "msgType":"dispatch", "curstate":"handleUnloadAsh", "nextstate":"handleUnloadAsh", "msgId":"unload_ash"}

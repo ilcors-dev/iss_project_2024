@@ -3,6 +3,7 @@
 {"actor":"wis", "msgType":"dispatch", "curstate":"printStatus", "nextstate":"handleScaleRPStatus", "msgId":"update_scale_count"}
 {"actor":"wis", "msgType":"dispatch", "curstate":"printStatus", "nextstate":"handleAshMeasurement", "msgId":"ash_measurement"}
 {"actor":"wis", "msgType":"dispatch", "curstate":"startBurningPhase", "nextstate":"updateIncStatus", "msgId":"burning"}
+{"actor":"wis", "msgType":"dispatch", "curstate":"step", "nextstate":"waitForAshUpdateAfterDeposit", "msgId":"ash_measurement"}
 {"actor":"incinerator", "msgType":"dispatch", "curstate":"s0", "nextstate":"startup", "msgId":"startIncinerator"}
-{"actor":"incinerator", "msgType":"dispatch", "curstate":"startup", "nextstate":"startBurning", "msgId":"startBurning"}
-{"actor":"incinerator", "msgType":"dispatch", "curstate":"startBurning", "nextstate":"startBurning", "msgId":"startBurning"}
+{"actor":"incinerator", "msgType":"dispatch", "curstate":"startup", "nextstate":"handleStartBurning", "msgId":"startBurning"}
+{"actor":"incinerator", "msgType":"dispatch", "curstate":"handleStartBurning", "nextstate":"handleStartBurning", "msgId":"startBurning"}
