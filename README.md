@@ -3,7 +3,7 @@
 
 A cura di Corsetti Luca, de Respinis Valentina, Sindaco Daniele
 
-<img src="demo.gif" alt="Demo" width="100%">
+<img src="./demo.gif" alt="Demo" width="100%">
 
 ## Descrizione cartelle
 
