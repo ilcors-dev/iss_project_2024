@@ -43,7 +43,7 @@ docker-compose -f basicrobot24.yaml up
 
 ### Standalone
 
-Per eseguire l'applicazione standalone, è necessario scaricare 3 componenti, disponibili in [questa pagina](https://github.com/ilcors-dev/iss_project_2024/releases/tag/v1.0.0). Dopodiché, unzippare le cartelle, aprire aprire 3 terminali e lanciare i seguenti comandi:
+Per eseguire l'applicazione standalone, è necessario scaricare 4 componenti, disponibili in [questa pagina](https://github.com/ilcors-dev/iss_project_2024/releases/tag/v1.0.0). Dopodiché, unzippare le cartelle, aprire aprire 3 terminali e lanciare i seguenti comandi:
 
 #### Terminal 1: WeighingDevice
 
@@ -66,8 +66,17 @@ Per eseguire l'applicazione standalone, è necessario scaricare 3 componenti, di
 | MacOS/Linux      | `cd wis24-1.0 && ./bin/wis24`     |
 | Windows          | `cd wis24-1.0 && ./bin/wis24.bat` |
 
+#### Terminal 4: GUI
+
+| Operating System | Command                                         |
+| :--------------- | :---------------------------------------------- |
+| MacOS/Linux      | `cd ./sprint3_gui-1.0 && ./bin/sprint3_gui`     |
+| Windows          | `cd ./sprint3_gui-1.0 && ./bin/sprint3_gui.bat` |
+
 
 ### Con Raspberry
+
+Sul Raspberry, verrà eseguito il **MonitoringDevice (Sonar + Led)**.
 
 > **Nota**: Per questa modalità è necessario pre-configurare gli indirizzi IP dei dispositivi all'interno del codice sorgente. In particolare, è necessario modificare i seguenti file:
 > - ./sprint3/src/system.qak (linea 56-57)
@@ -75,10 +84,24 @@ Per eseguire l'applicazione standalone, è necessario scaricare 3 componenti, di
 
 > È quindi necessario, per via dei limiti del linguaggio QAK, avere eclipse configurato per poter compilare il codice sorgente QAK.
 
-Una volta configurati gli indirizzi IP, è possibile eseguire gli stessi comandi della modalità standalone per il **Terminal 1** e il **Terminal 2**.
+Una volta configurati gli indirizzi IP, è possibile eseguire gli stessi comandi della modalità standalone per il **[Terminal 1](#terminal-1-weighingdevice)** e **[Terminal 4](#terminal-4-gui)**.
 
 Dopodiché, sul raspberry (via ssh o dall'ambiente grafico) è necessario lanciare il seguente comando:
 
 ```bash
-./monitoringdevice
+cd monitoringdevice-1.0 && ./bin/monitoringdevice
 ```
+
+Per eseguire **Wis24** una volta configurati gli indirizzi IP, è necessario lanciare il comando:
+
+```bash
+gradle run
+```
+
+Oppure, in alternativa, si può creare la cartella `wis24-1.0` facendo la build del progetto con il comando:
+
+```bash
+./gradlew distZip
+```
+
+e ripetere i comandi descritti nella sezione **[Terminal 3](#terminal-3-wis24)**.
